@@ -3,23 +3,16 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { Outlet } from "react-router-dom";
 
-interface MainLayoutProps {
-  children: React.ReactNode;
-}
-
-const MainLayout = ({ children }: MainLayoutProps) => {
+function Layout() {
   return (
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-4 border-b px-4 bg-background/95 backdrop-blur">
+        <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-4 border-b px-4 bg-background/95 backdrop-blur">
           <SidebarTrigger className="-ml-1" />
-          {/* <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2"> */}
           <span className="font-bold text-lg tracking-tight">ProsperLite</span>
-          {/* </div>
-          </div> */}
 
           <div className="flex-1" />
 
@@ -29,11 +22,13 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           </Button>
         </header>
         <div className="min-h-screen bg-background p-6">
-          <main className="max-w-5xl mx-auto">{children}</main>
+          <main className="max-w-5xl mx-auto">
+            <Outlet />
+          </main>
         </div>
       </SidebarInset>
     </SidebarProvider>
   );
-};
+}
 
-export default MainLayout;
+export default Layout;

@@ -20,7 +20,7 @@
 - Category
 - Ledger
 - Transaction CRUD
-- Analysis
+- Statistic
 
 ## Should-Have Features
 
@@ -45,7 +45,7 @@
 | :-------------- | :---------------------------------------------------- | :----------------------------------------------------------- | :---- |
 | **Dashboard**   | Display weekly/monthly spending overview              | Dashboard seamless updates                                   | P0    |
 | **Transaction** | Enter amount, preset 6 major categories, default date | Done a record within 3 clicks                                | P0    |
-| **Analysis**    | Show expense distribution by category                 | Click on a pie chart, show expense details, Time granularity | P1    |
+| **Statistic**   | Show expense distribution by category                 | Click on a pie chart, show expense details, Time granularity | P1    |
 | **Settings**    | Export/Import, Customize categories/ledgers           | Click on a category/ledger, edit name/icon                   | P1    |
 | **Status**      | Data persistence                                      | Refresh page, data still exist                               | P0    |
 
@@ -96,7 +96,7 @@ interface Ledger {
 
 - First Contentful Paint < 1.5s
 - Dashboard Not Lag（1000 Transactions）
-- Analysis Page Paint < 2s
+- Statistic Page Paint < 2s
 - Support 10000 Transaction Pagination
 
 ### Robustness

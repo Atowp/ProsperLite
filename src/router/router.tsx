@@ -1,14 +1,14 @@
-import App from "@/App";
+import Layout from "@/layouts/Layout";
 import { createBrowserRouter } from "react-router-dom";
 import { Home } from "@/pages/Home/Home";
 import { Transactions } from "@/pages/Transaction/Transaction";
-import { Analysis } from "@/pages/Analysis/Analysis";
+import { Statistic } from "@/pages/Statistic/Statistic";
 import { Settings } from "@/pages/Settings/Settings";
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    element: <Layout />,
     children: [
       {
         index: true,
@@ -19,8 +19,8 @@ export const router = createBrowserRouter([
         element: <Transactions />,
       },
       {
-        path: "analysis",
-        element: <Analysis />,
+        path: "statistic",
+        element: <Statistic />,
       },
       {
         path: "settings",
