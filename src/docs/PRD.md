@@ -66,9 +66,9 @@ interface Transaction {
 interface Category {
   id: string;
   name: string;
-  type: "income" | "expense";
-  icon: string;
+  icon: LucideIcon;
   createdAt: number;
+  isSystem?: boolean;
 }
 
 interface Ledger {
@@ -76,6 +76,12 @@ interface Ledger {
   name: string;
   balance: number;
   createdAt: number;
+}
+
+interface ActionResponse<T = undefined> {
+  success: boolean;
+  message?: string;
+  data?: T;
 }
 ```
 

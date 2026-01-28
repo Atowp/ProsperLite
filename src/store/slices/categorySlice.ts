@@ -23,9 +23,11 @@ export const createCategorySlice: StateCreator<
   addCategory: (category) => {
     const name = category.name.trim();
     if (!name) return { success: false, message: "Category name is required." };
+
     if (get().categories.some((c) => c.name === category.name)) {
       return { success: false, message: "Category name already exists." };
     }
+
     const newCategory: Category = {
       ...category,
       id: generateId(),
@@ -38,9 +40,11 @@ export const createCategorySlice: StateCreator<
   updateCategory: (id, updates) => {
     const name = updates.name && updates.name.trim();
     if (!name) return { success: false, message: "Category name is required." };
+
     if (get().categories.some((c) => c.name === updates.name && c.id !== id)) {
       return { success: false, message: "Category name already exists." };
     }
+
     set((state) => ({
       categories: state.categories.map((category) =>
         category.id === id ? { ...category, ...updates } : category
