@@ -3,12 +3,15 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import {
   createTransactionSlice,
   type TransactionSlice,
-} from "./slices/transactionSlice";
-import { createLedgerSlice, type LedgerSlice } from "./slices/ledgerSlice";
+} from "@features/transactions/store/transactionSlice";
+import {
+  createLedgerSlice,
+  type LedgerSlice,
+} from "@features/ledgers/store/ledgerSlice";
 import {
   createCategorySlice,
   type CategorySlice,
-} from "./slices/categorySlice";
+} from "@features/categories/store/categorySlice";
 
 export type StoreState = TransactionSlice & CategorySlice & LedgerSlice;
 

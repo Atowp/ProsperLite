@@ -1,8 +1,9 @@
-import type { ActionResponse, Category } from "@/types";
+import type { ActionResponse } from "@/types";
 import type { StateCreator } from "zustand";
-import type { StoreState } from "../useStore";
+import type { StoreState } from "@store/useStore";
+import { generateId } from "@store/helpers";
 import { DEFAULT_CATEGORIES } from "../constants";
-import { generateId } from "../helpers";
+import type { Category } from "../types";
 
 export interface CategorySlice {
   categories: Category[];

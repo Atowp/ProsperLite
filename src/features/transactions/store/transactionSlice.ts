@@ -1,7 +1,8 @@
-import type { ActionResponse, Transaction } from "@/types";
+import type { ActionResponse } from "@/types";
 import type { StateCreator } from "zustand";
-import type { StoreState } from "../useStore";
-import { generateId, toNum } from "../helpers";
+import type { StoreState } from "@store/useStore";
+import { generateId, toNum } from "@store/helpers";
+import type { Transaction } from "../types";
 
 export interface TransactionSlice {
   transactions: Transaction[];
