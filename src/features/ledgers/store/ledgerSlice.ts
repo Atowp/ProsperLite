@@ -7,6 +7,7 @@ import type { Ledger } from "../types";
 
 export interface LedgerSlice {
   ledgers: Ledger[];
+  currentLedgerId: string;
 
   addLedger: (ledger: Omit<Ledger, "id" | "createdAt">) => ActionResponse;
   updateLedger: (id: string, ledger: Partial<Ledger>) => ActionResponse;
@@ -23,6 +24,7 @@ export const createLedgerSlice: StateCreator<
   LedgerSlice
 > = (set, get) => ({
   ledgers: DEFAULT_LEDGER,
+  currentLedgerId: DEFAULT_LEDGER[0].id,
 
   addLedger: (ledger) => {
     const name = ledger.name.trim();

@@ -5,3 +5,7 @@ export interface Category {
   createdAt: number;
   isSystem?: boolean;
 }
+
+export type CategoryInput = Omit<Category, "id" | "createdAt" | "isSystem">;
+
+export type CategoryUpdateInput = Partial<CategoryInput>;
