@@ -1,9 +1,9 @@
 import type { ActionResponse } from "@/types";
 import type { StateCreator } from "zustand";
-import type { StoreState } from "@store/useStore";
+import type { StoreState } from "@/store/useStore";
 import { DEFAULT_LEDGER } from "../constants";
-import { generateId } from "@store/helpers";
 import type { Ledger } from "../types";
+import { nanoid } from "nanoid";
 
 export interface LedgerSlice {
   ledgers: Ledger[];
@@ -36,7 +36,7 @@ export const createLedgerSlice: StateCreator<
 
     const newLedger: Ledger = {
       ...ledger,
-      id: generateId(),
+      id: nanoid(),
       createdAt: Date.now(),
     };
     set((state) => ({ ledgers: [...state.ledgers, newLedger] }));

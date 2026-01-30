@@ -1,3 +1,12 @@
+import { CategoryList } from "@/features/categories";
+
 export function Settings() {
-  return <div>设置页面</div>;
+  return (
+    <div>
+      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-6">
+        Settings
+      </h1>
+      <CategoryList />
+    </div>
+  );
 }

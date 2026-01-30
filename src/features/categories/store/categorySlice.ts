@@ -1,9 +1,10 @@
 import type { ActionResponse } from "@/types";
 import type { StateCreator } from "zustand";
-import type { StoreState } from "@store/useStore";
-import { generateId } from "@store/helpers";
-import { DEFAULT_CATEGORIES } from "../constants";
+import type { StoreState } from "@/store/useStore";
+import { DEFAULT_CATEGORIES, DEFAULT_CATEGORY_ID } from "../constants";
 import type { Category } from "../types";
+import { nanoid } from "nanoid";
+import { CategorySchema } from "@/schemas/category";
 
 export interface CategorySlice {
   categories: Category[];
@@ -22,8 +23,9 @@ export const createCategorySlice: StateCreator<
   categories: DEFAULT_CATEGORIES,
 
   addCategory: (category) => {
-    const name = category.name.trim();
-    if (!name) return { success: false, message: "Category name is required." };
+    const result = CategorySchema.safeParse(category);
+    if (!result.success)
+      return { success: false, message: result.error.message };
 
     if (get().categories.some((c) => c.name === category.name)) {
       return { success: false, message: "Category name already exists." };
@@ -31,7 +33,7 @@ export const createCategorySlice: StateCreator<
 
     const newCategory: Category = {
       ...category,
-      id: generateId(),
+      id: nanoid(),
       createdAt: Date.now(),
     };
     set((state) => ({ categories: [...state.categories, newCategory] }));
@@ -39,8 +41,9 @@ export const createCategorySlice: StateCreator<
   },
 
   updateCategory: (id, updates) => {
-    const name = updates.name && updates.name.trim();
-    if (!name) return { success: false, message: "Category name is required." };
+    const result = CategorySchema.safeParse(updates.name);
+    if (!result.success)
+      return { success: false, message: result.error.message };
 
     if (get().categories.some((c) => c.name === updates.name && c.id !== id)) {
       return { success: false, message: "Category name already exists." };
@@ -55,26 +58,20 @@ export const createCategorySlice: StateCreator<
   },
 
   deleteCategory: (id) => {
-    const categories = get().categories;
-    const target = categories.find((c) => c.id === id);
-    if (target?.isSystem) {
+    if (id === DEFAULT_CATEGORY_ID) {
       return { success: false, message: "System category cannot be deleted." };
     }
 
-    /** find a system category to fallback */
-    const fallbackCategory = categories.find((c) => c.isSystem);
-    const fallbackId = fallbackCategory?.id || "";
-
     set((state) => ({
       categories: state.categories.filter((category) => category.id !== id),
-      /** update transactions with the fallback category */
+      /** update transactions with the system category */
       transactions: state.transactions.map((transaction) =>
         transaction.categoryId === id
-          ? { ...transaction, categoryId: fallbackId }
+          ? { ...transaction, categoryId: DEFAULT_CATEGORY_ID }
           : transaction
       ),
     }));
 
-    return { success: true };
+    return { success: true, message: "Category deleted successfully." };
   },
 });

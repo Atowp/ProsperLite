@@ -1,8 +1,9 @@
 import type { ActionResponse } from "@/types";
 import type { StateCreator } from "zustand";
-import type { StoreState } from "@store/useStore";
-import { generateId, toNum } from "@store/helpers";
+import type { StoreState } from "@/store/useStore";
+import { toNum } from "@/store/helpers";
 import type { Transaction } from "../types";
+import { nanoid } from "nanoid";
 
 export interface TransactionSlice {
   transactions: Transaction[];
@@ -50,7 +51,7 @@ export const createTransactionSlice: StateCreator<
     addTransaction: (transaction) => {
       const newTx: Transaction = {
         ...transaction,
-        id: generateId(),
+        id: nanoid(),
         createdAt: Date.now(),
       } as Transaction;
       set((state) => ({ transactions: [newTx, ...state.transactions] }));

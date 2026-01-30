@@ -7,10 +7,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@layouts/*": ["./src/layouts/*"],
-      "@features/*": ["./src/features/*"],
-      "@store/*": ["./src/store/*"]
+      "@/*": ["./src/*"]
     }
   }
 }

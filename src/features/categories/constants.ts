@@ -1,21 +1,21 @@
 import type { Category } from "./types";
 import {
-  BusFront,
+  CarFront,
   Smile,
-  Hamburger,
+  ChefHat,
   Hospital,
-  MicVocal,
+  Gamepad2,
   ShoppingBag,
   Wifi,
 } from "lucide-react";
 
 export const ALL_CATEGORY_ICONS_MAP = {
-  meals: Hamburger,
+  meals: ChefHat,
   shopping: ShoppingBag,
-  transport: BusFront,
-  entertainment: MicVocal,
+  transport: CarFront,
+  entertainment: Gamepad2,
   medical: Hospital,
-  other: Smile,
+  default: Smile,
   wifi: Wifi,
 };
 
@@ -23,7 +23,16 @@ export const ALL_CATEGORY_ICON_KEYS = Object.keys(
   ALL_CATEGORY_ICONS_MAP
 ) as (keyof typeof ALL_CATEGORY_ICONS_MAP)[];
 
+export const DEFAULT_CATEGORY_ID = "0";
+
 export const DEFAULT_CATEGORIES: Category[] = [
+  {
+    id: DEFAULT_CATEGORY_ID,
+    name: "Default",
+    iconKey: "default",
+    createdAt: Date.now(),
+    isSystem: true,
+  },
   { id: "1", name: "Meals", iconKey: "meals", createdAt: Date.now() },
   { id: "2", name: "Shopping", iconKey: "shopping", createdAt: Date.now() },
   { id: "3", name: "Transport", iconKey: "transport", createdAt: Date.now() },
@@ -34,11 +43,4 @@ export const DEFAULT_CATEGORIES: Category[] = [
     createdAt: Date.now(),
   },
   { id: "5", name: "Medical", iconKey: "medical", createdAt: Date.now() },
-  {
-    id: "6",
-    name: "Other",
-    iconKey: "other",
-    createdAt: Date.now(),
-    isSystem: true,
-  },
 ];
