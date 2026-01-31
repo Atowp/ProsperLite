@@ -4,6 +4,7 @@ import type { StoreState } from "@/store/types";
 import { DEFAULT_LEDGER } from "../constants";
 import type { Ledger } from "../types";
 import { nanoid } from "nanoid";
+import type { Transaction } from "@/features/transactions/types";
 
 export interface LedgerSlice {
   ledgers: Ledger[];
@@ -30,7 +31,7 @@ export const createLedgerSlice: StateCreator<
     const name = ledger.name.trim();
     if (!name) return { success: false, message: "Ledger name is required." };
 
-    if (get().ledgers.some((l) => l.name === ledger.name)) {
+    if (get().ledgers.some((l: Ledger) => l.name === ledger.name)) {
       return { success: false, message: "Ledger name already exists." };
     }
 
@@ -39,7 +40,7 @@ export const createLedgerSlice: StateCreator<
       id: nanoid(),
       createdAt: Date.now(),
     };
-    set((state) => ({ ledgers: [...state.ledgers, newLedger] }));
+    set((state: StoreState) => ({ ledgers: [...state.ledgers, newLedger] }));
     return { success: true };
   },
 
@@ -47,7 +48,11 @@ export const createLedgerSlice: StateCreator<
     const name = updates.name && updates.name.trim();
     if (!name) return { success: false, message: "Ledger name is required." };
 
-    if (get().ledgers.some((l) => l.name === updates.name && l.id !== id)) {
+    if (
+      get().ledgers.some(
+        (ledger: Ledger) => ledger.name === updates.name && ledger.id !== id
+      )
+    ) {
       return { success: false, message: "Ledger name already exists." };
     }
 
@@ -55,8 +60,8 @@ export const createLedgerSlice: StateCreator<
       return { success: false, message: "Balance cannot be negative." };
     }
 
-    set((state) => ({
-      ledgers: state.ledgers.map((ledger) =>
+    set((state: StoreState) => ({
+      ledgers: state.ledgers.map((ledger: Ledger) =>
         ledger.id === id ? { ...ledger, ...updates } : ledger
       ),
     }));
@@ -69,14 +74,18 @@ export const createLedgerSlice: StateCreator<
       return { success: false, message: "Ledger must have at least one." };
     }
 
-    if (transactions.some((transaction) => transaction.ledgerId === id)) {
+    if (
+      transactions.some(
+        (transaction: Transaction) => transaction.ledgerId === id
+      )
+    ) {
       return {
         success: false,
         message: "Ledger with transactions cannot be deleted.",
       };
     }
 
-    const targetLedger = ledgers.find((ledger) => ledger.id === id);
+    const targetLedger = ledgers.find((ledger: Ledger) => ledger.id === id);
     if (targetLedger && targetLedger.balance !== 0) {
       return {
         success: false,
@@ -84,15 +93,15 @@ export const createLedgerSlice: StateCreator<
       };
     }
 
-    set((state) => ({
-      ledgers: state.ledgers.filter((ledger) => ledger.id !== id),
+    set((state: StoreState) => ({
+      ledgers: state.ledgers.filter((ledger: Ledger) => ledger.id !== id),
     }));
     return { success: true };
   },
 
   adjustBalance: (id, amount) => {
-    set((state) => ({
-      ledgers: state.ledgers.map((ledger) =>
+    set((state: StoreState) => ({
+      ledgers: state.ledgers.map((ledger: Ledger) =>
         ledger.id === id
           ? { ...ledger, balance: ledger.balance + amount }
           : ledger
@@ -102,9 +111,14 @@ export const createLedgerSlice: StateCreator<
 
   getTotalBalance: (ledgerId) => {
     if (!ledgerId) {
-      return get().ledgers.reduce((sum, l) => sum + l.balance, 0);
+      return get().ledgers.reduce(
+        (sum: number, l: Ledger) => sum + l.balance,
+        0
+      );
     }
-    const ledger = get().ledgers.find((ledger) => ledger.id === ledgerId);
+    const ledger = get().ledgers.find(
+      (ledger: Ledger) => ledger.id === ledgerId
+    );
     return ledger ? ledger.balance : 0;
   },
 });

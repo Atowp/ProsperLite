@@ -5,6 +5,7 @@ import { DEFAULT_CATEGORIES, DEFAULT_CATEGORY_ID } from "../constants";
 import type { Category } from "../types";
 import { nanoid } from "nanoid";
 import { CategorySchema } from "@/schemas/category";
+import type { Transaction } from "@/features/transactions/types";
 
 export interface CategorySlice {
   categories: Category[];
@@ -27,7 +28,7 @@ export const createCategorySlice: StateCreator<
     if (!result.success)
       return { success: false, message: result.error.message };
 
-    if (get().categories.some((c) => c.name === category.name)) {
+    if (get().categories.some((c: Category) => c.name === category.name)) {
       return { success: false, message: "Category name already exists." };
     }
 
@@ -36,7 +37,9 @@ export const createCategorySlice: StateCreator<
       id: nanoid(),
       createdAt: Date.now(),
     };
-    set((state) => ({ categories: [...state.categories, newCategory] }));
+    set((state: StoreState) => ({
+      categories: [...state.categories, newCategory],
+    }));
     return { success: true };
   },
 
@@ -45,12 +48,17 @@ export const createCategorySlice: StateCreator<
     if (!result.success)
       return { success: false, message: result.error.message };
 
-    if (get().categories.some((c) => c.name === updates.name && c.id !== id)) {
+    if (
+      get().categories.some(
+        (category: Category) =>
+          category.name === updates.name && category.id !== id
+      )
+    ) {
       return { success: false, message: "Category name already exists." };
     }
 
-    set((state) => ({
-      categories: state.categories.map((category) =>
+    set((state: StoreState) => ({
+      categories: state.categories.map((category: Category) =>
         category.id === id ? { ...category, ...updates } : category
       ),
     }));
@@ -62,10 +70,12 @@ export const createCategorySlice: StateCreator<
       return { success: false, message: "System category cannot be deleted." };
     }
 
-    set((state) => ({
-      categories: state.categories.filter((category) => category.id !== id),
+    set((state: StoreState) => ({
+      categories: state.categories.filter(
+        (category: Category) => category.id !== id
+      ),
       /** update transactions with the system category */
-      transactions: state.transactions.map((transaction) =>
+      transactions: state.transactions.map((transaction: Transaction) =>
         transaction.categoryId === id
           ? { ...transaction, categoryId: DEFAULT_CATEGORY_ID }
           : transaction

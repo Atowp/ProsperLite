@@ -54,18 +54,22 @@ export const createTransactionSlice: StateCreator<
         id: nanoid(),
         createdAt: Date.now(),
       } as Transaction;
-      set((state) => ({ transactions: [newTx, ...state.transactions] }));
+      set((state: StoreState) => ({
+        transactions: [newTx, ...state.transactions],
+      }));
 
       syncBalanceEffect(null, newTx);
       return { success: true };
     },
 
     updateTransaction: (id, updates) => {
-      const oldTx = get().transactions.find((t) => t.id === id);
+      const oldTx = get().transactions.find(
+        (transaction: Transaction) => transaction.id === id
+      );
       if (!oldTx) return { success: false, message: "Transaction not found" };
       const newTx = { ...oldTx, ...updates };
-      set((state) => ({
-        transactions: state.transactions.map((transaction) =>
+      set((state: StoreState) => ({
+        transactions: state.transactions.map((transaction: Transaction) =>
           transaction.id === id ? newTx : transaction
         ),
       }));
@@ -75,11 +79,13 @@ export const createTransactionSlice: StateCreator<
     },
 
     deleteTransaction: (id) => {
-      const oldTx = get().transactions.find((t) => t.id === id);
+      const oldTx = get().transactions.find(
+        (transaction: Transaction) => transaction.id === id
+      );
       if (!oldTx) return { success: false, message: "Transaction not found" };
-      set((state) => ({
+      set((state: StoreState) => ({
         transactions: state.transactions.filter(
-          (transaction) => transaction.id !== id
+          (transaction: Transaction) => transaction.id !== id
         ),
       }));
 
@@ -91,7 +97,7 @@ export const createTransactionSlice: StateCreator<
       const start = toNum(startDate);
       const end = toNum(endDate);
 
-      return get().transactions.filter((transaction) => {
+      return get().transactions.filter((transaction: Transaction) => {
         const date = toNum(transaction.date);
         return date >= start && date <= end;
       });
@@ -99,7 +105,7 @@ export const createTransactionSlice: StateCreator<
 
     getTransactionsByCategory: (categoryId) => {
       return get().transactions.filter(
-        (transaction) => transaction.categoryId === categoryId
+        (transaction: Transaction) => transaction.categoryId === categoryId
       );
     },
   };
