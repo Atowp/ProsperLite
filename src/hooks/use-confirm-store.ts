@@ -2,6 +2,7 @@ import { create } from "zustand";
 
 interface ConfirmState {
   isOpen: boolean;
+  isLoading: boolean;
   title: string;
   description: string;
   onConfirm: () => void;
@@ -15,6 +16,7 @@ interface ConfirmState {
 
 export const useConfirmStore = create<ConfirmState>((set) => ({
   isOpen: false,
+  isLoading: false,
   title: "",
   description: "",
   onConfirm: () => {},

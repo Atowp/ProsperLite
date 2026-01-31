@@ -1,46 +1,27 @@
 import type { Category, CategoryInput } from "../../types";
-import { toast } from "sonner";
-import { useStore } from "@/store/useStore";
-import { Dialog, DialogContent, DialogHeader } from "@ui/dialog";
+import { Dialog, DialogContent } from "@ui/dialog";
 import { CategoryForm } from "../forms/Form";
+import type { ActionResponse } from "@/types";
 
 interface CategoryDialogProps {
-  title: string;
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  initialData?: Category;
+  initialData?: Category | null;
+  onSubmit: (data: CategoryInput) => ActionResponse;
 }
 
 export const CategoryActionDialog = ({
-  title,
   isOpen,
   onOpenChange,
   initialData,
+  onSubmit,
 }: CategoryDialogProps) => {
-  const { updateCategory, addCategory } = useStore();
-  const handleSubmit = (data: CategoryInput) => {
-    const result = initialData
-      ? updateCategory(initialData.id, data)
-      : addCategory(data);
-    if (result.success) {
-      toast.success(initialData ? "Update success" : "Add success", {
-        description: `Category "${title}" has been saved`,
-      });
-      onOpenChange(false);
-    } else {
-      toast.error(initialData ? "Update failed" : "Add failed", {
-        description: result.message,
-      });
-    }
-    return result;
-  };
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>{title}</DialogHeader>
+      <DialogContent className="sm:max-w-sm">
         <CategoryForm
           initialData={initialData ?? undefined}
-          onSubmit={handleSubmit}
+          onSubmit={onSubmit}
         ></CategoryForm>
       </DialogContent>
     </Dialog>

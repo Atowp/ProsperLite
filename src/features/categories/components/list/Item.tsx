@@ -28,7 +28,7 @@ export function CategoryItem({
     confirmStore.confirm({
       description: `This action cannot be undone. This will permanently delete "${category.name}" from our servers.`,
       onConfirm: () => {
-        const result = onDelete(category.id);
+        const result: ActionResponse = onDelete(category.id);
         toast[result.success ? "success" : "error"](result.message);
       },
     });

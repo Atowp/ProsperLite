@@ -1,9 +1,25 @@
 import { useStore } from "@/store/useStore";
 import { CategoryItem } from "./Item";
 import { ScrollArea } from "@ui/scroll-area";
+import type { Category } from "../../types";
+import { Button } from "@/components/ui/button";
+import { CategoryActionDialog } from "../dialogs/Dialog";
+import { useState } from "react";
 
 export function CategoryList() {
-  const { categories, updateCategory, deleteCategory } = useStore();
+  const { categories, addCategory, updateCategory, deleteCategory } =
+    useStore();
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [editCategory, setEditCategory] = useState<Category | null>(null);
+
+  const handleOpenDialog = (category?: Category) => {
+    setEditCategory(category || null);
+    setIsOpen(true);
+    return {
+      success: true,
+    };
+  };
 
   return (
     <div className="space-y-4">
@@ -14,20 +30,43 @@ export function CategoryList() {
             ({categories.length})
           </span>
         </div>
+        <div className="mr-3">
+          <Button
+            variant="default"
+            className="px-4"
+            onClick={() => handleOpenDialog()}
+          >
+            Add
+          </Button>
+        </div>
       </div>
 
       <ScrollArea className="h-100 pr-4">
         <div className="grid gap-2">
-          {categories.map((category) => (
+          {categories.map((category: Category) => (
             <CategoryItem
               key={category.id}
               category={category}
-              onEdit={(c) => updateCategory(c.id, c)}
-              onDelete={(id) => deleteCategory(id)}
+              onEdit={(c: Category) => handleOpenDialog(c)}
+              onDelete={(id: string) => deleteCategory(id)}
             />
           ))}
         </div>
       </ScrollArea>
+
+      <CategoryActionDialog
+        key={editCategory?.id || "new"}
+        initialData={editCategory}
+        isOpen={isOpen}
+        onOpenChange={setIsOpen}
+        onSubmit={(data) => {
+          if (editCategory) {
+            return updateCategory(editCategory.id, data);
+          } else {
+            return addCategory(data);
+          }
+        }}
+      />
     </div>
   );
 }
