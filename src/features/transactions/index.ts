@@ -1,1 +1,1 @@
-export { TransactionsList } from "./components/List";
+export * from "./components/List";

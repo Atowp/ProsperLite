@@ -1,5 +1,5 @@
 import { ConfirmProvider } from "@/components/common/ConfirmProvider";
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "sonner";
 import { Outlet } from "react-router-dom";
 function App() {
   return (

@@ -1,6 +1,6 @@
 import type { ActionResponse } from "@/types";
 import type { StateCreator } from "zustand";
-import type { StoreState } from "@/store/useStore";
+import type { StoreState } from "@/store/types";
 import { toNum } from "@/store/helpers";
 import type { Transaction } from "../types";
 import { nanoid } from "nanoid";

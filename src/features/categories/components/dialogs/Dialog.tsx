@@ -1,7 +1,7 @@
 import type { Category, CategoryInput } from "../../types";
 import { toast } from "sonner";
 import { useStore } from "@/store/useStore";
-import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader } from "@ui/dialog";
 import { CategoryForm } from "../forms/Form";
 
 interface CategoryDialogProps {

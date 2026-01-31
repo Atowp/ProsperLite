@@ -1,6 +1,6 @@
 import type { ActionResponse } from "@/types";
 import type { StateCreator } from "zustand";
-import type { StoreState } from "@/store/useStore";
+import type { StoreState } from "@/store/types";
 import { DEFAULT_LEDGER } from "../constants";
 import type { Ledger } from "../types";
 import { nanoid } from "nanoid";

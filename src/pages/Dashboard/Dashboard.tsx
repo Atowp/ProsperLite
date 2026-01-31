@@ -1,5 +1,5 @@
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { Card } from "@ui/card";
 
 export function Dashboard() {
   const totalBalance = 1234.5;

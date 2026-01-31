@@ -1,19 +1,9 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import {
-  createTransactionSlice,
-  type TransactionSlice,
-} from "@features/transactions/store/transactionSlice";
-import {
-  createLedgerSlice,
-  type LedgerSlice,
-} from "@features/ledgers/store/ledgerSlice";
-import {
-  createCategorySlice,
-  type CategorySlice,
-} from "@features/categories/store/categorySlice";
-
-export type StoreState = TransactionSlice & CategorySlice & LedgerSlice;
+import { createTransactionSlice } from "@/features/transactions/store";
+import { createLedgerSlice } from "@/features/ledgers/store";
+import { createCategorySlice } from "@/features/categories/store";
+import type { StoreState } from "./types";
 
 export const useStore = create<StoreState>()(
   persist(

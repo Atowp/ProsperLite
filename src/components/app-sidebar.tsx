@@ -7,7 +7,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
+} from "@ui/sidebar";
 import { NAV_ITEMS } from "@/config/nav";
 import { Link, useLocation } from "react-router-dom";
 

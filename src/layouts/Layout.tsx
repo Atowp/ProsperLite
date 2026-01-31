@@ -1,7 +1,7 @@
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
+import { SidebarTrigger } from "@ui/sidebar";
+import { Button } from "@ui/button";
 import { Plus } from "lucide-react";
 import { Outlet } from "react-router-dom";
 

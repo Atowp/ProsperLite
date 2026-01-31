@@ -1,6 +1,6 @@
 import type { ActionResponse } from "@/types";
 import type { StateCreator } from "zustand";
-import type { StoreState } from "@/store/useStore";
+import type { StoreState } from "@/store/types";
 import { DEFAULT_CATEGORIES, DEFAULT_CATEGORY_ID } from "../constants";
 import type { Category } from "../types";
 import { nanoid } from "nanoid";

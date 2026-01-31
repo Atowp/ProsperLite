@@ -1,5 +1,5 @@
 import { type LucideIcon } from "lucide-react";
-import { ALL_CATEGORY_ICONS_MAP } from "../../constants";
+import { ALL_CATEGORY_ICONS_MAP } from "../constants";
 
 interface CategoryIconProps extends React.ComponentProps<LucideIcon> {
   iconKey: string;

@@ -1,6 +1,6 @@
 import { useStore } from "@/store/useStore";
-import { CategoryItem } from "./ui/Item";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { CategoryItem } from "./Item";
+import { ScrollArea } from "@ui/scroll-area";
 
 export function CategoryList() {
   const { categories, updateCategory, deleteCategory } = useStore();
@@ -8,10 +8,12 @@ export function CategoryList() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between px-1">
-        <h3 className="text-lg font-semibold">Categories</h3>
-        <p className="text-xs text-muted-foreground mr-4">
-          Total {categories.length} categories
-        </p>
+        <div className="flex items-center">
+          <h3 className="text-lg font-semibold mr-2">Categories</h3>
+          <span className="text-xs text-muted-foreground">
+            ({categories.length})
+          </span>
+        </div>
       </div>
 
       <ScrollArea className="h-100 pr-4">
