@@ -44,17 +44,20 @@ export const createCategorySlice: StateCreator<
   },
 
   updateCategory: (id, updates) => {
-    const result = CategorySchema.safeParse(updates.name);
-    if (!result.success)
-      return { success: false, message: result.error.message };
+    // Only validate if name is being updated
+    if (updates.name) {
+      const result = CategorySchema.safeParse(updates);
+      if (!result.success)
+        return { success: false, message: result.error.message };
 
-    if (
-      get().categories.some(
-        (category: Category) =>
-          category.name === updates.name && category.id !== id
-      )
-    ) {
-      return { success: false, message: "Category name already exists." };
+      if (
+        get().categories.some(
+          (category: Category) =>
+            category.name === updates.name && category.id !== id
+        )
+      ) {
+        return { success: false, message: "Category name already exists." };
+      }
     }
 
     set((state: StoreState) => ({

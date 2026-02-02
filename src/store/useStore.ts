@@ -20,7 +20,20 @@ export const useStore = create<StoreState>()(
         categories: state.categories,
         ledgers: state.ledgers,
       }),
-      version: 1,
+      version: 2,
+      migrate: (persistedState: any, version: number) => {
+        // Migrate from version 0 or 1 to 2
+        if (version < 2) {
+          // Add iconKey to existing categories
+          if (persistedState.categories) {
+            persistedState.categories = persistedState.categories.map((cat: any) => ({
+              ...cat,
+              iconKey: cat.iconKey || "smile",
+            }));
+          }
+        }
+        return persistedState as StoreState;
+      },
       storage: createJSONStorage(() => localStorage),
     }
   )

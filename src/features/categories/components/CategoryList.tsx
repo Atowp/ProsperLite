@@ -1,9 +1,9 @@
 import { useStore } from "@/store/useStore";
-import { CategoryItem } from "./Item";
+import { CategoryItem } from "./CategoryItem";
 import { ScrollArea } from "@ui/scroll-area";
-import type { Category } from "../../types";
+import type { Category } from "../types";
 import { Button } from "@/components/ui/button";
-import { CategoryActionDialog } from "../dialogs/Dialog";
+import { CategoryActionDialog } from "./CategoryActionDialog";
 import { useState } from "react";
 
 export function CategoryList() {

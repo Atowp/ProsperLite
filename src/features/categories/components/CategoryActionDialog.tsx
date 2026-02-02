@@ -1,6 +1,6 @@
-import type { Category, CategoryInput } from "../../types";
+import type { Category, CategoryInput } from "../types";
 import { Dialog, DialogContent } from "@ui/dialog";
-import { CategoryForm } from "../forms/Form";
+import { CategoryForm } from "./CategoryForm";
 import type { ActionResponse } from "@/types";
 
 interface CategoryDialogProps {
@@ -8,6 +8,7 @@ interface CategoryDialogProps {
   onOpenChange: (isOpen: boolean) => void;
   initialData?: Category | null;
   onSubmit: (data: CategoryInput) => ActionResponse;
+  onClose?: () => void;
 }
 
 export const CategoryActionDialog = ({
@@ -15,13 +16,20 @@ export const CategoryActionDialog = ({
   onOpenChange,
   initialData,
   onSubmit,
+  onClose,
 }: CategoryDialogProps) => {
+  const handleSuccess = () => {
+    onOpenChange(false);
+    onClose?.();
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-sm">
         <CategoryForm
           initialData={initialData ?? undefined}
           onSubmit={onSubmit}
+          onSuccess={handleSuccess}
         ></CategoryForm>
       </DialogContent>
     </Dialog>

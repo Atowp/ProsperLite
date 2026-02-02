@@ -1,8 +1,8 @@
 import { Button } from "@ui/button";
 import { Edit2, Trash2 } from "lucide-react";
-import type { Category } from "../../types";
+import type { Category } from "../types";
 import type { ActionResponse } from "@/types";
-import { ALL_CATEGORY_ICONS_MAP } from "../../constants";
+import { ALL_CATEGORY_ICONS_MAP } from "../constants";
 import { Badge } from "@ui/badge";
 import { useConfirmStore } from "@/hooks/use-confirm-store";
 import { toast } from "sonner";
@@ -22,7 +22,7 @@ export function CategoryItem({
   const IconComponent =
     ALL_CATEGORY_ICONS_MAP[
       category.iconKey as keyof typeof ALL_CATEGORY_ICONS_MAP
-    ] || ALL_CATEGORY_ICONS_MAP.default;
+    ] || ALL_CATEGORY_ICONS_MAP.smile;
 
   const handleDeleteClick = () => {
     confirmStore.confirm({

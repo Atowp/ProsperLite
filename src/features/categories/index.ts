@@ -1,2 +1,2 @@
-export * from "./components/list/List";
-export * from "./components/forms/Form";
+export * from "./components/CategoryList";
+export * from "./components/CategoryForm";

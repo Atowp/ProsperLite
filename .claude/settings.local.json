@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(tree:*)",
-      "Bash(if not exist \"docs\" mkdir docs)"
+      "Bash(if not exist \"docs\" mkdir docs)",
+      "Bash(npx tsc:*)",
+      "Bash(node:*)",
+      "Bash(git checkout:*)"
     ]
   }
 }
