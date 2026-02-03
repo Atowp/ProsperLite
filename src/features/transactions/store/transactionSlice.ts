@@ -2,19 +2,14 @@ import type { ActionResponse } from "@/types";
 import type { StateCreator } from "zustand";
 import type { StoreState } from "@/store/types";
 import { toNum } from "@/store/helpers";
-import type { Transaction } from "../types";
+import type { Transaction, TransactionInput } from "@/schemas/transaction";
 import { nanoid } from "nanoid";
 
 export interface TransactionSlice {
   transactions: Transaction[];
 
-  addTransaction: (
-    transaction: Omit<Transaction, "id" | "createdAt">
-  ) => ActionResponse;
-  updateTransaction: (
-    id: string,
-    transaction: Partial<Transaction>
-  ) => ActionResponse;
+  addTransaction: (transaction: TransactionInput) => ActionResponse;
+  updateTransaction: (id: string, transaction: TransactionInput) => ActionResponse;
   deleteTransaction: (id: string) => ActionResponse;
 
   getTransactionsByDateRange: (
@@ -53,7 +48,7 @@ export const createTransactionSlice: StateCreator<
         ...transaction,
         id: nanoid(),
         createdAt: Date.now(),
-      } as Transaction;
+      };
       set((state: StoreState) => ({
         transactions: [newTx, ...state.transactions],
       }));
@@ -64,12 +59,12 @@ export const createTransactionSlice: StateCreator<
 
     updateTransaction: (id, updates) => {
       const oldTx = get().transactions.find(
-        (transaction: Transaction) => transaction.id === id
+        (transaction) => transaction.id === id
       );
       if (!oldTx) return { success: false, message: "Transaction not found" };
       const newTx = { ...oldTx, ...updates };
       set((state: StoreState) => ({
-        transactions: state.transactions.map((transaction: Transaction) =>
+        transactions: state.transactions.map((transaction) =>
           transaction.id === id ? newTx : transaction
         ),
       }));
@@ -80,12 +75,12 @@ export const createTransactionSlice: StateCreator<
 
     deleteTransaction: (id) => {
       const oldTx = get().transactions.find(
-        (transaction: Transaction) => transaction.id === id
+        (transaction) => transaction.id === id
       );
       if (!oldTx) return { success: false, message: "Transaction not found" };
       set((state: StoreState) => ({
         transactions: state.transactions.filter(
-          (transaction: Transaction) => transaction.id !== id
+          (transaction) => transaction.id !== id
         ),
       }));
 
@@ -97,7 +92,7 @@ export const createTransactionSlice: StateCreator<
       const start = toNum(startDate);
       const end = toNum(endDate);
 
-      return get().transactions.filter((transaction: Transaction) => {
+      return get().transactions.filter((transaction) => {
         const date = toNum(transaction.date);
         return date >= start && date <= end;
       });
@@ -105,7 +100,7 @@ export const createTransactionSlice: StateCreator<
 
     getTransactionsByCategory: (categoryId) => {
       return get().transactions.filter(
-        (transaction: Transaction) => transaction.categoryId === categoryId
+        (transaction) => transaction.categoryId === categoryId
       );
     },
   };

@@ -4,8 +4,14 @@ import { SidebarTrigger } from "@ui/sidebar";
 import { Button } from "@ui/button";
 import { Plus } from "lucide-react";
 import { Outlet } from "react-router-dom";
+import { useState } from "react";
+import { TransactionActionDialog } from "@/features/transactions";
+import { useStore } from "@/store/useStore";
 
 function Layout() {
+  const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
+  const { addTransaction } = useStore();
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -16,7 +22,11 @@ function Layout() {
 
           <div className="flex-1" />
 
-          <Button size="sm" className="gap-2">
+          <Button
+            size="sm"
+            className="gap-2"
+            onClick={() => setIsQuickAddOpen(true)}
+          >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">Quick Start</span>
           </Button>
@@ -27,6 +37,13 @@ function Layout() {
           </main>
         </div>
       </SidebarInset>
+
+      {/* Quick Add Dialog */}
+      <TransactionActionDialog
+        isOpen={isQuickAddOpen}
+        onOpenChange={setIsQuickAddOpen}
+        onSubmit={addTransaction}
+      />
     </SidebarProvider>
   );
 }

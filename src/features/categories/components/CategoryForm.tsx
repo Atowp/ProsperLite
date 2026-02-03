@@ -1,5 +1,4 @@
 import type { ActionResponse } from "@/types";
-import type { Category, CategoryInput } from "../types";
 import { Controller, useForm } from "react-hook-form";
 import { useEffect } from "react";
 import {
@@ -14,7 +13,11 @@ import { Field, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { CategorySchema } from "@/schemas";
+import {
+  CreateCategorySchema,
+  type Category,
+  type CategoryInput,
+} from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CategoryIconPicker } from "./CategoryIconPicker";
 
@@ -23,7 +26,11 @@ interface CategoryFormProps {
   onSubmit: (data: CategoryInput) => ActionResponse;
   onSuccess?: () => void;
 }
-export function CategoryForm({ initialData, onSubmit, onSuccess }: CategoryFormProps) {
+export function CategoryForm({
+  initialData,
+  onSubmit,
+  onSuccess,
+}: CategoryFormProps) {
   const {
     register,
     handleSubmit,
@@ -32,13 +39,13 @@ export function CategoryForm({ initialData, onSubmit, onSuccess }: CategoryFormP
     control,
     formState: { errors, isSubmitting },
   } = useForm<CategoryInput>({
-    resolver: zodResolver(CategorySchema),
-    defaultValues: initialData || { name: "", iconKey: "default" },
+    resolver: zodResolver(CreateCategorySchema),
+    defaultValues: initialData || { name: "", iconKey: "smile" },
   });
   // const [selectedIcon, setSelectedIcon] = useState("default");
 
   useEffect(() => {
-    reset(initialData || { name: "", iconKey: "default" });
+    reset(initialData || { name: "", iconKey: "smile" });
   }, [initialData, reset]);
 
   const onFormSubmit = async (data: CategoryInput) => {
@@ -46,7 +53,9 @@ export function CategoryForm({ initialData, onSubmit, onSuccess }: CategoryFormP
 
     if (res.success) {
       toast.success(
-        initialData ? "Category updated successfully" : "Category added successfully"
+        initialData
+          ? "Category updated successfully"
+          : "Category added successfully"
       );
       onSuccess?.();
     } else {

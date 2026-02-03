@@ -2,16 +2,19 @@ import type { ActionResponse } from "@/types";
 import type { StateCreator } from "zustand";
 import type { StoreState } from "@/store/types";
 import { DEFAULT_CATEGORIES, DEFAULT_CATEGORY_ID } from "../constants";
-import type { Category } from "../types";
 import { nanoid } from "nanoid";
-import { CategorySchema } from "@/schemas/category";
-import type { Transaction } from "@/features/transactions/types";
+import {
+  CreateCategorySchema,
+  UpdateCategorySchema,
+  type Category,
+  type CategoryInput,
+} from "@/schemas/category";
 
 export interface CategorySlice {
   categories: Category[];
 
-  addCategory: (category: Omit<Category, "id" | "createdAt">) => ActionResponse;
-  updateCategory: (id: string, category: Partial<Category>) => ActionResponse;
+  addCategory: (category: CategoryInput) => ActionResponse;
+  updateCategory: (id: string, category: CategoryInput) => ActionResponse;
   deleteCategory: (id: string) => ActionResponse;
 }
 
@@ -24,7 +27,7 @@ export const createCategorySlice: StateCreator<
   categories: DEFAULT_CATEGORIES,
 
   addCategory: (category) => {
-    const result = CategorySchema.safeParse(category);
+    const result = CreateCategorySchema.safeParse(category);
     if (!result.success)
       return { success: false, message: result.error.message };
 
@@ -36,6 +39,7 @@ export const createCategorySlice: StateCreator<
       ...category,
       id: nanoid(),
       createdAt: Date.now(),
+      isSystem: false,
     };
     set((state: StoreState) => ({
       categories: [...state.categories, newCategory],
@@ -44,12 +48,13 @@ export const createCategorySlice: StateCreator<
   },
 
   updateCategory: (id, updates) => {
-    // Only validate if name is being updated
-    if (updates.name) {
-      const result = CategorySchema.safeParse(updates);
-      if (!result.success)
-        return { success: false, message: result.error.message };
+    // Validate the updates using UpdateCategorySchema (partial)
+    const result = UpdateCategorySchema.safeParse(updates);
+    if (!result.success)
+      return { success: false, message: result.error.message };
 
+    // Check name uniqueness if name is being updated
+    if (updates.name) {
       if (
         get().categories.some(
           (category: Category) =>
@@ -78,7 +83,7 @@ export const createCategorySlice: StateCreator<
         (category: Category) => category.id !== id
       ),
       /** update transactions with the system category */
-      transactions: state.transactions.map((transaction: Transaction) =>
+      transactions: state.transactions.map((transaction) =>
         transaction.categoryId === id
           ? { ...transaction, categoryId: DEFAULT_CATEGORY_ID }
           : transaction

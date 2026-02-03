@@ -2,17 +2,20 @@ import type { ActionResponse } from "@/types";
 import type { StateCreator } from "zustand";
 import type { StoreState } from "@/store/types";
 import { DEFAULT_LEDGER, DEFAULT_LEDGER_ID } from "../constants";
-import type { Ledger } from "../types";
 import { nanoid } from "nanoid";
-import type { Transaction } from "@/features/transactions/types";
-import { LedgerSchema } from "@/schemas/ledger";
+import {
+  CreateLedgerSchema,
+  UpdateLedgerSchema,
+  type Ledger,
+  type LedgerInput,
+} from "@/schemas/ledger";
 
 export interface LedgerSlice {
   ledgers: Ledger[];
   currentLedgerId: string;
 
-  addLedger: (ledger: Omit<Ledger, "id" | "createdAt">) => ActionResponse;
-  updateLedger: (id: string, ledger: Partial<Ledger>) => ActionResponse;
+  addLedger: (ledger: LedgerInput) => ActionResponse;
+  updateLedger: (id: string, ledger: LedgerInput) => ActionResponse;
   deleteLedger: (id: string) => ActionResponse;
 
   adjustBalance: (id: string, amount: number) => void;
@@ -29,8 +32,9 @@ export const createLedgerSlice: StateCreator<
   currentLedgerId: DEFAULT_LEDGER_ID,
 
   addLedger: (ledger) => {
-    const result = LedgerSchema.safeParse(ledger);
-    if (!result.success) return { success: false, message: result.error.message };
+    const result = CreateLedgerSchema.safeParse(ledger);
+    if (!result.success)
+      return { success: false, message: result.error.message };
 
     if (get().ledgers.some((l: Ledger) => l.name === ledger.name)) {
       return { success: false, message: "Ledger name already exists." };
@@ -46,11 +50,13 @@ export const createLedgerSlice: StateCreator<
   },
 
   updateLedger: (id, updates) => {
-    // Only validate if name is being updated
-    if (updates.name) {
-      const result = LedgerSchema.safeParse(updates);
-      if (!result.success) return { success: false, message: result.error.message };
+    // Validate the updates using UpdateLedgerSchema (partial)
+    const result = UpdateLedgerSchema.safeParse(updates);
+    if (!result.success)
+      return { success: false, message: result.error.message };
 
+    // Check name uniqueness if name is being updated
+    if (updates.name) {
       if (
         get().ledgers.some(
           (ledger: Ledger) => ledger.name === updates.name && ledger.id !== id
@@ -60,8 +66,18 @@ export const createLedgerSlice: StateCreator<
       }
     }
 
-    if (updates.balance !== undefined && updates.balance < 0) {
-      return { success: false, message: "Balance cannot be negative." };
+    // Validate balance: cannot be set to negative directly
+    // Get current ledger to check original balance
+    if (updates.balance !== undefined) {
+      const currentLedger = get().ledgers.find((l: Ledger) => l.id === id);
+      // Only reject if the new value is different from current AND is negative
+      if (
+        currentLedger &&
+        updates.balance !== currentLedger.balance &&
+        updates.balance < 0
+      ) {
+        return { success: false, message: "Balance cannot be negative." };
+      }
     }
 
     set((state: StoreState) => ({
@@ -73,19 +89,13 @@ export const createLedgerSlice: StateCreator<
   },
 
   deleteLedger: (id) => {
-    if (id === DEFAULT_LEDGER_ID) {
-      return { success: false, message: "System ledger cannot be deleted." };
-    }
-
     const { ledgers, transactions } = get();
     if (ledgers.length <= 1) {
       return { success: false, message: "Ledger must have at least one." };
     }
 
     if (
-      transactions.some(
-        (transaction: Transaction) => transaction.ledgerId === id
-      )
+      transactions.some((transaction) => transaction.ledgerId === id)
     ) {
       return {
         success: false,
@@ -111,7 +121,7 @@ export const createLedgerSlice: StateCreator<
     set((state: StoreState) => ({
       ledgers: state.ledgers.map((ledger: Ledger) =>
         ledger.id === id
-          ? { ...ledger, balance: ledger.balance + amount }
+          ? { ...ledger, balance: (ledger.balance ?? 0) + amount }
           : ledger
       ),
     }));
@@ -120,13 +130,13 @@ export const createLedgerSlice: StateCreator<
   getTotalBalance: (ledgerId) => {
     if (!ledgerId) {
       return get().ledgers.reduce(
-        (sum: number, l: Ledger) => sum + l.balance,
+        (sum: number, l: Ledger) => sum + (l.balance ?? 0),
         0
       );
     }
     const ledger = get().ledgers.find(
       (ledger: Ledger) => ledger.id === ledgerId
     );
-    return ledger ? ledger.balance : 0;
+    return ledger ? ledger.balance ?? 0 : 0;
   },
 });

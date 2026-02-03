@@ -1,11 +1,11 @@
 import { Button } from "@ui/button";
 import { Edit2, Trash2 } from "lucide-react";
-import type { Category } from "../types";
 import type { ActionResponse } from "@/types";
 import { ALL_CATEGORY_ICONS_MAP } from "../constants";
 import { Badge } from "@ui/badge";
 import { useConfirmStore } from "@/hooks/use-confirm-store";
 import { toast } from "sonner";
+import type { Category } from "@/schemas";
 
 interface CategoryItemProps {
   category: Category;

@@ -1,5 +1,4 @@
 import type { ActionResponse } from "@/types";
-import type { Ledger, LedgerInput } from "../types";
 import { useForm } from "react-hook-form";
 import { useEffect } from "react";
 import {
@@ -14,15 +13,20 @@ import { Field, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { LedgerSchema } from "@/schemas";
+import { CreateLedgerSchema, type Ledger, type LedgerInput } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useDecimalInputLimit } from "@/hooks/useDecimalInputLimit";
 
 interface LedgerFormProps {
   initialData?: Ledger;
   onSubmit: (data: LedgerInput) => ActionResponse;
   onSuccess?: () => void;
 }
-export function LedgerForm({ initialData, onSubmit, onSuccess }: LedgerFormProps) {
+export function LedgerForm({
+  initialData,
+  onSubmit,
+  onSuccess,
+}: LedgerFormProps) {
   const {
     register,
     handleSubmit,
@@ -30,25 +34,32 @@ export function LedgerForm({ initialData, onSubmit, onSuccess }: LedgerFormProps
     reset,
     formState: { errors, isSubmitting },
   } = useForm<LedgerInput>({
-    resolver: zodResolver(LedgerSchema),
-    defaultValues: initialData || { name: "" },
+    resolver: zodResolver(CreateLedgerSchema),
+    defaultValues: initialData || { name: "", balance: 0 },
   });
 
   useEffect(() => {
-    reset(initialData || { name: "" });
+    reset(initialData || { name: "", balance: 0 });
   }, [initialData, reset]);
+
+  // Hook to limit decimal input to 2 places
+  const handleDecimalLimit = useDecimalInputLimit(2);
 
   const onFormSubmit = async (data: LedgerInput) => {
     const res = await onSubmit(data);
 
     if (res.success) {
       toast.success(
-        initialData ? "Ledger updated successfully" : "Ledger added successfully"
+        initialData
+          ? "Ledger updated successfully"
+          : "Ledger added successfully"
       );
       onSuccess?.();
     } else {
       if (res.message?.includes("exists")) {
         setError("name", { type: "manual", message: res.message });
+      } else if (res.message?.includes("Balance")) {
+        setError("balance", { type: "manual", message: res.message });
       } else {
         toast.error(res.message);
       }
@@ -75,6 +86,27 @@ export function LedgerForm({ initialData, onSubmit, onSuccess }: LedgerFormProps
             </p>
           )}
         </Field>
+        {initialData && (
+          <Field>
+            <Label htmlFor="balance-input">Balance</Label>
+            <Input
+              id="balance-input"
+              type="number"
+              step="0.01"
+              {...register("balance", { valueAsNumber: true })}
+              defaultValue={initialData?.balance ?? 0}
+              onKeyDown={handleDecimalLimit}
+            />
+            {errors.balance && (
+              <p className="text-xs font-medium text-destructive">
+                {errors.balance.message}
+              </p>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Current balance: {initialData?.balance ?? 0}
+            </p>
+          </Field>
+        )}
       </FieldGroup>
       <DialogFooter>
         <DialogClose asChild>

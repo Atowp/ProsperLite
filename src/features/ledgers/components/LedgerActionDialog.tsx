@@ -1,7 +1,7 @@
-import type { Ledger, LedgerInput } from "../types";
 import { Dialog, DialogContent } from "@ui/dialog";
 import { LedgerForm } from "./LedgerForm";
 import type { ActionResponse } from "@/types";
+import type { Ledger, LedgerInput } from "@/schemas";
 
 interface LedgerDialogProps {
   isOpen: boolean;

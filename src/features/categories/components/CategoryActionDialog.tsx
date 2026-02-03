@@ -1,7 +1,7 @@
-import type { Category, CategoryInput } from "../types";
 import { Dialog, DialogContent } from "@ui/dialog";
 import { CategoryForm } from "./CategoryForm";
 import type { ActionResponse } from "@/types";
+import type { Category, CategoryInput } from "@/schemas";
 
 interface CategoryDialogProps {
   isOpen: boolean;

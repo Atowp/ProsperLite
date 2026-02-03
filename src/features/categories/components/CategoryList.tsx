@@ -1,10 +1,10 @@
 import { useStore } from "@/store/useStore";
 import { CategoryItem } from "./CategoryItem";
 import { ScrollArea } from "@ui/scroll-area";
-import type { Category } from "../types";
 import { Button } from "@/components/ui/button";
 import { CategoryActionDialog } from "./CategoryActionDialog";
 import { useState } from "react";
+import type { Category, CategoryInput } from "@/schemas";
 
 export function CategoryList() {
   const { categories, addCategory, updateCategory, deleteCategory } =
@@ -59,7 +59,7 @@ export function CategoryList() {
         initialData={editCategory}
         isOpen={isOpen}
         onOpenChange={setIsOpen}
-        onSubmit={(data) => {
+        onSubmit={(data: CategoryInput) => {
           if (editCategory) {
             return updateCategory(editCategory.id, data);
           } else {

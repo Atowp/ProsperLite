@@ -1,19 +1,20 @@
 import { Button } from "@ui/button";
 import { Edit2, Trash2, Wallet } from "lucide-react";
-import type { Ledger } from "../types";
 import type { ActionResponse } from "@/types";
-import { Badge } from "@ui/badge";
 import { useConfirmStore } from "@/hooks/use-confirm-store";
 import { toast } from "sonner";
+import type { Ledger } from "@/schemas";
 
 interface LedgerItemProps {
   ledger: Ledger;
+  length: number;
   onEdit: (ledger: Ledger) => ActionResponse;
   onDelete: (id: string) => ActionResponse;
 }
 
 export function LedgerItem({
   ledger,
+  length,
   onEdit,
   onDelete,
 }: LedgerItemProps) {
@@ -38,10 +39,9 @@ export function LedgerItem({
         <div className="flex flex-col">
           <span className="font-medium text-sm">{ledger.name}</span>
           <span className="text-xs text-muted-foreground">
-            Balance: {ledger.balance.toFixed(2)}
+            Balance: {(ledger.balance ?? 0).toFixed(2)}
           </span>
         </div>
-        {ledger.isSystem && <Badge>Default</Badge>}
       </div>
 
       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -54,8 +54,8 @@ export function LedgerItem({
           <Edit2 className="h-4 w-4" />
         </Button>
 
-        {/* only show delete button for non-system ledgers */}
-        {!ledger.isSystem && (
+        {/* only show delete button for ledgers' length > 1 */}
+        {length > 1 && ledger.balance === 0 && (
           <Button
             variant="ghost"
             size="icon"

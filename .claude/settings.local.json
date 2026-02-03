@@ -5,7 +5,8 @@
       "Bash(if not exist \"docs\" mkdir docs)",
       "Bash(npx tsc:*)",
       "Bash(node:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(powershell:*)"
     ]
   }
 }

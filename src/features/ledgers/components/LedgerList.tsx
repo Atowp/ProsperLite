@@ -1,10 +1,10 @@
 import { useStore } from "@/store/useStore";
 import { LedgerItem } from "./LedgerItem";
 import { ScrollArea } from "@ui/scroll-area";
-import type { Ledger } from "../types";
 import { Button } from "@/components/ui/button";
 import { LedgerActionDialog } from "./LedgerActionDialog";
 import { useState } from "react";
+import type { Ledger, LedgerInput } from "@/schemas";
 
 export function LedgerList() {
   const { ledgers, addLedger, updateLedger, deleteLedger } = useStore();
@@ -46,6 +46,7 @@ export function LedgerList() {
             <LedgerItem
               key={ledger.id}
               ledger={ledger}
+              length={ledgers.length}
               onEdit={(l: Ledger) => handleOpenDialog(l)}
               onDelete={(id: string) => deleteLedger(id)}
             />
@@ -58,11 +59,17 @@ export function LedgerList() {
         initialData={editLedger}
         isOpen={isOpen}
         onOpenChange={setIsOpen}
-        onSubmit={(data) => {
+        onSubmit={(data: LedgerInput) => {
           if (editLedger) {
-            return updateLedger(editLedger.id, data);
+            return updateLedger(editLedger.id, {
+              ...data,
+              balance: data.balance ?? 0,
+            });
           } else {
-            return addLedger(data);
+            return addLedger({
+              ...data,
+              balance: data.balance ?? 0,
+            });
           }
         }}
       />

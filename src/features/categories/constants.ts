@@ -1,4 +1,4 @@
-import type { Category } from "./types";
+import type { Category } from "@/schemas";
 import {
   CarFront,
   Smile,
@@ -81,14 +81,14 @@ export const DEFAULT_CATEGORIES: Category[] = [
     createdAt: Date.now(),
     isSystem: true,
   },
-  { id: "1", name: "Meals", iconKey: "chefHat", createdAt: Date.now() },
-  { id: "2", name: "Shopping", iconKey: "shoppingBag", createdAt: Date.now() },
-  { id: "3", name: "Transport", iconKey: "carFront", createdAt: Date.now() },
-  {
-    id: "4",
-    name: "Entertainment",
-    iconKey: "gamepad2",
-    createdAt: Date.now(),
-  },
-  { id: "5", name: "Medical", iconKey: "hospital", createdAt: Date.now() },
+  // { id: nanoid(), name: "Meals", iconKey: "chefHat", createdAt: Date.now() },
+  // { id: nanoid(), name: "Shopping", iconKey: "shoppingBag", createdAt: Date.now() },
+  // { id: nanoid(), name: "Transport", iconKey: "carFront", createdAt: Date.now() },
+  // {
+  //   id: nanoid(),
+  //   name: "Entertainment",
+  //   iconKey: "gamepad2",
+  //   createdAt: Date.now(),
+  // },
+  // { id: nanoid(), name: "Medical", iconKey: "hospital", createdAt: Date.now() },
 ];
