@@ -1,7 +1,6 @@
 import { useStore } from "@/store/useStore";
 import { TransactionItem } from "./TransactionItem";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
 import { TransactionActionDialog } from "./TransactionActionDialog";
 import { useState, useMemo } from "react";
 import type { Transaction, TransactionInput } from "@/schemas/transaction";
@@ -37,7 +36,8 @@ export function TransactionList({
 
   // Filter transactions based on props
   const filteredTransactions = useMemo(() => {
-    let result = transactions;
+    // Create a copy to avoid mutating the original array from Zustand store
+    let result = [...transactions];
 
     // Filter by date range
     if (startDate && endDate) {
@@ -86,7 +86,7 @@ export function TransactionList({
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between px-1">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4 flex-1">
           <div className="flex items-center">
             <h3 className="text-lg font-semibold mr-2">Transactions</h3>
             <span className="text-xs text-muted-foreground">
@@ -94,26 +94,18 @@ export function TransactionList({
             </span>
           </div>
 
-          {/* Search Input */}
+          {/* Search Input - hidden on mobile */}
           <Input
-            placeholder="Search by category or remark..."
+            placeholder="Search..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-64 h-8"
+            className="w-32 sm:w-48 md:w-64 h-8 hidden sm:block"
           />
         </div>
-
-        <Button
-          variant="default"
-          className="px-4"
-          onClick={() => handleOpenDialog()}
-        >
-          Add
-        </Button>
       </div>
 
       {/* Transaction List */}
-      <ScrollArea className="h-125 pr-4">
+      <ScrollArea className="h-100 pr-4">
         <div className="grid gap-2">
           {filteredTransactions.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">

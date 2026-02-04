@@ -1,20 +1,32 @@
-import { SidebarInset, SidebarProvider } from "@ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
-import { SidebarTrigger } from "@ui/sidebar";
-import { Button } from "@ui/button";
-import { Plus } from "lucide-react";
+import { lazy, Suspense, useState } from "react";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@ui/sidebar";
 import { Outlet } from "react-router-dom";
-import { useState } from "react";
-import { TransactionActionDialog } from "@/features/transactions";
+import { Button } from "@ui/button";
+import PlusIcon from "~icons/lucide/plus";
 import { useStore } from "@/store/useStore";
 import { SuspenseWrapper } from "@/components/SuspenseWrapper";
+
+// Lazy load non-critical components
+const AppSidebar = lazy(() =>
+  import("@/components/app-sidebar").then((m) => ({
+    default: m.AppSidebar,
+  }))
+);
+const TransactionActionDialog = lazy(() =>
+  import("@/features/transactions").then((m) => ({
+    default: m.TransactionActionDialog,
+  }))
+);
 
 function Layout() {
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const { addTransaction } = useStore();
 
+  const handleQuickAdd = () => setIsQuickAddOpen(true);
+  const handleQuickAddSuccess = () => setIsQuickAddOpen(false);
+
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen>
       <AppSidebar />
       <SidebarInset>
         <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-4 border-b px-4 bg-background/95 backdrop-blur">
@@ -23,12 +35,8 @@ function Layout() {
 
           <div className="flex-1" />
 
-          <Button
-            size="sm"
-            className="gap-2"
-            onClick={() => setIsQuickAddOpen(true)}
-          >
-            <Plus className="w-4 h-4" />
+          <Button size="sm" className="gap-2" onClick={handleQuickAdd}>
+            <PlusIcon className="h-4 w-4" />
             <span className="hidden sm:inline">Quick Start</span>
           </Button>
         </header>
@@ -41,12 +49,15 @@ function Layout() {
         </div>
       </SidebarInset>
 
-      {/* Quick Add Dialog */}
-      <TransactionActionDialog
-        isOpen={isQuickAddOpen}
-        onOpenChange={setIsQuickAddOpen}
-        onSubmit={addTransaction}
-      />
+      {/* Lazy loaded Dialog */}
+      <Suspense fallback={null}>
+        <TransactionActionDialog
+          isOpen={isQuickAddOpen}
+          onOpenChange={setIsQuickAddOpen}
+          onSubmit={addTransaction}
+          onClose={handleQuickAddSuccess}
+        />
+      </Suspense>
     </SidebarProvider>
   );
 }

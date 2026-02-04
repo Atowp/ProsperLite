@@ -1,4 +1,5 @@
-import { ArrowUpRight, ArrowDownRight } from "lucide-react";
+import ArrowUpRightIcon from "~icons/lucide/arrow-up-right";
+import ArrowDownRightIcon from "~icons/lucide/arrow-down-right";
 import { Card } from "@ui/card";
 
 function Dashboard() {
@@ -17,8 +18,8 @@ function Dashboard() {
         </h1>
         <div className="flex items-center gap-2">
           <span className="flex items-center gap-1 bg-red-50 text-red-700 px-2 py-1 rounded-md text-xs font-bold">
-            <ArrowUpRight className="w-3 h-3" />
-            <ArrowDownRight className="w-3 h-3" />
+            <ArrowUpRightIcon className="w-3 h-3" />
+            <ArrowDownRightIcon className="w-3 h-3" />
             {dayChange}%
           </span>
           <span className="text-slate-400 text-xs">vs last 24h</span>

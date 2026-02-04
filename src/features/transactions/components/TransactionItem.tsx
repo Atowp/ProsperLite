@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Edit2, Trash2 } from "lucide-react";
+import Edit2Icon from "~icons/lucide/edit-2";
+import Trash2Icon from "~icons/lucide/trash-2";
 import type { ActionResponse } from "@/types";
 import { useConfirmStore } from "@/hooks/use-confirm-store";
 import { toast } from "sonner";
@@ -7,6 +8,7 @@ import { useStore } from "@/store/useStore";
 import type { Transaction } from "@/schemas/transaction";
 import dayjs from "dayjs";
 import { cn } from "@/lib/ui";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface TransactionItemProps {
   transaction: Transaction;
@@ -19,10 +21,10 @@ export function TransactionItem({
   onEdit,
   onDelete,
 }: TransactionItemProps) {
+  const isMobile = useIsMobile();
   const confirmStore = useConfirmStore();
-  const { categories, ledgers } = useStore();
+  const { ledgers } = useStore();
 
-  const category = categories.find((c) => c.id === transaction.categoryId);
   const ledger = ledgers.find((l) => l.id === transaction.ledgerId);
 
   const isExpense = transaction.type === "expense";
@@ -40,8 +42,21 @@ export function TransactionItem({
     });
   };
 
+  const handleItemClick = () => {
+    // On mobile, tapping the item opens edit drawer
+    if (isMobile) {
+      onEdit(transaction);
+    }
+  };
+
   return (
-    <div className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors group">
+    <div
+      className={cn(
+        "flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors group",
+        isMobile && "cursor-pointer active:bg-accent"
+      )}
+      onClick={handleItemClick}
+    >
       <div className="flex items-center gap-4 flex-1">
         {/* Date */}
         <div className="text-sm text-muted-foreground w-24">
@@ -50,15 +65,9 @@ export function TransactionItem({
 
         {/* Category & Remark */}
         <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <span className="font-medium text-sm">{category?.name || "Unknown"}</span>
-            {transaction.remark && (
-              <span className="text-xs text-muted-foreground">
-                ({transaction.remark})
-              </span>
-            )}
+          <div className="text-xs text-muted-foreground">
+            {ledger?.name || "Unknown"}
           </div>
-          <div className="text-xs text-muted-foreground">{ledger?.name || "Unknown"}</div>
         </div>
 
         {/* Amount */}
@@ -67,24 +76,35 @@ export function TransactionItem({
         </div>
       </div>
 
-      {/* Actions */}
-      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity ml-4">
+      {/* Actions - hidden on mobile, visible on desktop */}
+      <div
+        className={cn(
+          "flex items-center gap-1 transition-opacity ml-4",
+          isMobile ? "hidden" : "opacity-0 group-hover:opacity-100"
+        )}
+      >
         <Button
           variant="ghost"
           size="icon"
           className="h-8 w-8"
-          onClick={() => onEdit(transaction)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit(transaction);
+          }}
         >
-          <Edit2 className="h-4 w-4" />
+          <Edit2Icon className="h-4 w-4" />
         </Button>
 
         <Button
           variant="ghost"
           size="icon"
           className="h-8 w-8 hover:text-destructive"
-          onClick={() => handleDeleteClick()}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDeleteClick();
+          }}
         >
-          <Trash2 className="h-4 w-4" />
+          <Trash2Icon className="h-4 w-4" />
         </Button>
       </div>
     </div>

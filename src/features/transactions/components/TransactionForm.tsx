@@ -321,7 +321,7 @@ export const TransactionForm = memo(function TransactionForm({
         </DialogDescription>
       </DialogHeader>
 
-      <FieldGroup className="mb-4 mt-4">
+      <FieldGroup className="mb-8 mt-4">
         {/* Type Toggle: Income / Expense */}
         <Field>
           <FieldLabel>Transaction Type</FieldLabel>
@@ -342,7 +342,8 @@ export const TransactionForm = memo(function TransactionForm({
               variant={transactionType === "income" ? "default" : "outline"}
               className={cn(
                 "flex-1",
-                transactionType === "income" && "bg-green-500 hover:bg-green-600"
+                transactionType === "income" &&
+                  "bg-green-500 hover:bg-green-600"
               )}
               onClick={() => setTransactionType("income")}
             >
@@ -486,8 +487,12 @@ export const TransactionForm = memo(function TransactionForm({
             Cancel
           </Button>
         </DialogClose>
-        <Button type="submit" disabled={isSubmitting} className="px-4 py-2">
-          {isSubmitting ? "Saving..." : isEditMode ? "Save" : "Add"}
+        <Button
+          type="submit"
+          disabled={isSubmitting}
+          className="px-4 py-2 mb-2"
+        >
+          {isSubmitting ? "Saving..." : "Save"}
         </Button>
       </DialogFooter>
     </form>

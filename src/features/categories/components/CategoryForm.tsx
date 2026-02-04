@@ -113,7 +113,7 @@ export function CategoryForm({
             Cancel
           </Button>
         </DialogClose>
-        <Button type="submit" className="p-4" disabled={isSubmitting}>
+        <Button type="submit" className="p-4 mb-2" disabled={isSubmitting}>
           Save
         </Button>
       </DialogFooter>
