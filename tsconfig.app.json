@@ -4,7 +4,7 @@
     "useDefineForClassFields": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
-    "types": ["vite/client"],
+    "types": ["vite/client", "unplugin-icons/types"],
     "skipLibCheck": true,
 
     /* Bundler mode */
@@ -29,5 +29,6 @@
       "@ui/*": ["./src/components/ui/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "node_modules/.icons"],
+  "exclude": ["node_modules"]
 }

@@ -1,21 +1,25 @@
 # ProsperLite
 
-A high-performance, lightweight wealth management dashboard architected with React 18, TypeScript, and TanStack Query.
+A high-performance, lightweight wealth management dashboard architected with React 19, TypeScript, and Zustand.
 
 ## Key Features
 
 ## Tech Stack
 
-| Layer                | Technology                     |
-| :------------------- | :----------------------------- |
-| **Framework**        | React 18 (Concurrent Mode)     |
-| **Language**         | TypeScript (Strict Mode)       |
-| **Styling**          | Tailwind CSS + Shadcn/UI       |
-| **State Management** | Zustand                        |
-| **Data Validation**  | Zod                            |
-| **Visualizations**   | ECharts / Recharts             |
-| **Build Tool**       | Vite + Pnpm                    |
-| **Testing**          | Vitest + React Testing Library |
+| Layer                | Technology                           |
+| :------------------- | :----------------------------------- |
+| **Framework**        | React 19 + React Router v7           |
+| **Language**         | TypeScript 5 (Strict Mode)           |
+| **Styling**          | Tailwind CSS v4 + Shadcn/UI          |
+| **State Management** | Zustand + Immer + Persist Middleware |
+| **Form Management**  | React Hook Form + Zod                |
+| **UI Components**    | Radix UI Primitives + Custom Drawer  |
+| **Icons**            | unplugin-icons + Iconify (Lucide)    |
+| **Date Handling**    | dayjs + react-day-picker             |
+| **Notifications**    | sonner (Toast)                       |
+| **Visualizations**   | Recharts                             |
+| **Build Tool**       | Vite + Pnpm                          |
+| **Code Quality**     | ESLint + TypeScript ESLint           |
 
 ## Why This Project?
 
@@ -25,12 +29,21 @@ This project serves as a showcase of my ability to handle **complex state manage
 
 ```text
 src/
-├── api/             # Axios instance & service definitions
-├── hooks/           # Custom TanStack Query hooks (The "Brain")
-├── store/           # Zustand stores for UI/Global state
-├── components/      # Atomic UI components & Composite cards
-├── lib/             # Shared utils & Zod schemas
-└── pages/           # High-level route views
+├── components/      # Reusable UI components (Dialog, Drawer, Form, etc.)
+├── config/          # Application configuration (navigation, constants)
+├── features/        # Feature-based modules (transactions, categories, ledgers)
+│   ├── transactions/ # Transaction management
+│   ├── categories/   # Category management with icon picker
+│   └── ledgers/      # Ledger (account) management
+├── hooks/           # Custom React hooks (useMobile, useConfirm, etc.)
+├── layouts/         # Page layouts (main app shell with sidebar)
+├── lib/             # Utility functions and helpers
+├── pages/           # Route pages (Dashboard, Settings, Transactions, Statistics)
+├── router/          # React Router configuration
+├── store/           # Zustand global state with Immer + Persist
+│   ├── useStore.ts  # Main store composition
+│   └── types.ts     # Store type definitions
+└── types/           # Global TypeScript type definitions
 ```
 
 ## Architecture Decison Records

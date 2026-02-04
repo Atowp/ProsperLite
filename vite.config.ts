@@ -1,11 +1,19 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import Icons from "unplugin-icons/vite";
 import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    Icons({
+      compiler: "jsx",
+      jsx: "react",
+    }),
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),
@@ -17,7 +25,10 @@ export default defineConfig({
       output: {
         manualChunks: (id) => {
           // React core libraries
-          if (id.includes("node_modules/react") || id.includes("node_modules/react-dom")) {
+          if (
+            id.includes("node_modules/react") ||
+            id.includes("node_modules/react-dom")
+          ) {
             return "vendor-react";
           }
           // React Router
@@ -28,8 +39,11 @@ export default defineConfig({
           if (id.includes("node_modules/@radix-ui")) {
             return "vendor-ui";
           }
-          // Icons
-          if (id.includes("node_modules/lucide-react")) {
+          // Icons - now handled by unplugin-icons, smaller bundle
+          if (
+            id.includes("virtual:icons") ||
+            id.includes("/node_modules/.icons")
+          ) {
             return "vendor-icons";
           }
           // Charts and date pickers
@@ -49,7 +63,10 @@ export default defineConfig({
             return "vendor-forms";
           }
           // State management
-          if (id.includes("node_modules/zustand")) {
+          if (
+            id.includes("node_modules/zustand") ||
+            id.includes("node_modules/immer")
+          ) {
             return "vendor-state";
           }
           // Other node_modules

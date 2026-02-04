@@ -1,7 +1,7 @@
-import { type LucideIcon } from "lucide-react";
 import { ALL_CATEGORY_ICONS_MAP } from "../constants";
+import type { SVGProps } from "react";
 
-interface CategoryIconProps extends React.ComponentProps<LucideIcon> {
+interface CategoryIconProps extends SVGProps<SVGSVGElement> {
   iconKey: string;
   className?: string;
   size?: number;

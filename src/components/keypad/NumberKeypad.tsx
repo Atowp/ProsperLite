@@ -15,7 +15,8 @@ import { memo, useCallback, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/ui";
 import { KEYPAD_LAYOUT, KEYBOARD_MAP } from "./config";
-import { Delete, Check } from "lucide-react";
+import DeleteIcon from "~icons/lucide/delete";
+import CheckIcon from "~icons/lucide/check";
 
 interface NumberKeypadProps {
   /** Callback when keypad confirms the input */
@@ -54,8 +55,8 @@ export const NumberKeypad = memo(function NumberKeypad({
    * Render icon based on icon type
    */
   const renderIcon = useCallback((icon?: "backspace" | "confirm") => {
-    if (icon === "backspace") return <Delete className="h-5 w-5" />;
-    if (icon === "confirm") return <Check className="h-6 w-6" />;
+    if (icon === "backspace") return <DeleteIcon className="h-5 w-5" />;
+    if (icon === "confirm") return <CheckIcon className="h-6 w-6" />;
     return null;
   }, []);
 
