@@ -1,7 +1,7 @@
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { Card } from "@ui/card";
 
-export function Dashboard() {
+function Dashboard() {
   const totalBalance = 1234.5;
   const dayChange = +2.45;
 
@@ -37,3 +37,5 @@ export function Dashboard() {
     </section>
   );
 }
+
+export default Dashboard;

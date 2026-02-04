@@ -2,23 +2,12 @@ import { lazy } from "react";
 import App from "@/App";
 import Layout from "@/layouts/Layout";
 import { createBrowserRouter } from "react-router-dom";
-import { SuspenseWrapper } from "@/components/SuspenseWrapper";
 
 // Lazy load page components for code splitting
-const Dashboard = lazy(() =>
-  import("@/pages/Dashboard/Dashboard").then((m) => ({ default: m.Dashboard }))
-);
-const Transactions = lazy(() =>
-  import("@/pages/Transaction/Transaction").then((m) => ({
-    default: m.Transactions,
-  }))
-);
-const Statistic = lazy(() =>
-  import("@/pages/Statistic/Statistic").then((m) => ({ default: m.Statistic }))
-);
-const Settings = lazy(() =>
-  import("@/pages/Settings/Settings").then((m) => ({ default: m.Settings }))
-);
+const Dashboard = lazy(() => import("@/pages/Dashboard/Dashboard"));
+const Transactions = lazy(() => import("@/pages/Transaction/Transaction"));
+const Statistic = lazy(() => import("@/pages/Statistic/Statistic"));
+const Settings = lazy(() => import("@/pages/Settings/Settings"));
 
 export const router = createBrowserRouter([
   {
@@ -31,35 +20,19 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: (
-              <SuspenseWrapper>
-                <Dashboard />
-              </SuspenseWrapper>
-            ),
+            element: <Dashboard />,
           },
           {
             path: "transactions",
-            element: (
-              <SuspenseWrapper>
-                <Transactions />
-              </SuspenseWrapper>
-            ),
+            element: <Transactions />,
           },
           {
             path: "statistic",
-            element: (
-              <SuspenseWrapper>
-                <Statistic />
-              </SuspenseWrapper>
-            ),
+            element: <Statistic />,
           },
           {
             path: "settings",
-            element: (
-              <SuspenseWrapper>
-                <Settings />
-              </SuspenseWrapper>
-            ),
+            element: <Settings />,
           },
         ],
       },

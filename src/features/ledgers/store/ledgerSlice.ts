@@ -24,7 +24,7 @@ export interface LedgerSlice {
 
 export const createLedgerSlice: StateCreator<
   StoreState,
-  [["zustand/persist", unknown]],
+  [["zustand/immer", unknown], ["zustand/persist", unknown]],
   [],
   LedgerSlice
 > = (set, get) => ({
@@ -45,7 +45,12 @@ export const createLedgerSlice: StateCreator<
       id: nanoid(),
       createdAt: Date.now(),
     };
-    set((state: StoreState) => ({ ledgers: [...state.ledgers, newLedger] }));
+
+    set((state) => {
+      // With immer, we can directly mutate the draft
+      state.ledgers.push(newLedger);
+    });
+
     return { success: true };
   },
 
@@ -80,11 +85,14 @@ export const createLedgerSlice: StateCreator<
       }
     }
 
-    set((state: StoreState) => ({
-      ledgers: state.ledgers.map((ledger: Ledger) =>
-        ledger.id === id ? { ...ledger, ...updates } : ledger
-      ),
-    }));
+    set((state) => {
+      // With immer, we can directly mutate the draft
+      const index = state.ledgers.findIndex((l) => l.id === id);
+      if (index !== -1) {
+        state.ledgers[index] = { ...state.ledgers[index], ...updates };
+      }
+    });
+
     return { success: true };
   },
 
@@ -111,20 +119,22 @@ export const createLedgerSlice: StateCreator<
       };
     }
 
-    set((state: StoreState) => ({
-      ledgers: state.ledgers.filter((ledger: Ledger) => ledger.id !== id),
-    }));
+    set((state) => {
+      // With immer, we can directly mutate the draft
+      state.ledgers = state.ledgers.filter((l) => l.id !== id);
+    });
+
     return { success: true, message: "Ledger deleted successfully." };
   },
 
   adjustBalance: (id, amount) => {
-    set((state: StoreState) => ({
-      ledgers: state.ledgers.map((ledger: Ledger) =>
-        ledger.id === id
-          ? { ...ledger, balance: (ledger.balance ?? 0) + amount }
-          : ledger
-      ),
-    }));
+    set((state) => {
+      // With immer, we can directly mutate the draft
+      const ledger = state.ledgers.find((l) => l.id === id);
+      if (ledger) {
+        ledger.balance = (ledger.balance ?? 0) + amount;
+      }
+    });
   },
 
   getTotalBalance: (ledgerId) => {

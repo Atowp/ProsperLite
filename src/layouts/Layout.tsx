@@ -7,6 +7,7 @@ import { Outlet } from "react-router-dom";
 import { useState } from "react";
 import { TransactionActionDialog } from "@/features/transactions";
 import { useStore } from "@/store/useStore";
+import { SuspenseWrapper } from "@/components/SuspenseWrapper";
 
 function Layout() {
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
@@ -33,7 +34,9 @@ function Layout() {
         </header>
         <div className="min-h-screen bg-background p-6">
           <main className="max-w-5xl mx-auto">
-            <Outlet />
+            <SuspenseWrapper>
+              <Outlet />
+            </SuspenseWrapper>
           </main>
         </div>
       </SidebarInset>

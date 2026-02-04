@@ -1,5 +1,7 @@
 import { TransactionList } from "@/features/transactions";
 
-export function Transactions() {
+function Transactions() {
   return <TransactionList />;
 }
+
+export default Transactions;

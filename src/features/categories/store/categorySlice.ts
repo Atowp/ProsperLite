@@ -20,7 +20,7 @@ export interface CategorySlice {
 
 export const createCategorySlice: StateCreator<
   StoreState,
-  [["zustand/persist", unknown]],
+  [["zustand/immer", unknown], ["zustand/persist", unknown]],
   [],
   CategorySlice
 > = (set, get) => ({
@@ -41,9 +41,12 @@ export const createCategorySlice: StateCreator<
       createdAt: Date.now(),
       isSystem: false,
     };
-    set((state: StoreState) => ({
-      categories: [...state.categories, newCategory],
-    }));
+
+    set((state) => {
+      // With immer, we can directly mutate the draft
+      state.categories.push(newCategory);
+    });
+
     return { success: true };
   },
 
@@ -65,11 +68,14 @@ export const createCategorySlice: StateCreator<
       }
     }
 
-    set((state: StoreState) => ({
-      categories: state.categories.map((category: Category) =>
-        category.id === id ? { ...category, ...updates } : category
-      ),
-    }));
+    set((state) => {
+      // With immer, we can directly mutate the draft
+      const index = state.categories.findIndex((c) => c.id === id);
+      if (index !== -1) {
+        state.categories[index] = { ...state.categories[index], ...updates };
+      }
+    });
+
     return { success: true };
   },
 
@@ -78,17 +84,18 @@ export const createCategorySlice: StateCreator<
       return { success: false, message: "System category cannot be deleted." };
     }
 
-    set((state: StoreState) => ({
-      categories: state.categories.filter(
-        (category: Category) => category.id !== id
-      ),
-      /** update transactions with the system category */
-      transactions: state.transactions.map((transaction) =>
+    set((state) => {
+      // With immer, we can directly mutate the draft
+      // Remove category
+      state.categories = state.categories.filter((c) => c.id !== id);
+
+      // Update transactions with the system category
+      state.transactions = state.transactions.map((transaction) =>
         transaction.categoryId === id
           ? { ...transaction, categoryId: DEFAULT_CATEGORY_ID }
           : transaction
-      ),
-    }));
+      );
+    });
 
     return { success: true, message: "Category deleted successfully." };
   },

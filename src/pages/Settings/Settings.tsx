@@ -1,7 +1,7 @@
 import { CategoryList } from "@/features/categories";
 import { LedgerList } from "@/features/ledgers";
 
-export function Settings() {
+function Settings() {
   return (
     <div>
       <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance mb-6">
@@ -14,3 +14,5 @@ export function Settings() {
     </div>
   );
 }
+
+export default Settings;

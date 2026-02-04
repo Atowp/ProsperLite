@@ -25,7 +25,7 @@ const calculateImpact = (transaction: Transaction) =>
 
 export const createTransactionSlice: StateCreator<
   StoreState,
-  [["zustand/persist", unknown]],
+  [["zustand/immer", unknown], ["zustand/persist", unknown]],
   [],
   TransactionSlice
 > = (set, get) => {
@@ -49,9 +49,10 @@ export const createTransactionSlice: StateCreator<
         id: nanoid(),
         createdAt: Date.now(),
       };
-      set((state: StoreState) => ({
-        transactions: [newTx, ...state.transactions],
-      }));
+      set((state) => {
+        // With immer, we can directly mutate the draft
+        state.transactions.unshift(newTx);
+      });
 
       syncBalanceEffect(null, newTx);
       return { success: true };
@@ -62,12 +63,16 @@ export const createTransactionSlice: StateCreator<
         (transaction) => transaction.id === id
       );
       if (!oldTx) return { success: false, message: "Transaction not found" };
+
       const newTx = { ...oldTx, ...updates };
-      set((state: StoreState) => ({
-        transactions: state.transactions.map((transaction) =>
-          transaction.id === id ? newTx : transaction
-        ),
-      }));
+
+      set((state) => {
+        // With immer, we can directly mutate the draft
+        const index = state.transactions.findIndex((t) => t.id === id);
+        if (index !== -1) {
+          state.transactions[index] = newTx;
+        }
+      });
 
       syncBalanceEffect(oldTx, newTx);
       return { success: true };
@@ -78,11 +83,13 @@ export const createTransactionSlice: StateCreator<
         (transaction) => transaction.id === id
       );
       if (!oldTx) return { success: false, message: "Transaction not found" };
-      set((state: StoreState) => ({
-        transactions: state.transactions.filter(
+
+      set((state) => {
+        // With immer, we can directly mutate the draft
+        state.transactions = state.transactions.filter(
           (transaction) => transaction.id !== id
-        ),
-      }));
+        );
+      });
 
       syncBalanceEffect(oldTx, null);
       return { success: true };
