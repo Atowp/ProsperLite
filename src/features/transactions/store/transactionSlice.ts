@@ -8,15 +8,30 @@ import { nanoid } from "nanoid";
 export interface TransactionSlice {
   transactions: Transaction[];
 
+  // Pagination state
+  currentPage: number;
+  itemsPerPage: number;
+
+  // Date filter state
+  dateRangeStart: string | null;
+  dateRangeEnd: string | null;
+
+  // Transaction actions
   addTransaction: (transaction: TransactionInput) => ActionResponse;
   updateTransaction: (id: string, transaction: TransactionInput) => ActionResponse;
   deleteTransaction: (id: string) => ActionResponse;
 
+  // Query methods
   getTransactionsByDateRange: (
     startDate: string,
     endDate: string
   ) => Transaction[];
   getTransactionsByCategory: (categoryId: string) => Transaction[];
+
+  // Pagination and filter actions
+  setCurrentPage: (page: number) => void;
+  setDateRange: (start: string | null, end: string | null) => void;
+  resetFilters: () => void;
 }
 
 /** calculate the impact of a transaction on the ledger */
@@ -42,6 +57,14 @@ export const createTransactionSlice: StateCreator<
 
   return {
     transactions: [],
+
+    // Pagination state defaults
+    currentPage: 1,
+    itemsPerPage: 10,
+
+    // Date filter state defaults
+    dateRangeStart: null,
+    dateRangeEnd: null,
 
     addTransaction: (transaction) => {
       const newTx: Transaction = {
@@ -109,6 +132,29 @@ export const createTransactionSlice: StateCreator<
       return get().transactions.filter(
         (transaction) => transaction.categoryId === categoryId
       );
+    },
+
+    setCurrentPage: (page) => {
+      set((state) => {
+        state.currentPage = Math.max(1, page);
+      });
+    },
+
+    setDateRange: (start, end) => {
+      set((state) => {
+        state.dateRangeStart = start;
+        state.dateRangeEnd = end;
+        // Reset to page 1 when date filter changes
+        state.currentPage = 1;
+      });
+    },
+
+    resetFilters: () => {
+      set((state) => {
+        state.currentPage = 1;
+        state.dateRangeStart = null;
+        state.dateRangeEnd = null;
+      });
     },
   };
 };

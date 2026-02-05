@@ -53,7 +53,7 @@ import {
 import { QUICK_AMOUNTS } from "@/constants/config";
 import { toast } from "sonner";
 import { cn } from "@/lib/ui";
-import dayjs from "dayjs";
+import dayjs from "@/lib/dayjs";
 import type { ActionResponse } from "@/types";
 
 interface TransactionFormProps {
@@ -247,8 +247,9 @@ export const TransactionForm = memo(function TransactionForm({
               }
               size="sm"
               onClick={() => setValue("categoryId", category.id)}
+              title={category.name}
             >
-              {category.name}
+              <span className="truncate px-2">{category.name}</span>
             </Button>
           ))}
         </div>
@@ -284,8 +285,9 @@ export const TransactionForm = memo(function TransactionForm({
               variant={watch("ledgerId") === ledger.id ? "default" : "outline"}
               size="sm"
               onClick={() => setValue("ledgerId", ledger.id)}
+              title={ledger.name}
             >
-              {ledger.name}
+              <span className="truncate px-2">{ledger.name}</span>
             </Button>
           ))}
         </div>

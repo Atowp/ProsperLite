@@ -5,6 +5,7 @@ import { immer } from "zustand/middleware/immer";
 import { createTransactionSlice } from "@/features/transactions/store";
 import { createLedgerSlice } from "@/features/ledgers/store";
 import { createCategorySlice } from "@/features/categories/store";
+import { createSettingSlice } from "@/features/settings/store";
 import type { StoreState } from "./types";
 
 /**
@@ -29,16 +30,17 @@ function isValidCategory(value: unknown): value is Record<string, unknown> & {
   name?: string;
   iconKey?: string;
 } {
-  return isValidObject(value) && typeof value.id === "string" && typeof value.name === "string";
+  return (
+    isValidObject(value) &&
+    typeof value.id === "string" &&
+    typeof value.name === "string"
+  );
 }
 
 /**
  * Migration function with proper type guards
  */
-function migrateState(
-  persistedState: unknown,
-  version: number
-): StoreState {
+function migrateState(persistedState: unknown, version: number): StoreState {
   if (!isValidObject(persistedState)) {
     throw new Error("Invalid persisted state: expected an object");
   }
@@ -62,7 +64,7 @@ function migrateState(
 
   // Return the migrated state with proper type assertion
   // We've validated the structure, so this is safe
-  return persistedState as StoreState;
+  return persistedState as unknown as StoreState;
 }
 
 export const useStore = create<StoreState>()(
@@ -74,6 +76,7 @@ export const useStore = create<StoreState>()(
           ...createTransactionSlice(...r),
           ...createCategorySlice(...r),
           ...createLedgerSlice(...r),
+          ...createSettingSlice(...r),
         }),
         {
           name: "prosperlite-storage",
@@ -81,10 +84,16 @@ export const useStore = create<StoreState>()(
             transactions: state.transactions,
             categories: state.categories,
             ledgers: state.ledgers,
+            monthlyLimit: state.monthlyLimit,
           }),
-          version: 2,
+          version: 3,
           migrate: (persistedState, version) => {
-            return migrateState(persistedState, version);
+            const state = migrateState(persistedState, version);
+            // Migrate from version 2 to 3: add monthlyLimit if missing
+            if (typeof state.monthlyLimit !== "number") {
+              state.monthlyLimit = 5000;
+            }
+            return state;
           },
           storage: createJSONStorage(() => localStorage),
           onRehydrateStorage: () => {

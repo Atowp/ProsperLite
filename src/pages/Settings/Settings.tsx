@@ -1,5 +1,6 @@
 import { CategoryList } from "@/features/categories";
 import { LedgerList } from "@/features/ledgers";
+import { MonthlyLimitSection } from "@/features/settings";
 
 function Settings() {
   return (
@@ -10,6 +11,7 @@ function Settings() {
       <div className="space-y-8">
         <CategoryList />
         <LedgerList />
+        <MonthlyLimitSection />
       </div>
     </div>
   );

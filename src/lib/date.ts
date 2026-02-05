@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+import dayjs from "@/lib/dayjs";
 
 export const getTimeRange = () => {
   const now = dayjs();

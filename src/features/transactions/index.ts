@@ -1,4 +1,3 @@
-export * from "./components/List";
 export * from "./components/TransactionForm";
 export * from "./components/TransactionActionDialog";
 export * from "./components/TransactionList";

@@ -29,15 +29,16 @@ This project serves as a showcase of my ability to handle **complex state manage
 
 ```text
 src/
-├── components/      # Reusable UI components (Dialog, Drawer, Form, etc.)
+├── components/      # Reusable UI components (Dialog, Drawer, Form, Pagination, etc.)
 ├── config/          # Application configuration (navigation, constants)
+├── docs/            # documentation
 ├── features/        # Feature-based modules (transactions, categories, ledgers)
-│   ├── transactions/ # Transaction management
+│   ├── transactions/ # Transaction management with pagination
 │   ├── categories/   # Category management with icon picker
 │   └── ledgers/      # Ledger (account) management
 ├── hooks/           # Custom React hooks (useMobile, useConfirm, etc.)
 ├── layouts/         # Page layouts (main app shell with sidebar)
-├── lib/             # Utility functions and helpers
+├── lib/             # Utility functions and helpers (dayjs config, etc.)
 ├── pages/           # Route pages (Dashboard, Settings, Transactions, Statistics)
 ├── router/          # React Router configuration
 ├── store/           # Zustand global state with Immer + Persist
