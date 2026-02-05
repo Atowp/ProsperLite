@@ -85,14 +85,18 @@ export const useStore = create<StoreState>()(
             categories: state.categories,
             ledgers: state.ledgers,
             monthlyLimit: state.monthlyLimit,
+            // Don't persist pagination and filter states
+            // They reset to defaults on each page load
           }),
-          version: 3,
+          version: 4,
           migrate: (persistedState, version) => {
             const state = migrateState(persistedState, version);
             // Migrate from version 2 to 3: add monthlyLimit if missing
             if (typeof state.monthlyLimit !== "number") {
               state.monthlyLimit = 5000;
             }
+            // Version 4: Pagination and filter states no longer persisted
+            // They will reset to defaults (page 1, no date filter)
             return state;
           },
           storage: createJSONStorage(() => localStorage),

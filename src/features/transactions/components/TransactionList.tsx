@@ -8,6 +8,7 @@ import dayjs from "@/lib/dayjs";
 import { Pagination } from "@/components/ui/pagination";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import SearchIcon from "~icons/lucide/search";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface TransactionListProps {
   /** Optional category filter */
@@ -28,6 +29,8 @@ export function TransactionList({ categoryId }: TransactionListProps = {}) {
     setCurrentPage,
     setDateRange,
   } = useStore();
+
+  const isMobile = useIsMobile();
 
   const [isOpen, setIsOpen] = useState(false);
   const [editTransaction, setEditTransaction] = useState<Transaction | null>(
@@ -62,8 +65,8 @@ export function TransactionList({ categoryId }: TransactionListProps = {}) {
       result = result.filter((tx) => {
         const category = categories.find((c) => c.id === tx.categoryId);
         const categoryName = category?.name.toLowerCase() || "";
-        const remark = (tx.remark || "").toLowerCase();
-        return categoryName.includes(query) || remark.includes(query);
+        // const remark = (tx.remark || "").toLowerCase();
+        return categoryName.includes(query);
       });
     }
 
@@ -113,41 +116,71 @@ export function TransactionList({ categoryId }: TransactionListProps = {}) {
   };
 
   return (
-    <div className="space-y-3 sm:space-y-4">
-      {/* Header with filters - Desktop: inline, Mobile: stacked */}
-      <div className="space-y-3">
-        {/* Title row - always on top on mobile */}
-        <div className="flex items-center">
-          <div className="flex items-center">
-            <h3 className="text-base sm:text-lg font-semibold mr-2">
-              Transactions
-            </h3>
-            <span className="text-xs text-muted-foreground">
+    <div className="space-y-4">
+      {/* Header with filters */}
+      {/* Desktop layout - single row */}
+      {!isMobile && (
+        <div className="space-y-4">
+          {/* Transactions section header with filters */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center">
+              <h3 className="text-lg font-semibold mr-2">Transactions</h3>
+              <span className="text-xs text-muted-foreground">
+                ({filteredAndSortedTransactions.length})
+              </span>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <DateRangePicker
+                startDate={dateRangeStart}
+                endDate={dateRangeEnd}
+                onDateRangeChange={handleDateRangeChange}
+              />
+              <div className="relative">
+                <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <Input
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="h-8 w-48 md:w-64 pl-9"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile layout - stacked */}
+      {isMobile && (
+        <div className="space-y-4">
+          {/* Title row with count */}
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold">Transactions</h3>
+            <span className="text-sm text-muted-foreground">
               ({filteredAndSortedTransactions.length})
             </span>
           </div>
 
-          {/* Filters row - stacked on mobile, inline on desktop */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 justify-between w-full">
-            {/* Date Range Picker */}
-            <DateRangePicker
-              startDate={dateRangeStart}
-              endDate={dateRangeEnd}
-              onDateRangeChange={handleDateRangeChange}
+          {/* Date range picker - full width */}
+          <DateRangePicker
+            startDate={dateRangeStart}
+            endDate={dateRangeEnd}
+            onDateRangeChange={handleDateRangeChange}
+            className="w-full"
+          />
+
+          {/* Search bar - full width */}
+          <div className="relative">
+            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <Input
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-8 w-full pl-9"
             />
-            {/* Search Input - visible on all screens with icon */}
-            <div className="relative flex-1 sm:flex-none ml-2">
-              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-              <Input
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-9 pl-9 sm:w-48 sm:h-8 md:w-64"
-              />
-            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Transaction List */}
       <div className="grid gap-2">
