@@ -6,7 +6,14 @@
       "Bash(npx tsc:*)",
       "Bash(node:*)",
       "Bash(git checkout:*)",
-      "Bash(powershell:*)"
+      "Bash(powershell:*)",
+      "Bash(npm run build:*)",
+      "Bash(pnpm dev:*)",
+      "Bash(pnpm run build)",
+      "Bash(curl:*)",
+      "Bash(npx vite:*)",
+      "Bash(pnpm list:*)",
+      "Bash(timeout:*)"
     ]
   }
 }

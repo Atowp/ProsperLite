@@ -71,17 +71,19 @@ export function PeriodExpenseBarChart({ className }: PeriodExpenseBarChartProps)
     );
 
     if (period === "week") {
-      // Last 7 days
+      // Current week (Monday to Sunday)
+      const weekStart = now.startOf("week");
+      const weekEnd = now.endOf("week");
       const days: PeriodExpenseData[] = [];
-      for (let i = 6; i >= 0; i--) {
-        const date = now.subtract(i, "day");
+
+      for (let i = 0; i < 7; i++) {
+        const date = weekStart.add(i, "day");
         const dayStart = date.startOf("day");
         const dayEnd = date.endOf("day");
 
         const total = expenseTransactions
           .filter((tx) => {
             const txDate = dayjs(tx.date);
-            // Use isSameOrAfter and isSameOrBefore to include boundary times
             return (
               txDate.isSameOrAfter(dayStart) && txDate.isSameOrBefore(dayEnd)
             );
@@ -96,33 +98,40 @@ export function PeriodExpenseBarChart({ className }: PeriodExpenseBarChartProps)
       }
       return days;
     } else if (period === "month") {
-      // Last 30 days grouped by week
-      const weeks: PeriodExpenseData[] = [];
-      for (let i = 3; i >= 0; i--) {
-        const weekStart = now.subtract(i, "week").startOf("week");
-        const weekEnd = now.subtract(i, "week").endOf("week");
+      // Current month (1st to last day)
+      const monthStart = now.startOf("month");
+      const monthEnd = now.endOf("month");
+      const daysInMonth = monthEnd.date();
+      const days: PeriodExpenseData[] = [];
+
+      for (let i = 1; i <= daysInMonth; i++) {
+        const date = monthStart.date(i);
+        const dayStart = date.startOf("day");
+        const dayEnd = date.endOf("day");
 
         const total = expenseTransactions
           .filter((tx) => {
             const txDate = dayjs(tx.date);
             return (
-              txDate.isSameOrAfter(weekStart) && txDate.isSameOrBefore(weekEnd)
+              txDate.isSameOrAfter(dayStart) && txDate.isSameOrBefore(dayEnd)
             );
           })
           .reduce((sum, tx) => sum + tx.amount, 0);
 
-        weeks.push({
-          name: `Week ${4 - i}`,
+        days.push({
+          name: date.format("MM/DD"),
           value: total,
-          fullDate: `${weekStart.format("MM/DD")}-${weekEnd.format("MM/DD")}`,
+          fullDate: date.format("YYYY-MM-DD"),
         });
       }
-      return weeks;
+      return days;
     } else {
-      // Last 12 months
+      // Current year (January to December)
+      const yearStart = now.startOf("year");
       const months: PeriodExpenseData[] = [];
-      for (let i = 11; i >= 0; i--) {
-        const date = now.subtract(i, "month");
+
+      for (let i = 0; i < 12; i++) {
+        const date = yearStart.month(i);
         const monthStart = date.startOf("month");
         const monthEnd = date.endOf("month");
 
@@ -223,10 +232,10 @@ export function PeriodExpenseBarChart({ className }: PeriodExpenseBarChartProps)
           <div className="mt-4 flex justify-between text-sm">
             <span className="text-muted-foreground">
               {period === "week"
-                ? "Last 7 days"
+                ? "This week (Mon-Sun)"
                 : period === "month"
-                ? "Last 4 weeks"
-                : "Last 12 months"}
+                ? "This month"
+                : "This year"}
             </span>
             <span className="font-semibold">
               Total: ¥{data.reduce((sum, d) => sum + d.value, 0).toFixed(2)}

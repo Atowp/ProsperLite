@@ -1,28 +1,34 @@
-import { useStore } from "@/store/useStore";
 import { Card } from "@ui/card";
-import dayjs from "@/lib/dayjs";
 import { PieChart, Pie, ResponsiveContainer } from "recharts";
+import { useMonthlyProgress } from "@/hooks/use-dashboard-stats";
+import { Skeleton } from "@ui/skeleton";
+import { useStore } from "@/store/useStore";
 
 interface MonthlyProgressProps {
   className?: string;
 }
 
 export function MonthlyProgress({ className }: MonthlyProgressProps) {
-  const { transactions, monthlyLimit } = useStore();
+  const { monthlyLimit } = useStore();
+  const { data: progressData, isLoading } = useMonthlyProgress();
 
-  // Calculate current month's expenses
-  const currentMonthExpenses = transactions
-    .filter((tx) => {
-      const txDate = dayjs(tx.date);
-      const now = dayjs();
-      return txDate.isSame(now, "month") && txDate.isSame(now, "year");
-    })
-    .filter((tx) => tx.type === "expense")
-    .reduce((sum, tx) => sum + tx.amount, 0);
+  if (isLoading) {
+    return (
+      <Card className={className}>
+        <div className="flex flex-col items-center p-6">
+          <div className="w-full mb-4">
+            <h3 className="text-lg font-semibold">Monthly Budget</h3>
+          </div>
+          <Skeleton className="h-[240px] w-[240px] rounded-full" />
+        </div>
+      </Card>
+    );
+  }
 
-  const percentage = (currentMonthExpenses / monthlyLimit) * 100;
-  const remaining = Math.max(monthlyLimit - currentMonthExpenses, 0);
-  const isOverBudget = currentMonthExpenses > monthlyLimit;
+  if (!progressData) return null;
+
+  const { currentMonthExpenses, percentage, remaining, isOverBudget } =
+    progressData;
 
   // Colors
   const SPENT_COLOR = isOverBudget ? "#ef4444" : "#3b82f6";

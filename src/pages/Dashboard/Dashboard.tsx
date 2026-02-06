@@ -7,60 +7,14 @@ import {
   CategoryExpensePieChart,
   PeriodExpenseBarChart,
 } from "@/features/dashboard";
-import { useStore } from "@/store/useStore";
-import { useMemo } from "react";
+import { useDashboardStats } from "@/hooks/use-dashboard-stats";
+import { Skeleton } from "@ui/skeleton";
 import dayjs from "@/lib/dayjs";
 import { cn } from "@/lib/ui";
 
 function Dashboard() {
-  const { transactions } = useStore();
-
-  // Calculate today's and yesterday's expenses
-  const { todayExpenses, yesterdayExpenses, percentChange, isIncrease } =
-    useMemo(() => {
-      const now = dayjs();
-      const todayStart = now.startOf("day");
-      const todayEnd = now.endOf("day");
-      const yesterdayStart = now.subtract(1, "day").startOf("day");
-      const yesterdayEnd = now.subtract(1, "day").endOf("day");
-
-      // Filter today's expenses
-      const todayTotal = transactions
-        .filter((tx) => {
-          const txDate = dayjs(tx.date);
-          return (
-            tx.type === "expense" &&
-            txDate.isAfter(todayStart) &&
-            txDate.isBefore(todayEnd)
-          );
-        })
-        .reduce((sum, tx) => sum + tx.amount, 0);
-
-      // Filter yesterday's expenses
-      const yesterdayTotal = transactions
-        .filter((tx) => {
-          const txDate = dayjs(tx.date);
-          return (
-            tx.type === "expense" &&
-            txDate.isAfter(yesterdayStart) &&
-            txDate.isBefore(yesterdayEnd)
-          );
-        })
-        .reduce((sum, tx) => sum + tx.amount, 0);
-
-      // Calculate percentage change
-      const percentChange =
-        yesterdayTotal > 0
-          ? ((todayTotal - yesterdayTotal) / yesterdayTotal) * 100
-          : 0;
-
-      return {
-        todayExpenses: todayTotal,
-        yesterdayExpenses: yesterdayTotal,
-        percentChange: Math.abs(percentChange),
-        isIncrease: todayTotal > yesterdayTotal,
-      };
-    }, [transactions]);
+  // Use cached query for statistics
+  const { data: stats, isLoading: statsLoading } = useDashboardStats();
 
   return (
     <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -69,32 +23,43 @@ function Dashboard() {
         <p className="text-slate-500 text-sm font-medium mb-1">
           {dayjs().format("MMMM DD YYYY")}, Today's Expenses
         </p>
-        <h1 className="text-4xl font-bold tracking-tight mb-4">
-          {todayExpenses.toLocaleString("zh-Hans-CN", {
-            style: "currency",
-            currency: "CNY",
-          })}
-        </h1>
-        <div className="flex items-center gap-2">
-          <span
-            className={cn(
-              "flex items-center gap-1 px-2 py-1 rounded-md text-xs font-bold",
-              isIncrease
-                ? "bg-red-50 text-red-700"
-                : "bg-green-50 text-green-700"
-            )}
-          >
-            {isIncrease ? (
-              <ArrowUpRightIcon className="w-3 h-3" />
-            ) : (
-              <ArrowDownRightIcon className="w-3 h-3" />
-            )}
-            {yesterdayExpenses > 0 ? percentChange.toFixed(1) : "0.0"}%
-          </span>
-          <span className="text-slate-400 text-xs">
-            vs yesterday ¥{yesterdayExpenses.toFixed(2)}
-          </span>
-        </div>
+        {statsLoading ? (
+          <Skeleton className="h-12 w-48 mb-4" />
+        ) : (
+          <h1 className="text-4xl font-bold tracking-tight mb-4">
+            {stats?.todayExpenses.toLocaleString("zh-Hans-CN", {
+              style: "currency",
+              currency: "CNY",
+            })}
+          </h1>
+        )}
+        {statsLoading ? (
+          <div className="flex gap-4">
+            <Skeleton className="h-8 w-24" />
+            <Skeleton className="h-8 w-32" />
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <span
+              className={cn(
+                "flex items-center gap-1 px-2 py-1 rounded-md text-xs font-bold",
+                stats?.isIncrease
+                  ? "bg-red-50 text-red-700"
+                  : "bg-green-50 text-green-700"
+              )}
+            >
+              {stats?.isIncrease ? (
+                <ArrowUpRightIcon className="w-3 h-3" />
+              ) : (
+                <ArrowDownRightIcon className="w-3 h-3" />
+              )}
+              {stats && stats.yesterdayExpenses > 0 ? stats.percentChange.toFixed(1) : "0.0"}%
+            </span>
+            <span className="text-slate-400 text-xs">
+              vs yesterday ¥{stats?.yesterdayExpenses.toFixed(2) || "0.00"}
+            </span>
+          </div>
+        )}
       </Card>
 
       {/* Recent Transactions */}
