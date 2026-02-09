@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@prosper/shared";
 
 export const requiredString = (fieldName: string) =>
   z.string().trim().min(1, `${fieldName} cannot be empty.`);

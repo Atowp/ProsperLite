@@ -3,7 +3,7 @@ import type { StateCreator } from "zustand";
 import type { StoreState } from "@/store/types";
 import { toNum } from "@/store/helpers";
 import type { Transaction, TransactionInput } from "@/schemas/transaction";
-import { nanoid } from "nanoid";
+import { nanoid } from "@prosper/shared";
 
 export interface TransactionSlice {
   transactions: Transaction[];
@@ -18,7 +18,10 @@ export interface TransactionSlice {
 
   // Transaction actions
   addTransaction: (transaction: TransactionInput) => ActionResponse;
-  updateTransaction: (id: string, transaction: TransactionInput) => ActionResponse;
+  updateTransaction: (
+    id: string,
+    transaction: TransactionInput
+  ) => ActionResponse;
   deleteTransaction: (id: string) => ActionResponse;
 
   // Query methods

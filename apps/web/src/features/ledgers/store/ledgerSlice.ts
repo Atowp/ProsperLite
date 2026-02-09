@@ -2,7 +2,7 @@ import type { ActionResponse } from "@/types";
 import type { StateCreator } from "zustand";
 import type { StoreState } from "@/store/types";
 import { DEFAULT_LEDGER, DEFAULT_LEDGER_ID } from "../constants";
-import { nanoid } from "nanoid";
+import { nanoid } from "@prosper/shared";
 import {
   CreateLedgerSchema,
   UpdateLedgerSchema,
@@ -102,9 +102,7 @@ export const createLedgerSlice: StateCreator<
       return { success: false, message: "Ledger must have at least one." };
     }
 
-    if (
-      transactions.some((transaction) => transaction.ledgerId === id)
-    ) {
+    if (transactions.some((transaction) => transaction.ledgerId === id)) {
       return {
         success: false,
         message: "Ledger with transactions cannot be deleted.",
@@ -147,6 +145,6 @@ export const createLedgerSlice: StateCreator<
     const ledger = get().ledgers.find(
       (ledger: Ledger) => ledger.id === ledgerId
     );
-    return ledger ? ledger.balance ?? 0 : 0;
+    return ledger ? (ledger.balance ?? 0) : 0;
   },
 });

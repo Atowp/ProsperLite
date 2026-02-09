@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@prosper/shared";
 
 export const TransactionTypeEnum = z.enum(["income", "expense"]);
 

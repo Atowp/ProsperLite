@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@prosper/shared";
 
 export const MonthlyLimitSchema = z.object({
   amount: z

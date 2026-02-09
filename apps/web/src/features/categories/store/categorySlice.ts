@@ -2,7 +2,7 @@ import type { ActionResponse } from "@/types";
 import type { StateCreator } from "zustand";
 import type { StoreState } from "@/store/types";
 import { DEFAULT_CATEGORIES, DEFAULT_CATEGORY_ID } from "../constants";
-import { nanoid } from "nanoid";
+import { nanoid } from "@prosper/shared";
 import {
   CreateCategorySchema,
   UpdateCategorySchema,

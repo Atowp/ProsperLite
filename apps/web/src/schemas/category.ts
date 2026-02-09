@@ -1,5 +1,5 @@
 import { requiredString, validName } from "@/schemas/common";
-import { z } from "zod";
+import { z } from "@prosper/shared";
 
 const NAME_LABEL = "Category name";
 
