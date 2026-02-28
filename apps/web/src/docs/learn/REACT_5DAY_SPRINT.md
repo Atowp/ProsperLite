@@ -1,17 +1,36 @@
-# React 五天冲刺计划（Angular 开发者版）
+# React 五天冲刺计划（Angular 开发者版 + IKM 考试定向）
 
-> **目标**：从 Angular 背景出发，在 5 天内掌握 React 核心概念，重点攻克 Hooks 和 Redux，为 IKM 考试做好准备。
+> **目标**：从 Angular 背景出发，在 5 天内掌握 React 核心概念，**重点攻克 IKM 考试高频考点**。
+
+## IKM 考试高频考点（必看）
+
+根据历年 IKM React.js 考试数据分析，以下是最常考的知识点：
+
+| 考点                                      | 出题频率   | 难度  | Day   |
+| ----------------------------------------- | ---------- | ----- | ----- |
+| **useEffect 依赖数组**                    | ⭐⭐⭐⭐⭐ | 中-高 | Day 2 |
+| **useState 函数式更新**                   | ⭐⭐⭐⭐⭐ | 中    | Day 2 |
+| **Hooks 规则**                            | ⭐⭐⭐⭐⭐ | 低    | Day 2 |
+| **React.memo + useMemo + useCallback**    | ⭐⭐⭐⭐   | 高    | Day 3 |
+| **闭包陷阱**                              | ⭐⭐⭐⭐   | 高    | Day 2 |
+| **React 渲染机制（key, reconciliation）** | ⭐⭐⭐⭐   | 中    | Day 1 |
+| **React 18 自动批处理**                   | ⭐⭐⭐     | 中    | Day 2 |
+| **事件处理**                              | ⭐⭐⭐     | 低    | Day 1 |
+| **Context vs Redux**                      | ⭐⭐⭐     | 中    | Day 4 |
+| **React 原理（Virtual DOM）**             | ⭐⭐⭐     | 高    | Day 1 |
+
+> **考试策略**：重点掌握标⭐⭐⭐⭐的考点，这些题目占了IKM考试的60%以上。
 
 ---
 
 ## 学习路径概览
 
 ```
-Day 1: React 基础 + JSX → 组件与 Props
-Day 2: useState + useEffect → Hooks 深度理解
-Day 3: 自定义 Hooks + 性能优化 → useMemo/useCallback
-Day 4: Redux 原理与实战 → 状态管理架构
-Day 5: React Router + 表单 → 完整应用构建 + IKM 考试模拟
+Day 1: React 基础 + JSX → 组件与 Props + React 渲染原理（IKM基础）
+Day 2: useState + useEffect → Hooks 深度理解 + IKM必考5大陷阱
+Day 3: 性能优化 → React.memo + useMemo + useCallback（IKM高频）
+Day 4: Redux 原理与实战 → 状态管理架构 + Context vs Redux
+Day 5: React Router + 完整应用 → IKM 模拟题实战
 ```
 
 ---
@@ -23,6 +42,7 @@ Day 5: React Router + 表单 → 完整应用构建 + IKM 考试模拟
 ### 1.1 React vs Angular：框架哲学对比（30分钟）
 
 **Angular 的思维方式：**
+
 - 完整框架提供所有解决方案
 - 依赖注入管理服务
 - RxJS Observable 处理异步
@@ -30,6 +50,7 @@ Day 5: React Router + 表单 → 完整应用构建 + IKM 考试模拟
 - Zone.js 自动检测变化
 
 **React 的思维方式：**
+
 - 库而非框架，只负责视图层
 - 组件组合优于继承
 - 单向数据流
@@ -38,18 +59,18 @@ Day 5: React Router + 表单 → 完整应用构建 + IKM 考试模拟
 
 **关键认知转换：**
 
-| Angular | React | 思维转换 |
-|---------|-------|----------|
-| `*ngIf` | `{condition && <div/>}` | 条件是 JS 表达式 |
-| `*ngFor` | `{items.map(item => <li key={item.id}>{item.name}</li>)}` | 用 JS 数组方法 |
-| `[class.active]="isActive"` | `className={isActive ? 'active' : ''}` | 字符串拼接 |
-| `(click)="handleClick()"` | `onClick={handleClick}` | 函数引用，不调用 |
-| `{{ value }}` | `{value}` | JS 表达式插值 |
-| `@Input() userId` | `function User({ userId })` | 函数参数 |
-| `@Output() emit = new EventEmitter()` | `props.onEmit()` | 回调函数 |
-| `ngOnInit()` | `useEffect(() => {}, [])` | Hooks 依赖数组 |
-| `ngOnDestroy()` | `useEffect(() => { return cleanup }, [])` | 返回清理函数 |
-| `BehaviorSubject` | `useState` + 选择器 | 状态快照 |
+| Angular                               | React                                                     | 思维转换         |
+| ------------------------------------- | --------------------------------------------------------- | ---------------- |
+| `*ngIf`                               | `{condition && <div/>}`                                   | 条件是 JS 表达式 |
+| `*ngFor`                              | `{items.map(item => <li key={item.id}>{item.name}</li>)}` | 用 JS 数组方法   |
+| `[class.active]="isActive"`           | `className={isActive ? 'active' : ''}`                    | 字符串拼接       |
+| `(click)="handleClick()"`             | `onClick={handleClick}`                                   | 函数引用，不调用 |
+| `{{ value }}`                         | `{value}`                                                 | JS 表达式插值    |
+| `@Input() userId`                     | `function User({ userId })`                               | 函数参数         |
+| `@Output() emit = new EventEmitter()` | `props.onEmit()`                                          | 回调函数         |
+| `ngOnInit()`                          | `useEffect(() => {}, [])`                                 | Hooks 依赖数组   |
+| `ngOnDestroy()`                       | `useEffect(() => { return cleanup }, [])`                 | 返回清理函数     |
+| `BehaviorSubject`                     | `useState` + 选择器                                       | 状态快照         |
 
 ### 1.2 JSX 深度解析（1小时）
 
@@ -60,7 +81,7 @@ Day 5: React Router + 表单 → 完整应用构建 + IKM 考试模拟
 const element = <h1>Hello, world!</h1>;
 
 // 编译后
-const element = React.createElement('h1', null, 'Hello, world!');
+const element = React.createElement("h1", null, "Hello, world!");
 ```
 
 #### JSX 核心规则
@@ -137,13 +158,13 @@ function Component() {
 
 **规则 5: 属性名转换**
 
-| HTML 属性 | JSX 属性 | 说明 |
-|----------|----------|------|
-| `class` | `className` | class 是 JS 保留字 |
-| `for` | `htmlFor` | for 是 JS 保留字 |
-| `tabindex` | `tabIndex` | camelCase |
-| `readonly` | `readOnly` | camelCase |
-| ` colspan` | `colSpan` | camelCase |
+| HTML 属性  | JSX 属性    | 说明               |
+| ---------- | ----------- | ------------------ |
+| `class`    | `className` | class 是 JS 保留字 |
+| `for`      | `htmlFor`   | for 是 JS 保留字   |
+| `tabindex` | `tabIndex`  | camelCase          |
+| `readonly` | `readOnly`  | camelCase          |
+| ` colspan` | `colSpan`   | camelCase          |
 
 **规则 6: 布尔属性**
 
@@ -240,6 +261,7 @@ const UserComponent = ({ name }: { name: string }) => <div>{name}</div>;
 ```
 
 **为什么函数组件更好？**
+
 - 更简洁，没有 this 绑定问题
 - Hooks 让状态管理更简单
 - 更容易进行代码优化和压缩
@@ -261,9 +283,9 @@ const UserComponent = ({ name }: { name: string }) => <div>{name}</div>;
 // 定义 Props 类型
 interface UserCardProps {
   name: string;
-  age?: number;  // 可选
-  onUpdate?: (newName: string) => void;  // 回调函数
-  children?: React.ReactNode;  // 子元素
+  age?: number; // 可选
+  onUpdate?: (newName: string) => void; // 回调函数
+  children?: React.ReactNode; // 子元素
 }
 
 // 使用 Props
@@ -273,9 +295,7 @@ function UserCard({ name, age, onUpdate, children }: UserCardProps) {
       <h2>{name}</h2>
       {age && <p>Age: {age}</p>}
       {children}
-      <button onClick={() => onUpdate?.('New Name')}>
-        Update
-      </button>
+      <button onClick={() => onUpdate?.("New Name")}>Update</button>
     </div>
   );
 }
@@ -283,15 +303,11 @@ function UserCard({ name, age, onUpdate, children }: UserCardProps) {
 // 父组件使用
 function App() {
   const handleUpdate = (newName: string) => {
-    console.log('Updated:', newName);
+    console.log("Updated:", newName);
   };
 
   return (
-    <UserCard
-      name="Alice"
-      age={30}
-      onUpdate={handleUpdate}
-    >
+    <UserCard name="Alice" age={30} onUpdate={handleUpdate}>
       <p>This is children content</p>
     </UserCard>
   );
@@ -302,7 +318,7 @@ function App() {
 
 ```tsx
 // 解构赋值
-function Button({ text, onClick, variant = 'primary' }: ButtonProps) {
+function Button({ text, onClick, variant = "primary" }: ButtonProps) {
   // ...
 }
 
@@ -334,7 +350,7 @@ function Container({ children }: { children: React.ReactNode }) {
 <Container>
   <h1>Title</h1>
   <p>Content</p>
-</Container>
+</Container>;
 
 // React 19+ 可以用 slots
 interface ContainerProps {
@@ -359,7 +375,7 @@ function Container({ header, children, footer }: ContainerProps) {
 ```tsx
 // ❌ 错误：修改 props
 function UserCard({ name }: { name: string }) {
-  name = 'New Name';  // ❌ 不能修改 props
+  name = "New Name"; // ❌ 不能修改 props
   return <div>{name}</div>;
 }
 
@@ -386,14 +402,14 @@ function UserCard({ initialName }: { initialName: string }) {
 
 #### 常见事件列表
 
-| 事件类型 | Angular 事件 | React 事件 |
-|----------|-------------|------------|
-| 点击 | `(click)` | `onClick` |
-| 输入 | `(input)` / `(ngModelChange)` | `onChange` / `onInput` |
-| 提交 | `(ngSubmit)` | `onSubmit` |
-| 焦点 | `(focus)` / `(blur)` | `onFocus` / `onBlur` |
-| 悬停 | `(mouseenter)` / `(mouseleave)` | `onMouseEnter` / `onMouseLeave` |
-| 键盘 | `(keydown)` / `(keyup)` | `onKeyDown` / `onKeyUp` |
+| 事件类型 | Angular 事件                    | React 事件                      |
+| -------- | ------------------------------- | ------------------------------- |
+| 点击     | `(click)`                       | `onClick`                       |
+| 输入     | `(input)` / `(ngModelChange)`   | `onChange` / `onInput`          |
+| 提交     | `(ngSubmit)`                    | `onSubmit`                      |
+| 焦点     | `(focus)` / `(blur)`            | `onFocus` / `onBlur`            |
+| 悬停     | `(mouseenter)` / `(mouseleave)` | `onMouseEnter` / `onMouseLeave` |
+| 键盘     | `(keydown)` / `(keyup)`         | `onKeyDown` / `onKeyUp`         |
 
 #### 事件处理函数
 
@@ -421,22 +437,18 @@ const handleClick = useCallback(() => {
 ```tsx
 function InputField() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.value);  // 输入的值
-    console.log(e.target.name);   // 元素的 name 属性
+    console.log(e.target.value); // 输入的值
+    console.log(e.target.name); // 元素的 name 属性
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();  // 阻止默认行为（表单提交）
-    console.log('Form submitted');
+    e.preventDefault(); // 阻止默认行为（表单提交）
+    console.log("Form submitted");
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <input
-        name="username"
-        type="text"
-        onChange={handleChange}
-      />
+      <input name="username" type="text" onChange={handleChange} />
     </form>
   );
 }
@@ -446,48 +458,255 @@ function InputField() {
 
 ```typescript
 // Clipboard Events
-React.ClipboardEvent<T>
+React.ClipboardEvent<T>;
 
 // Composition Events
-React.CompositionEvent<T>
+React.CompositionEvent<T>;
 
 // Drag Events
-React.DragEvent<T>
+React.DragEvent<T>;
 
 // Focus Events
-React.FocusEvent<T>
+React.FocusEvent<T>;
 
 // Form Events
-React.FormEvent<T>
+React.FormEvent<T>;
 
 // Keyboard Events
-React.KeyboardEvent<T>
+React.KeyboardEvent<T>;
 
 // Mouse Events
-React.MouseEvent<T>
+React.MouseEvent<T>;
 
 // Pointer Events
-React.PointerEvent<T>
+React.PointerEvent<T>;
 
 // Touch Events
-React.TouchEvent<T>
+React.TouchEvent<T>;
 
 // UI Events
-React.UIEvent<T>
+React.UIEvent<T>;
 
 // Wheel Events
-React.WheelEvent<T>
+React.WheelEvent<T>;
 
 // Animation Events
-React.AnimationEvent<T>
+React.AnimationEvent<T>;
 
 // Transition Events
-React.TransitionEvent<T>
+React.TransitionEvent<T>;
 ```
+
+### 1.6 React 渲染原理与 key 的作用（IKM高频⭐⭐⭐⭐）（1小时）
+
+#### Virtual DOM 和 Reconciliation
+
+```tsx
+// React 的渲染流程：
+// 1. 初次渲染：JSX → Virtual DOM → 真实 DOM
+// 2. 状态更新：新的 Virtual DOM → Diff 算法 → 最小化 DOM 操作
+
+// Diff 算法的核心原则：
+// 1. 不同类型的元素 → 替换整个树
+// 2. 相同类型的元素 → 只更新属性
+// 3. 子元素列表 → 通过 key 识别子元素的变化
+```
+
+#### 为什么 key 是必需的？（IKM必考）
+
+```tsx
+// ❌ 错误：使用 index 作为 key
+function TodoList({ todos }) {
+  return (
+    <ul>
+      {todos.map((todo, index) => (
+        <li key={index}>
+          <input type="checkbox" checked={todo.completed} />
+          {todo.text}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+// 问题场景：
+// 初始状态：todos = [{id: 1, text: 'A', completed: false}, {id: 2, text: 'B', completed: false}]
+// 删除第一个后：todos = [{id: 2, text: 'B', completed: false}]
+
+// 使用 index:
+// - 删除前：<li key=0>A</li>, <li key=1>B</li>
+// - 删除后：<li key=0>B</li>
+// - React 认为 key=0 的元素只是改了文本，会保留它的状态（比如焦点、输入内容）
+// - 导致状态错乱
+
+// ✅ 正确：使用稳定的唯一 ID
+function TodoList({ todos }) {
+  return (
+    <ul>
+      {todos.map((todo) => (
+        <li key={todo.id}>
+          <input type="checkbox" checked={todo.completed} />
+          {todo.text}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+// 使用 id:
+// - 删除前：<li key=1>A</li>, <li key=2>B</li>
+// - 删除后：<li key=2>B</li>
+// - React 发现 key=1 消失了，key=2 还在
+// - 正确地只删除 A，保留 B 的状态
+```
+
+#### key 的 IKM 考题示例
+
+**题目：以下哪个关于 key 的说法是正确的？**
+
+- A. key 必须是全局唯一的
+- B. 使用 index 作为 key 总是安全的
+- C. key 应该是稳定、唯一、不变的
+- D. key 只在列表中使用
+
+**答案：C**
+
+> **记忆口诀**：key=身份证号，不是座位号
+
+#### React 的渲染时机（IKM中频）
+
+```tsx
+// React 何时重新渲染组件？
+
+// 1. state 改变
+function Counter() {
+  const [count, setCount] = useState(0);
+  setCount(1); // 触发重新渲染
+}
+
+// 2. props 改变
+function Child({ value }) {
+  // 父组件重新渲染，Child 的 props 变化时，Child 重新渲染
+}
+
+// 3. context 改变
+function Component() {
+  const value = useContext(MyContext);
+  // context 变化时，所有消费者重新渲染
+}
+
+// 4. forceUpdate（类组件，不推荐）
+
+// ❌ 以下情况不会触发重新渲染：
+// - 修改 state 的属性（直接修改对象/数组）
+// - 调用普通函数
+// - 修改局部变量
+
+// ❌ 错误示例
+function Counter() {
+  const [user, setUser] = useState({ name: "Alice" });
+
+  const handleClick = () => {
+    user.name = "Bob"; // 直接修改对象
+    setUser(user); // 引用没变，React 不会重新渲染
+  };
+}
+
+// ✅ 正确示例
+function Counter() {
+  const [user, setUser] = useState({ name: "Alice" });
+
+  const handleClick = () => {
+    setUser({ ...user, name: "Bob" }); // 创建新对象
+  };
+}
+```
+
+### 1.7 React 18 特性（30分钟）
+
+#### 自动批处理（Automatic Batching）
+
+```tsx
+// React 18 之前：只在事件处理器中批处理
+function handleClick() {
+  setCount(1); // 批处理
+  setName("Alice"); // 批处理
+  // 只触发一次重新渲染
+}
+
+fetchData().then(() => {
+  setCount(2); // 不批处理（React 17）
+  setName("Bob"); // 不批处理
+  // 触发两次重新渲染
+});
+
+// React 18+: 自动批处理所有更新
+fetchData().then(() => {
+  setCount(2); // 批处理
+  setName("Bob"); // 批处理
+  // 只触发一次重新渲染
+});
+
+// 退出批处理（不常用）
+import { flushSync } from "react-dom";
+
+function handleClick() {
+  flushSync(() => {
+    setCount(2); // 立即更新
+  });
+  setName("Bob"); // 另一次更新
+  // 触发两次重新渲染
+}
+```
+
+#### 并发渲染（Concurrent Rendering）
+
+```tsx
+// React 18 的并发特性让 React 可以：
+// 1. 中断渲染
+// 2. 优先处理高优先级更新
+// 3. 避免阻塞用户交互
+
+// useTransition：标记低优先级更新
+function SearchResults() {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const [isPending, startTransition] = useTransition();
+
+  const handleChange = (e) => {
+    // 高优先级：立即更新输入框
+    setQuery(e.target.value);
+
+    // 低优先级：延迟更新搜索结果
+    startTransition(() => {
+      setResults(search(e.target.value));
+    });
+  };
+
+  return (
+    <div>
+      <input value={query} onChange={handleChange} />
+      {isPending ? <Spinner /> : <ResultsList items={results} />}
+    </div>
+  );
+}
+
+// useDeferredValue：延迟更新值
+function SearchResults({ query }) {
+  const deferredQuery = useDeferredValue(query);
+
+  // 只有在 query 停止变化一段时间后，才重新渲染列表
+  const results = useMemo(() => search(deferredQuery), [deferredQuery]);
+
+  return <ResultsList items={results} />;
+}
+```
+
+---
 
 ## 今日练习（Day 1）
 
-### 练习 1: JSX 转换
+### 练习 1: JSX 转换（IKM基础题）
 
 将以下 Angular 模板转换为 React JSX：
 
@@ -496,13 +715,14 @@ React.TransitionEvent<T>
 <div *ngIf="user">
   <h1 [class.admin]="user.isAdmin">{{ user.name }}</h1>
   <ul>
-    <li *ngFor="let item of items; trackBy: trackById" [class.active]="item.active">
+    <li
+      *ngFor="let item of items; trackBy: trackById"
+      [class.active]="item.active"
+    >
       {{ item.name }}
     </li>
   </ul>
-  <button (click)="handleClick()" [disabled]="isLoading">
-    Submit
-  </button>
+  <button (click)="handleClick()" [disabled]="isLoading">Submit</button>
 </div>
 ```
 
@@ -511,24 +731,23 @@ React.TransitionEvent<T>
 
 ```tsx
 // React
-{user && (
-  <div>
-    <h1 className={user.isAdmin ? 'admin' : ''}>{user.name}</h1>
-    <ul>
-      {items.map(item => (
-        <li
-          key={item.id}
-          className={item.active ? 'active' : ''}
-        >
-          {item.name}
-        </li>
-      ))}
-    </ul>
-    <button onClick={handleClick} disabled={isLoading}>
-      Submit
-    </button>
-  </div>
-)}
+{
+  user && (
+    <div>
+      <h1 className={user.isAdmin ? "admin" : ""}>{user.name}</h1>
+      <ul>
+        {items.map((item) => (
+          <li key={item.id} className={item.active ? "active" : ""}>
+            {item.name}
+          </li>
+        ))}
+      </ul>
+      <button onClick={handleClick} disabled={isLoading}>
+        Submit
+      </button>
+    </div>
+  );
+}
 ```
 
 </details>
@@ -555,7 +774,19 @@ function ProductCard(props: ProductCardProps) {
 
 ---
 
-# Day 2: useState 与 useEffect 深度（8小时）
+# Day 2: useState 与 useEffect 深度（8小时）⭐⭐⭐⭐⭐ IKM必考日
+
+> **今天重点**：Day 2 覆盖了 IKM 考试 **40% 以上**的考点，务必深度理解。
+
+## IKM 必考5大陷阱预告
+
+1. **useEffect 依赖数组陷阱**（⭐⭐⭐⭐⭐）
+2. **useState 函数式更新陷阱**（⭐⭐⭐⭐⭐）
+3. **闭包陷阱**（⭐⭐⭐⭐⭐）
+4. **异步状态更新陷阱**（⭐⭐⭐⭐）
+5. **Hooks 规则陷阱**（⭐⭐⭐⭐⭐）
+
+---
 
 ## 上午：useState 完全掌握（4小时）
 
@@ -586,23 +817,19 @@ function Counter() {
 
 // 示例 2: 字符串状态
 function TextInput() {
-  const [text, setText] = useState('');
+  const [text, setText] = useState("");
 
   return (
-    <input
-      type="text"
-      value={text}
-      onChange={(e) => setText(e.target.value)}
-    />
+    <input type="text" value={text} onChange={(e) => setText(e.target.value)} />
   );
 }
 
 // 示例 3: 对象状态
 function UserForm() {
   const [user, setUser] = useState({
-    name: '',
-    email: '',
-    age: 0
+    name: "",
+    email: "",
+    age: 0,
   });
 
   return (
@@ -625,15 +852,19 @@ function TodoList() {
 
   return (
     <ul>
-      {todos.map((todo, index) => <li key={index}>{todo}</li>)}
+      {todos.map((todo, index) => (
+        <li key={index}>{todo}</li>
+      ))}
     </ul>
   );
 }
 ```
 
-### 2.2 useState 函数式更新（重点）（1小时）
+### 2.2 useState 函数式更新（IKM必考⭐⭐⭐⭐⭐）（1小时）
 
-#### 为什么需要函数式更新？
+> **考试必考点**：IKM 几乎每次都会考连续更新状态的问题
+
+#### 为什么需要函数式更新？（必考原理）
 
 ```tsx
 // ❌ 问题：连续更新可能丢失状态
@@ -641,8 +872,8 @@ function Counter() {
   const [count, setCount] = useState(0);
 
   const handleClick = () => {
-    setCount(count + 1);  // 读取当前 render 的 count
-    setCount(count + 1);  // 还是读取同一个 count
+    setCount(count + 1); // 读取当前 render 的 count
+    setCount(count + 1); // 还是读取同一个 count
     // 结果：count 只增加了 1
   };
 
@@ -654,8 +885,8 @@ function Counter() {
   const [count, setCount] = useState(0);
 
   const handleClick = () => {
-    setCount(c => c + 1);  // c 是最新的 state
-    setCount(c => c + 1);  // 每次都基于最新的值
+    setCount((c) => c + 1); // c 是最新的 state
+    setCount((c) => c + 1); // 每次都基于最新的值
     // 结果：count 增加了 2
   };
 
@@ -666,28 +897,31 @@ function Counter() {
 #### 函数式更新的适用场景
 
 1. **连续更新状态**
+
 ```tsx
 const incrementThreeTimes = () => {
-  setCount(c => c + 1);
-  setCount(c => c + 1);
-  setCount(c => c + 1);
+  setCount((c) => c + 1);
+  setCount((c) => c + 1);
+  setCount((c) => c + 1);
 };
 ```
 
 2. **基于旧状态计算新状态**
+
 ```tsx
-const [filters, setFilters] = useState({ keyword: '', type: 'all' });
+const [filters, setFilters] = useState({ keyword: "", type: "all" });
 
 const addFilter = (key: string, value: string) => {
-  setFilters(f => ({ ...f, [key]: value }));  // 使用函数式更新
+  setFilters((f) => ({ ...f, [key]: value })); // 使用函数式更新
 };
 ```
 
 3. **在异步操作中更新状态**
+
 ```tsx
 const fetchDataAndUpdate = async () => {
   const data = await api.getData();
-  setData(d => [...d, ...data]);  // 确保 d 是最新值
+  setData((d) => [...d, ...data]); // 确保 d 是最新值
 };
 ```
 
@@ -698,12 +932,12 @@ const fetchDataAndUpdate = async () => {
 ```tsx
 function Counter() {
   const [count, setCount] = useState(0);
-  const [name, setName] = useState('');
+  const [name, setName] = useState("");
 
   const handleClick = () => {
     setCount(1);
-    setName('Alice');
-    console.log(count, name);  // 仍然是 0, ''
+    setName("Alice");
+    console.log(count, name); // 仍然是 0, ''
   };
 
   // React 会批处理这些更新：
@@ -717,19 +951,19 @@ function Counter() {
 ```tsx
 // React 18 之前：只在事件处理器中批处理
 function handleClick() {
-  setCount(1);  // 批处理
-  setName('Alice');  // 批处理
+  setCount(1); // 批处理
+  setName("Alice"); // 批处理
 }
 
 fetchData().then(() => {
-  setCount(2);  // 不批处理（React 17）
-  setName('Bob');  // 不批处理
+  setCount(2); // 不批处理（React 17）
+  setName("Bob"); // 不批处理
 });
 
 // React 18+: 自动批处理所有更新
 fetchData().then(() => {
-  setCount(2);  // 批处理
-  setName('Bob');  // 批处理
+  setCount(2); // 批处理
+  setName("Bob"); // 批处理
 });
 ```
 
@@ -746,13 +980,13 @@ fetchData().then(() => {
 ```tsx
 // ❌ 错误：直接修改数组
 const addItem = (item: string) => {
-  todos.push(item);  // 直接修改
-  setTodos(todos);   // 引用没变，React 不会重新渲染
+  todos.push(item); // 直接修改
+  setTodos(todos); // 引用没变，React 不会重新渲染
 };
 
 // ✅ 正确：创建新数组
 const addItem = (item: string) => {
-  setTodos([...todos, item]);  // 展开运算符
+  setTodos([...todos, item]); // 展开运算符
 };
 
 // 常见数组操作
@@ -764,12 +998,10 @@ setTodos([...todos, newItem]);
 setTodos([newItem, ...todos]);
 
 // 删除
-setTodos(todos.filter(t => t.id !== id));
+setTodos(todos.filter((t) => t.id !== id));
 
 // 更新
-setTodos(todos.map(t =>
-  t.id === id ? { ...t, name: newName } : t
-));
+setTodos(todos.map((t) => (t.id === id ? { ...t, name: newName } : t)));
 
 // 排序（创建新数组）
 setTodos([...todos].sort((a, b) => a.name.localeCompare(b.name)));
@@ -780,28 +1012,28 @@ setTodos([...todos].sort((a, b) => a.name.localeCompare(b.name)));
 ```tsx
 // ❌ 错误：直接修改对象
 const updateName = (name: string) => {
-  user.name = name;  // 直接修改
-  setUser(user);     // 引用没变
+  user.name = name; // 直接修改
+  setUser(user); // 引用没变
 };
 
 // ✅ 正确：创建新对象
 const updateName = (name: string) => {
-  setUser({ ...user, name });  // 对象展开
+  setUser({ ...user, name }); // 对象展开
 };
 
 // 嵌套对象
 const [user, setUser] = useState({
-  name: 'Alice',
+  name: "Alice",
   address: {
-    city: 'Beijing',
-    street: 'Main St'
-  }
+    city: "Beijing",
+    street: "Main St",
+  },
 });
 
 // ❌ 错误
 setUser({
   ...user,
-  address: { city: 'Shanghai' }  // 丢失了 street
+  address: { city: "Shanghai" }, // 丢失了 street
 });
 
 // ✅ 正确
@@ -809,28 +1041,28 @@ setUser({
   ...user,
   address: {
     ...user.address,
-    city: 'Shanghai'
-  }
+    city: "Shanghai",
+  },
 });
 ```
 
 #### 使用 Immer 简化不可变更新
 
 ```tsx
-import { useImmer } from 'use-immer';  // 或 Zustand 的 immer 中间件
+import { useImmer } from "use-immer"; // 或 Zustand 的 immer 中间件
 
 function UserForm() {
   const [user, setUser] = useImmer({
-    name: 'Alice',
+    name: "Alice",
     address: {
-      city: 'Beijing',
-      street: 'Main St'
-    }
+      city: "Beijing",
+      street: "Main St",
+    },
   });
 
   const updateCity = (city: string) => {
-    setUser(draft => {
-      draft.address.city = city;  // 可以直接修改！
+    setUser((draft) => {
+      draft.address.city = city; // 可以直接修改！
     });
   };
 
@@ -838,7 +1070,9 @@ function UserForm() {
 }
 ```
 
-## 下午：useEffect 完全掌握（4小时）
+## 下午：useEffect 完全掌握（4小时）⭐⭐⭐⭐⭐
+
+> **useEffect 是 IKM 考试的重灾区**，务必深度理解每一个细节
 
 ### 2.5 useEffect 基础（1小时）
 
@@ -848,7 +1082,7 @@ function UserForm() {
 - 副作用包括：数据获取、订阅、DOM 操作、日志等
 - 替代类组件的 componentDidMount, componentDidUpdate, componentWillUnmount
 
-#### useEffect 基本语法
+#### useEffect 基本语法（IKM必考）
 
 ```tsx
 // 语法
@@ -915,15 +1149,15 @@ function Timer() {
 // React 使用 Object.is() 比较依赖
 
 useEffect(() => {
-  console.log('Effect runs');
-}, [value]);  // value 变化时运行
+  console.log("Effect runs");
+}, [value]); // value 变化时运行
 
 // Object.is() 示例
-Object.is(1, 1);        // true
-Object.is('a', 'a');    // true
-Object.is({}, {});      // false（不同引用）
-Object.is([], []);      // false（不同引用）
-Object.is(NaN, NaN);    // true
+Object.is(1, 1); // true
+Object.is("a", "a"); // true
+Object.is({}, {}); // false（不同引用）
+Object.is([], []); // false（不同引用）
+Object.is(NaN, NaN); // true
 ```
 
 #### 依赖数组常见陷阱
@@ -933,18 +1167,18 @@ Object.is(NaN, NaN);    // true
 ```tsx
 // ❌ 错误：对象字面量每次都是新引用
 useEffect(() => {
-  search({ keyword: 'test' });
-}, [{ keyword: 'test' }]);  // 每次渲染都是新对象，无限循环
+  search({ keyword: "test" });
+}, [{ keyword: "test" }]); // 每次渲染都是新对象，无限循环
 
 // ✅ 方案 1: 移到组件外
-const SEARCH_PARAMS = { keyword: 'test' };
+const SEARCH_PARAMS = { keyword: "test" };
 
 useEffect(() => {
   search(SEARCH_PARAMS);
 }, [SEARCH_PARAMS]);
 
 // ✅ 方案 2: 使用 useMemo
-const params = useMemo(() => ({ keyword: 'test' }), []);
+const params = useMemo(() => ({ keyword: "test" }), []);
 
 useEffect(() => {
   search(params);
@@ -952,8 +1186,8 @@ useEffect(() => {
 
 // ✅ 方案 3: 如果值是固定的，移除依赖
 useEffect(() => {
-  search({ keyword: 'test' });
-}, []);  // 值不会变化，不需要依赖
+  search({ keyword: "test" });
+}, []); // 值不会变化，不需要依赖
 ```
 
 **陷阱 2: 依赖函数**
@@ -967,7 +1201,7 @@ function Component({ id }) {
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]);  // fetchData 每次都是新的，无限循环
+  }, [fetchData]); // fetchData 每次都是新的，无限循环
 }
 
 // ✅ 方案 1: 把函数移到 effect 内
@@ -997,11 +1231,11 @@ function Counter() {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      console.log(count);  // 永远是 0
+      console.log(count); // 永远是 0
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);  // 依赖数组为空，count 永远是初始值
+  }, []); // 依赖数组为空，count 永远是初始值
 
   return <button onClick={() => setCount(count + 1)}>{count}</button>;
 }
@@ -1013,7 +1247,7 @@ useEffect(() => {
   }, 1000);
 
   return () => clearInterval(timer);
-}, [count]);  // 添加 count 依赖
+}, [count]); // 添加 count 依赖
 
 // ✅ 方案 2: 使用 useRef（适用于不想因为值变化重新创建 effect）
 function Counter() {
@@ -1027,7 +1261,7 @@ function Counter() {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      console.log(countRef.current);  // 总是最新的值
+      console.log(countRef.current); // 总是最新的值
     }, 1000);
 
     return () => clearInterval(timer);
@@ -1037,15 +1271,342 @@ function Counter() {
 }
 ```
 
-### 2.7 useEffect 最佳实践（1小时）
+### 2.8 IKM 必考：useEffect 陷阱专题（⭐⭐⭐⭐⭐）
+
+#### 陷阱 1: useEffect 不能直接使用 async 函数（必考）
+
+```tsx
+// ❌ 错误：useEffect 不能直接使用 async
+useEffect(async () => {
+  const data = await fetchData();
+  setState(data);
+}, []);
+
+// 错误原因：
+// useEffect 的回调函数应该返回清理函数或 undefined
+// async 函数返回 Promise，不是清理函数
+
+// ✅ 方案 1: 在 effect 内部定义 async 函数
+useEffect(() => {
+  async function fetchData() {
+    const data = await fetch("/api/data");
+    setState(data);
+  }
+  fetchData();
+}, []);
+
+// ✅ 方案 2: 使用 IIFE（立即执行函数）
+useEffect(() => {
+  (async () => {
+    const data = await fetch("/api/data");
+    setState(data);
+  })();
+}, []);
+
+// ✅ 方案 3: 提取为独立函数（推荐）
+useEffect(() => {
+  fetchData().then(setState);
+}, []);
+```
+
+#### 陷阱 2: 无限循环（必考）
+
+```tsx
+// ❌ 陷阱 2.1: 依赖对象/数组
+useEffect(() => {
+  search({ keyword: "test" });
+}, [{ keyword: "test" }]); // 每次都是新对象，无限循环
+
+// ❌ 陷阱 2.2: 依赖函数
+function Component({ id }) {
+  const fetchData = () => {
+    /*...*/
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]); // fetchData 每次都是新函数，无限循环
+}
+
+// ❌ 陷阱 2.3: 在 effect 中更新依赖的状态
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    setCount(count + 1); // 更新 count
+  }, [count]); // 依赖 count，导致无限循环
+}
+```
+
+#### 陷阱 3: 依赖数组为空 vs 省略依赖数组（必考）
+
+```tsx
+// 场景 1: 省略依赖数组
+useEffect(() => {
+  console.log("每次渲染后都执行");
+});
+// 等价于 componentDidMount + componentDidUpdate
+
+// 场景 2: 空依赖数组
+useEffect(() => {
+  console.log("只在挂载时执行一次");
+}, []);
+// 等价于 componentDidMount
+
+// ⚠️ IKM 考题示例：
+// 问题：以下代码会执行几次 console.log？
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    console.log("effect");
+  }); // 没有依赖数组
+
+  return <button onClick={() => setCount(count + 1)}>{count}</button>;
+}
+
+// 答案：每次点击按钮，组件重新渲染，effect 都会执行
+// 初始渲染：1次
+// 点击1次：1次
+// 点击10次：10次
+```
+
+#### IKM 模拟题：useEffect
+
+**题目 1：以下 useEffect 的使用哪个是正确的？**
+
+```tsx
+// A.
+useEffect(async () => {
+  const data = await fetchData();
+  setData(data);
+}, [id]);
+
+// B.
+useEffect(() => {
+  fetchData().then((data) => setData(data));
+}, [id]);
+
+// C.
+useEffect(async () => {
+  const data = await fetchData(id);
+}, [id]);
+
+// D.
+useEffect(fetchData(), [id]);
+```
+
+<details>
+<summary>查看答案</summary>
+
+**答案：B**
+
+解析：
+
+- A：❌ useEffect 不能直接使用 async 函数
+- B：✅ 正确，使用 Promise.then()
+- C：❌ async 函数返回 Promise，且没有处理数据
+- D：❌ 立即执行函数语法错误，应该是 `() => fetchData()`
+
+</details>
+
+**题目 2：以下代码的输出是什么？**
+
+```tsx
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    console.log("effect");
+    setCount(count + 1);
+  }, []);
+
+  return <div>{count}</div>;
+}
+```
+
+- A. 无限循环
+- B. 输出一次 "effect"，count 为 1
+- C. 输出两次 "effect"，count 为 2
+- D. 输出 "effect"，count 为 0
+
+<details>
+<summary>查看答案</summary>
+
+**答案：B**
+
+解析：
+
+1. 组件首次渲染，count = 0
+2. useEffect 执行（因为依赖数组为空，只执行一次）
+3. 输出 "effect"
+4. setCount(0 + 1)，触发重新渲染
+5. 组件第二次渲染，count = 1
+6. useEffect 不再执行（依赖数组为空）
+7. 最终：count = 1，effect 执行 1 次
+
+</details>
+
+### 2.9 Hooks 规则（IKM必考⭐⭐⭐⭐⭐）
+
+#### Hooks 的两条黄金规则
+
+```tsx
+// 规则 1: 只在 React 函数的顶层调用 Hooks
+// ❌ 错误：在条件语句中调用
+function Component() {
+  const [data, setData] = useState(null);
+  if (data) {
+    const [count, setCount] = useState(0); // ❌ 违反规则
+  }
+}
+
+// ❌ 错误：在循环中调用
+function Component() {
+  const items = [1, 2, 3];
+  items.forEach((item) => {
+    const [value, setValue] = useState(item); // ❌ 违反规则
+  });
+}
+
+// ❌ 错误：在嵌套函数中调用
+function Component() {
+  const handleClick = () => {
+    const [count, setCount] = useState(0); // ❌ 违反规则
+  };
+}
+
+// ✅ 正确：始终在顶层调用
+function Component() {
+  const [data, setData] = useState(null);
+  const [count, setCount] = useState(0);
+
+  if (data) {
+    // 条件逻辑放在 Hook 调用之后
+  }
+}
+
+// 规则 2: 只在 React 函数中调用 Hooks
+// ❌ 错误：在普通 JavaScript 函数中调用
+function getData() {
+  const [data, setData] = useState(null); // ❌ 违反规则
+}
+
+// ✅ 正确：在 React 组件或自定义 Hook 中调用
+function useCustomHook() {
+  const [data, setData] = useState(null); // ✅ 正确
+  return data;
+}
+
+// ✅ 正确：在 React 组件中调用
+function Component() {
+  const [data, setData] = useState(null); // ✅ 正确
+}
+```
+
+#### 为什么要遵循 Hooks 规则？
+
+```tsx
+// React 靠 Hook 调用的顺序来识别状态
+// 示例：违反规则导致的问题
+
+function Form() {
+  // 1. useState
+  const [name, setName] = useState("Alice");
+
+  // 2. 条件语句
+  if (name !== "") {
+    // ❌ 违反规则：在条件中调用 Hook
+    const [email, setEmail] = useState("");
+  }
+
+  // 3. useEffect
+  useEffect(() => {
+    console.log("effect");
+  }, []);
+}
+
+// 第一次渲染（name = 'Alice'）：
+// Hook 顺序：useState(name) → useState(email) → useEffect
+// Hook 索引：0 → 1 → 2
+
+// 第二次渲染（name = ''）：
+// Hook 顺序：useState(name) → useEffect
+// Hook 索引：0 → 1（❌ 错位！useState(email) 被跳过）
+
+// React 认为：
+// - Hook 0: useState(name) ✓
+// - Hook 1: useState(email) → 实际是 useEffect ❌
+// - Hook 2: useEffect → 不存在 ❌
+
+// 结果：状态混乱，报错
+```
+
+#### IKM 考题示例
+
+**题目：以下哪些 Hooks 的使用是正确的？（多选）**
+
+```tsx
+// A.
+function Component() {
+  const [count, setCount] = useState(0);
+  if (count > 0) {
+    useEffect(() => {
+      console.log(count);
+    }, []);
+  }
+}
+
+// B.
+function Component() {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (count > 0) {
+      console.log(count);
+    }
+  }, [count]);
+}
+
+// C.
+function Component() {
+  useEffect(() => {
+    const [count, setCount] = useState(0);
+  }, []);
+}
+
+// D.
+function Component() {
+  const [count, setCount] = useState(0);
+  const items = [1, 2, 3];
+  items.forEach(() => {
+    console.log(count);
+  });
+}
+```
+
+<details>
+<summary>查看答案</summary>
+
+**答案：B、D**
+
+解析：
+
+- A：❌ useEffect 在条件语句中调用
+- B：✅ useEffect 在顶层，条件逻辑在 effect 内部
+- C：❌ useState 在 useEffect 中调用（嵌套函数）
+- D：✅ Hooks 在顶层，forEach 在 Hooks 之后调用
+
+</details>
+
+### 2.10 useEffect 最佳实践（1小时）
 
 #### 实践 1: 不要过度使用 useEffect
 
 ```tsx
 // ❌ 错误：不必要的 useEffect
 function UserForm() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
 
   // 不必要的 useEffect
   useEffect(() => {
@@ -1057,10 +1618,10 @@ function UserForm() {
 
 // ✅ 正确：直接计算派生状态
 function UserForm() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
 
-  const fullName = `${name} ${email}`;  // 直接计算
+  const fullName = `${name} ${email}`; // 直接计算
 
   return <div>{fullName}</div>;
 }
@@ -1071,7 +1632,7 @@ function UserForm() {
 ```tsx
 // ❌ 错误：一个 effect 做多件事
 useEffect(() => {
-  const timer = setInterval(() => setCount(c => c + 1), 1000);
+  const timer = setInterval(() => setCount((c) => c + 1), 1000);
   document.title = `Count: ${count}`;
   fetchUser(userId).then(setUser);
 
@@ -1080,7 +1641,7 @@ useEffect(() => {
 
 // ✅ 正确：每个 effect 做一件事
 useEffect(() => {
-  const timer = setInterval(() => setCount(c => c + 1), 1000);
+  const timer = setInterval(() => setCount((c) => c + 1), 1000);
   return () => clearInterval(timer);
 }, []);
 
@@ -1119,11 +1680,7 @@ function Counter() {
     setCount(count + 1);
   };
 
-  return (
-    <button onClick={incrementThreeTimes}>
-      Count: {count}
-    </button>
-  );
+  return <button onClick={incrementThreeTimes}>Count: {count}</button>;
 }
 ```
 
@@ -1138,16 +1695,12 @@ function Counter() {
   const [count, setCount] = useState(0);
 
   const incrementThreeTimes = () => {
-    setCount(c => c + 1);
-    setCount(c => c + 1);
-    setCount(c => c + 1);
+    setCount((c) => c + 1);
+    setCount((c) => c + 1);
+    setCount((c) => c + 1);
   };
 
-  return (
-    <button onClick={incrementThreeTimes}>
-      Count: {count}
-    </button>
-  );
+  return <button onClick={incrementThreeTimes}>Count: {count}</button>;
 }
 ```
 
@@ -1162,7 +1715,7 @@ function UserProfile({ userId }) {
 
   const loadUser = () => {
     fetch(`/api/users/${userId}`)
-      .then(res => res.json())
+      .then((res) => res.json())
       .then(setUser);
   };
 
@@ -1187,11 +1740,11 @@ function UserProfile({ userId }) {
   useEffect(() => {
     const loadUser = () => {
       fetch(`/api/users/${userId}`)
-        .then(res => res.json())
+        .then((res) => res.json())
         .then(setUser);
     };
     loadUser();
-  }, [userId]);  // 只依赖 userId
+  }, [userId]); // 只依赖 userId
 
   return user ? <div>{user.name}</div> : <Loading />;
 }
@@ -1202,7 +1755,7 @@ function UserProfile({ userId }) {
 
   const loadUser = useCallback(() => {
     fetch(`/api/users/${userId}`)
-      .then(res => res.json())
+      .then((res) => res.json())
       .then(setUser);
   }, [userId]);
 
@@ -1218,7 +1771,19 @@ function UserProfile({ userId }) {
 
 ---
 
-# Day 3: 自定义 Hooks 与性能优化（8小时）
+# Day 3: 自定义 Hooks 与性能优化（8小时）⭐⭐⭐⭐
+
+> **今日重点**：性能优化是 IKM 考试的高频考点，特别是 React.memo、useMemo 和 useCallback 的陷阱
+
+## IKM 必考：性能优化三大工具
+
+| 工具            | 用途             | IKM 频率   | 陷阱等级            |
+| --------------- | ---------------- | ---------- | ------------------- |
+| **React.memo**  | 跳过组件重新渲染 | ⭐⭐⭐⭐   | 🔥🔥🔥 引用比较陷阱 |
+| **useMemo**     | 缓存计算结果     | ⭐⭐⭐⭐   | 🔥🔥 过度使用       |
+| **useCallback** | 缓存函数引用     | ⭐⭐⭐⭐⭐ | 🔥🔥🔥🔥 依赖陷阱   |
+
+---
 
 ## 上午：自定义 Hooks（4小时）
 
@@ -1246,7 +1811,8 @@ function useLocalStorage<T>(key: string, initialValue: T) {
 
   const setValue = (value: T | ((val: T) => T)) => {
     try {
-      const valueToStore = value instanceof Function ? value(storedValue) : value;
+      const valueToStore =
+        value instanceof Function ? value(storedValue) : value;
       setStoredValue(valueToStore);
       window.localStorage.setItem(key, JSON.stringify(valueToStore));
     } catch (error) {
@@ -1259,16 +1825,16 @@ function useLocalStorage<T>(key: string, initialValue: T) {
 
 // 使用
 function App() {
-  const [name, setName] = useLocalStorage('name', '');
+  const [name, setName] = useLocalStorage("name", "");
 
-  return <input value={name} onChange={e => setName(e.target.value)} />;
+  return <input value={name} onChange={(e) => setName(e.target.value)} />;
 }
 
 // 示例 2: useToggle
 function useToggle(initialValue: boolean = false) {
   const [value, setValue] = useState(initialValue);
 
-  const toggle = useCallback(() => setValue(v => !v), []);
+  const toggle = useCallback(() => setValue((v) => !v), []);
   const setTrue = useCallback(() => setValue(true), []);
   const setFalse = useCallback(() => setValue(false), []);
 
@@ -1336,11 +1902,17 @@ function useFetch<T>(url: string): UseFetchResult<T> {
 
 // 使用
 function UserList() {
-  const { data: users, error, loading } = useFetch<User[]>('/api/users');
+  const { data: users, error, loading } = useFetch<User[]>("/api/users");
 
   if (loading) return <Spinner />;
   if (error) return <ErrorMessage error={error} />;
-  return <ul>{users?.map(u => <li key={u.id}>{u.name}</li>)}</ul>;
+  return (
+    <ul>
+      {users?.map((u) => (
+        <li key={u.id}>{u.name}</li>
+      ))}
+    </ul>
+  );
 }
 ```
 
@@ -1364,8 +1936,8 @@ function useFormInput<T>(initialValue: T) {
 
 // 使用
 function LoginForm() {
-  const username = useFormInput('');
-  const password = useFormInput('');
+  const username = useFormInput("");
+  const password = useFormInput("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -1388,7 +1960,7 @@ function LoginForm() {
 // useMediaQuery
 function useMediaQuery(query: string): boolean {
   const [matches, setMatches] = useState(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       return window.matchMedia(query).matches;
     }
     return false;
@@ -1399,8 +1971,8 @@ function useMediaQuery(query: string): boolean {
     const handler = (e: MediaQueryListEvent) => setMatches(e.matches);
 
     // 现代浏览器
-    mediaQuery.addEventListener('change', handler);
-    return () => mediaQuery.removeEventListener('change', handler);
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
   }, [query]);
 
   return matches;
@@ -1408,11 +1980,11 @@ function useMediaQuery(query: string): boolean {
 
 // 使用
 function ResponsiveLayout() {
-  const isMobile = useMediaQuery('(max-width: 768px)');
-  const isDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
 
   return (
-    <div className={isMobile ? 'mobile' : 'desktop'}>
+    <div className={isMobile ? "mobile" : "desktop"}>
       {isMobile ? <MobileNav /> : <DesktopNav />}
     </div>
   );
@@ -1439,7 +2011,7 @@ function useDebounce<T>(value: T, delay: number): T {
 
 // 使用
 function SearchInput() {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const debouncedQuery = useDebounce(query, 300);
 
   useEffect(() => {
@@ -1467,15 +2039,21 @@ function SearchInput() {
 // ❌ 不好：一个 Hook 做太多事情
 function useUserAuth() {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState('');
+  const [token, setToken] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   // ... 很多逻辑
 }
 
 // ✅ 好的：拆分成多个 Hook
-function useUser() { /* ... */ }
-function useAuth() { /* ... */ }
-function useToken() { /* ... */ }
+function useUser() {
+  /* ... */
+}
+function useAuth() {
+  /* ... */
+}
+function useToken() {
+  /* ... */
+}
 ```
 
 #### 原则 2: 参数化配置
@@ -1485,7 +2063,7 @@ function useToken() { /* ... */ }
 function useFetch() {
   const [data, setData] = useState(null);
   useEffect(() => {
-    fetch('/api/users').then(setData);  // 硬编码 URL
+    fetch("/api/users").then(setData); // 硬编码 URL
   }, []);
 }
 
@@ -1501,20 +2079,22 @@ function useFetch(url: string, options?: RequestInit) {
 // ❌ 不好：每次返回新对象
 function useToggle() {
   const [value, setValue] = useState(false);
-  return { value, toggle: () => setValue(v => !v) };  // toggle 每次都是新的
+  return { value, toggle: () => setValue((v) => !v) }; // toggle 每次都是新的
 }
 
 // ✅ 好的：使用 useCallback
 function useToggle() {
   const [value, setValue] = useState(false);
-  const toggle = useCallback(() => setValue(v => !v), []);
+  const toggle = useCallback(() => setValue((v) => !v), []);
   return { value, toggle };
 }
 ```
 
-## 下午：性能优化（4小时）
+## 下午：性能优化（4小时）⭐⭐⭐⭐ IKM高频
 
-### 3.4 React.memo（1小时）
+> **警告**：性能优化是 IKM 考试中**陷阱最多**的部分，请仔细阅读每个示例
+
+### 3.4 React.memo（IKM必考⭐⭐⭐⭐）（1.5小时）
 
 #### React.memo 基础
 
@@ -1522,8 +2102,12 @@ function useToggle() {
 // React.memo 是一个高阶组件
 // 它会对 props 进行浅比较，如果 props 没变，就不重新渲染
 
-const MemoComponent = React.memo(function Component({ name }: { name: string }) {
-  console.log('Component rendered');
+const MemoComponent = React.memo(function Component({
+  name,
+}: {
+  name: string;
+}) {
+  console.log("Component rendered");
   return <div>{name}</div>;
 });
 
@@ -1533,8 +2117,8 @@ function App() {
 
   return (
     <>
-      <button onClick={() => setCount(c => c + 1)}>Count: {count}</button>
-      <MemoComponent name="Alice" />  {/* count 变化时不会重新渲染 */}
+      <button onClick={() => setCount((c) => c + 1)}>Count: {count}</button>
+      <MemoComponent name="Alice" /> {/* count 变化时不会重新渲染 */}
     </>
   );
 }
@@ -1567,7 +2151,7 @@ const Component = React.memo(
 ```tsx
 // ❌ 陷阱 1: props 是对象/数组，总是返回 false
 const Parent = () => {
-  const user = { name: 'Alice' };  // 每次都是新对象
+  const user = { name: "Alice" }; // 每次都是新对象
   return <Child user={user} />;
 };
 
@@ -1577,31 +2161,181 @@ const Child = React.memo(({ user }: { user: { name: string } }) => {
 // 每次都会重新渲染，因为 user 是新对象
 
 // ✅ 方案 1: 对象定义在组件外
-const USER = { name: 'Alice' };
+const USER = { name: "Alice" };
 const Parent = () => {
   return <Child user={USER} />;
 };
 
 // ✅ 方案 2: 使用 useMemo
 const Parent = () => {
-  const user = useMemo(() => ({ name: 'Alice' }), []);
+  const user = useMemo(() => ({ name: "Alice" }), []);
   return <Child user={user} />;
 };
 
 // ❌ 陷阱 2: props 是函数，总是返回 false
 const Parent = () => {
-  const handleClick = () => console.log('clicked');  // 每次都是新函数
+  const handleClick = () => console.log("clicked"); // 每次都是新函数
   return <Child onClick={handleClick} />;
 };
 
 // ✅ 方案: 使用 useCallback
 const Parent = () => {
-  const handleClick = useCallback(() => console.log('clicked'), []);
+  const handleClick = useCallback(() => console.log("clicked"), []);
   return <Child onClick={handleClick} />;
 };
 ```
 
-### 3.5 useMemo（1.5小时）
+#### IKM 必考：React.memo 的陷阱
+
+**陷阱 1: 引用比较问题（超高频）**
+
+```tsx
+// ❌ 陷阱：React.memo 对对象/数组进行浅比较
+const Parent = () => {
+  const user = { name: "Alice" }; // 每次渲染都是新对象
+  return <Child user={user} />;
+};
+
+const Child = React.memo(({ user }: { user: { name: string } }) => {
+  console.log("Child rendered");
+  return <div>{user.name}</div>;
+});
+
+// 问题：每次 Parent 渲染，user 都是新对象
+// React.memo 比较的是引用，不是内容
+// { name: 'Alice' } !== { name: 'Alice' }  // true（引用不同）
+// 结果：Child 每次都会重新渲染，React.memo 无效
+
+// ✅ 解决方案 1: 对象移到组件外
+const USER = { name: "Alice" };
+
+const Parent = () => {
+  return <Child user={USER} />; // 始终是同一个对象
+};
+
+// ✅ 解决方案 2: 使用 useMemo
+const Parent = () => {
+  const user = useMemo(() => ({ name: "Alice" }), []);
+  return <Child user={user} />;
+};
+
+// ✅ 解决方案 3: 使用 useState
+const Parent = () => {
+  const [user] = useState(() => ({ name: "Alice" }));
+  return <Child user={user} />;
+};
+```
+
+**陷阱 2: 函数 props 问题（超高频）**
+
+```tsx
+// ❌ 陷阱：函数每次都是新的
+const Parent = () => {
+  const handleClick = () => console.log("clicked"); // 每次渲染都是新函数
+  return <Child onClick={handleClick} />;
+};
+
+const Child = React.memo(({ onClick }: { onClick: () => void }) => {
+  console.log("Child rendered");
+  return <button onClick={onClick}>Click</button>;
+});
+
+// 问题：handleClick 每次都是新函数
+// () => console.log('clicked') !== () => console.log('clicked')
+// 结果：Child 每次都会重新渲染
+
+// ✅ 解决方案：useCallback
+const Parent = () => {
+  const handleClick = useCallback(() => console.log("clicked"), []);
+  return <Child onClick={handleClick} />;
+};
+```
+
+#### IKM 模拟题：React.memo
+
+**题目 1：以下哪个组件在使用 React.memo 后会跳过重新渲染？**
+
+```tsx
+const Parent = () => {
+  const [count, setCount] = useState(0);
+  const user = { name: "Alice" };
+
+  return (
+    <>
+      <button onClick={() => setCount(count + 1)}>{count}</button>
+      <Child user={user} />
+    </>
+  );
+};
+
+const Child = React.memo(({ user }: { user: { name: string } }) => {
+  return <div>{user.name}</div>;
+});
+```
+
+- A. Child 会跳过重新渲染
+- B. Child 不会跳过重新渲染
+- C. 取决于 count 的值
+- D. 取决于 user.name 的值
+
+<details>
+<summary>查看答案</summary>
+
+**答案：B**
+
+解析：
+
+- 每次 Parent 渲染，`user = { name: 'Alice' }` 都会创建一个新对象
+- React.memo 进行浅比较，发现 user 的引用变化了
+- 即使 user.name 的值相同，Child 也会重新渲染
+- 修复方法：使用 `useMemo(() => ({ name: 'Alice' }), [])`
+
+</details>
+
+**题目 2：以下代码会输出几次 "Child rendered"？**
+
+```tsx
+const Parent = () => {
+  const [count, setCount] = useState(0);
+
+  const handleClick = useCallback(() => {
+    console.log("clicked");
+  }, []);
+
+  return (
+    <>
+      <button onClick={() => setCount(count + 1)}>Count: {count}</button>
+      <Child onClick={handleClick} />
+    </>
+  );
+};
+
+const Child = React.memo(({ onClick }: { onClick: () => void }) => {
+  console.log("Child rendered");
+  return <button onClick={onClick}>Click</button>;
+});
+```
+
+- A. 0 次
+- B. 1 次（初始渲染）
+- C. 每次点击 Count 按钮
+- D. 无限次
+
+<details>
+<summary>查看答案</summary>
+
+**答案：B**
+
+解析：
+
+- handleClick 使用 useCallback 缓存，依赖数组为空
+- 每次 Parent 渲染，handleClick 的引用都不变
+- React.memo 检测到 onClick 没变，跳过 Child 的重新渲染
+- 只在初始渲染时输出 1 次 "Child rendered"
+
+</details>
+
+### 3.5 useMemo（IKM必考⭐⭐⭐⭐）（1.5小时）
 
 #### useMemo 基础
 
@@ -1612,11 +2346,17 @@ const memoizedValue = useMemo(() => computeExpensiveValue(a, b), [a, b]);
 // 示例 1: 缓存过滤结果
 function UserList({ users, filter }: { users: User[]; filter: string }) {
   const filteredUsers = useMemo(() => {
-    console.log('Filtering users...');
-    return users.filter(u => u.name.includes(filter));
-  }, [users, filter]);  // users 或 filter 变化时重新计算
+    console.log("Filtering users...");
+    return users.filter((u) => u.name.includes(filter));
+  }, [users, filter]); // users 或 filter 变化时重新计算
 
-  return <ul>{filteredUsers.map(u => <li key={u.id}>{u.name}</li>)}</ul>;
+  return (
+    <ul>
+      {filteredUsers.map((u) => (
+        <li key={u.id}>{u.name}</li>
+      ))}
+    </ul>
+  );
 }
 
 // 示例 2: 缓存排序结果
@@ -1625,7 +2365,13 @@ function SortedList({ items }: { items: Item[] }) {
     return [...items].sort((a, b) => a.name.localeCompare(b.name));
   }, [items]);
 
-  return <ul>{sortedItems.map(item => <li key={item.id}>{item.name}</li>)}</ul>;
+  return (
+    <ul>
+      {sortedItems.map((item) => (
+        <li key={item.id}>{item.name}</li>
+      ))}
+    </ul>
+  );
 }
 ```
 
@@ -1639,8 +2385,11 @@ function Chart({ data }: { data: DataPoint[] }) {
   const processedData = useMemo(() => {
     // 复杂的数据转换
     return data
-      .filter(d => d.value > 0)
-      .map(d => ({ ...d, normalized: d.value / max(data.map(d => d.value)) }))
+      .filter((d) => d.value > 0)
+      .map((d) => ({
+        ...d,
+        normalized: d.value / max(data.map((d) => d.value)),
+      }))
       .sort((a, b) => a.timestamp - b.timestamp);
   }, [data]);
 
@@ -1655,11 +2404,11 @@ function Parent() {
   const [count, setCount] = useState(0);
 
   // ❌ 每次都是新对象
-  const style = { color: 'red', fontSize: '20px' };
+  const style = { color: "red", fontSize: "20px" };
   return <Child style={style} />;
 
   // ✅ 引用稳定
-  const style = useMemo(() => ({ color: 'red', fontSize: '20px' }), []);
+  const style = useMemo(() => ({ color: "red", fontSize: "20px" }), []);
   return <Child style={style} />;
 }
 ```
@@ -1668,10 +2417,13 @@ function Parent() {
 
 ```tsx
 function Component() {
-  const options = useMemo(() => ({
-    root: document.getElementById('scroll-container'),
-    threshold: 0.5
-  }), []);
+  const options = useMemo(
+    () => ({
+      root: document.getElementById("scroll-container"),
+      threshold: 0.5,
+    }),
+    []
+  );
 
   const observer = useMemo(
     () => new IntersectionObserver(callback, options),
@@ -1690,7 +2442,7 @@ const doubled = useMemo(() => count * 2, [count]);
 // 直接 const doubled = count * 2 更快，因为 useMemo 本身有开销
 
 // ❌ 过度使用 2: 原始值
-const isActive = useMemo(() => status === 'active', [status]);
+const isActive = useMemo(() => status === "active", [status]);
 // 直接 const isActive = status === 'active'
 
 // ❌ 过度使用 3: 对象总是被重新创建
@@ -1698,17 +2450,22 @@ function Parent() {
   const [count, setCount] = useState(0);
 
   // user 每次都是新对象，useMemo 没意义
-  const user = useMemo(() => ({
-    id: 1,
-    name: 'Alice',
-    count  // 依赖 count
-  }), [count]);
+  const user = useMemo(
+    () => ({
+      id: 1,
+      name: "Alice",
+      count, // 依赖 count
+    }),
+    [count]
+  );
 
   return <Child user={user} />;
 }
 ```
 
-### 3.6 useCallback（1.5小时）
+### 3.6 useCallback（IKM必考⭐⭐⭐⭐⭐）（1.5小时）
+
+> **useCallback 是 IKM 性能优化题中最常考的**，务必掌握它与 React.memo 的配合使用
 
 #### useCallback 基础
 
@@ -1729,12 +2486,12 @@ const memoizedCallback = useCallback(() => {
 ```tsx
 const Child = React.memo(function Child({
   name,
-  onClick
+  onClick,
 }: {
   name: string;
   onClick: () => void;
 }) {
-  console.log('Child rendered');
+  console.log("Child rendered");
   return <button onClick={onClick}>{name}</button>;
 });
 
@@ -1742,13 +2499,13 @@ function Parent() {
   const [count, setCount] = useState(0);
 
   // ❌ 每次 Parent 渲染，Child 都会重新渲染
-  const handleClick = () => console.log('clicked');
+  const handleClick = () => console.log("clicked");
   return <Child name="Button" onClick={handleClick} />;
 
   // ✅ 只有 count 变化时，handleClick 才会变化
   const handleClick = useCallback(() => {
-    console.log('clicked');
-  }, []);  // 空依赖数组
+    console.log("clicked");
+  }, []); // 空依赖数组
 
   return <Child name="Button" onClick={handleClick} />;
 }
@@ -1758,23 +2515,23 @@ function Parent() {
 
 ```tsx
 function Chat({ roomId }: { roomId: string }) {
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
 
   // ✅ 使用 useCallback 稳定函数引用
   const sendMessage = useCallback(() => {
     if (message.trim()) {
       postMessage(roomId, message);
-      setMessage('');
+      setMessage("");
     }
-  }, [roomId, message]);  // 依赖 roomId 和 message
+  }, [roomId, message]); // 依赖 roomId 和 message
 
   useEffect(() => {
     const connection = createConnection(roomId, sendMessage);
     connection.connect();
     return () => connection.disconnect();
-  }, [roomId, sendMessage]);  // sendMessage 变化时重新创建连接
+  }, [roomId, sendMessage]); // sendMessage 变化时重新创建连接
 
-  return <input value={message} onChange={e => setMessage(e.target.value)} />;
+  return <input value={message} onChange={(e) => setMessage(e.target.value)} />;
 }
 ```
 
@@ -1784,7 +2541,7 @@ function Chat({ roomId }: { roomId: string }) {
 // ❌ 陷阱 1: 依赖太多，频繁创建新函数
 const handleClick = useCallback(() => {
   doSomething(a, b, c, d, e, f);
-}, [a, b, c, d, e, f]);  // 任何一个变化都会创建新函数
+}, [a, b, c, d, e, f]); // 任何一个变化都会创建新函数
 
 // ✅ 方案 1: 减少依赖
 const state = useMemo(() => ({ a, b, c, d, e, f }), [a, b, c, d, e, f]);
@@ -1799,8 +2556,249 @@ paramsRef.current = { a, b, c, d, e, f };
 const handleClick = useCallback(() => {
   const { a, b, c, d, e, f } = paramsRef.current;
   doSomething(a, b, c, d, e, f);
-}, []);  // 空依赖数组
+}, []); // 空依赖数组
 ```
+
+#### IKM 必考：useCallback 的陷阱
+
+**陷阱 1: useCallback + React.memo 的配合（超高频）**
+
+```tsx
+// ❌ 错误：React.memo 子组件接收的函数没有用 useCallback
+const Parent = () => {
+  const [count, setCount] = useState(0);
+
+  const handleClick = () => {
+    // 每次都是新函数
+    console.log("clicked");
+  };
+
+  return (
+    <>
+      <button onClick={() => setCount(count + 1)}>{count}</button>
+      <Child onClick={handleClick} /> {/* 每次都重新渲染 */}
+    </>
+  );
+};
+
+const Child = React.memo(({ onClick }: { onClick: () => void }) => {
+  console.log("Child rendered");
+  return <button onClick={onClick}>Click me</button>;
+});
+
+// 结果：每次 count 变化，Child 都会重新渲染
+// 原因：handleClick 每次都是新函数，React.memo 比较失败
+
+// ✅ 正确：useCallback + React.memo
+const Parent = () => {
+  const [count, setCount] = useState(0);
+
+  const handleClick = useCallback(() => {
+    // 函数引用稳定
+    console.log("clicked");
+  }, []);
+
+  return (
+    <>
+      <button onClick={() => setCount(count + 1)}>{count}</button>
+      <Child onClick={handleClick} /> {/* 不会重新渲染 */}
+    </>
+  );
+};
+```
+
+**陷阱 2: 依赖数组导致频繁创建新函数**
+
+```tsx
+// ❌ 陷阱：依赖太多，useCallback 几乎没用
+const Parent = () => {
+  const [a, setA] = useState(0);
+  const [b, setB] = useState(0);
+  const [c, setC] = useState(0);
+  const [d, setD] = useState(0);
+  const [e, setE] = useState(0);
+  const [f, setF] = useState(0);
+
+  // 任何一个依赖变化，都会创建新函数
+  const handleClick = useCallback(() => {
+    doSomething(a, b, c, d, e, f);
+  }, [a, b, c, d, e, f]);
+
+  // 实际上，这个 useCallback 几乎没用
+  // 因为每次任何一个状态变化，函数都会重新创建
+
+  // ✅ 方案 1: 使用 useRef（不推荐但有时必要）
+  const paramsRef = useRef({ a, b, c, d, e, f });
+  paramsRef.current = { a, b, c, d, e, f };
+
+  const handleClick = useCallback(() => {
+    const { a, b, c, d, e, f } = paramsRef.current;
+    doSomething(a, b, c, d, e, f);
+  }, []); // 空依赖数组
+
+  // ✅ 方案 2: 使用 useMemo 缓存参数对象
+  const params = useMemo(() => ({ a, b, c, d, e, f }), [a, b, c, d, e, f]);
+
+  const handleClick = useCallback(() => {
+    doSomething(params.a, params.b, params.c, params.d, params.e, params.f);
+  }, [params]);
+};
+```
+
+**陷阱 3: useCallback 闭包陷阱（高频）**
+
+```tsx
+// ❌ 陷阱：useCallback 的闭包
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  const handleClick = useCallback(() => {
+    console.log(count); // 永远是初始值 0
+  }, []); // 空依赖数组
+
+  // 问题：
+  // 1. useCallback 创建时，count = 0
+  // 2. 依赖数组为空，函数永远不会重新创建
+  // 3. count 永远是创建时的值（0）
+
+  return (
+    <>
+      <span>{count}</span>
+      <button onClick={() => setCount(count + 1)}>Increment</button>
+      <button onClick={handleClick}>Log Count</button>
+    </>
+  );
+}
+
+// ✅ 方案 1: 添加依赖
+const handleClick = useCallback(() => {
+  console.log(count);
+}, [count]); // count 变化时重新创建函数
+
+// ✅ 方案 2: 使用函数式更新（如果只是更新状态）
+const handleClick = useCallback(() => {
+  setCount((c) => c + 1);
+}, []); // 不依赖 count
+
+// ✅ 方案 3: 使用 useRef
+function Counter() {
+  const [count, setCount] = useState(0);
+  const countRef = useRef(count);
+
+  // 保持 ref 同步
+  useEffect(() => {
+    countRef.current = count;
+  }, [count]);
+
+  const handleClick = useCallback(() => {
+    console.log(countRef.current); // 总是最新的值
+  }, []);
+
+  return (
+    <>
+      <span>{count}</span>
+      <button onClick={() => setCount(count + 1)}>Increment</button>
+      <button onClick={handleClick}>Log Count</button>
+    </>
+  );
+}
+```
+
+#### IKM 模拟题：useCallback
+
+**题目 1：以下代码会输出几次 "Child rendered"？**
+
+```tsx
+const Parent = () => {
+  const [count, setCount] = useState(0);
+
+  const handleClick = useCallback(() => {
+    console.log(count);
+  }, []);
+
+  return (
+    <>
+      <button onClick={() => setCount(count + 1)}>Increment</button>
+      <Child onClick={handleClick} />
+    </>
+  );
+};
+
+const Child = React.memo(({ onClick }: { onClick: () => void }) => {
+  console.log("Child rendered");
+  return <button onClick={onClick}>Click</button>;
+});
+```
+
+- A. 1 次
+- B. 每次点击 Increment 按钮
+- C. 无限次
+- D. 0 次
+
+<details>
+<summary>查看答案</summary>
+
+**答案：A**
+
+解析：
+
+- handleClick 的依赖数组为空，只在组件首次渲染时创建一次
+- 之后每次 Parent 渲染，handleClick 的引用都不变
+- React.memo 检测到 onClick 没变，跳过 Child 的重新渲染
+- 只在初始渲染时输出 1 次 "Child rendered"
+
+⚠️ 注意：handleClick 内部的 count 永远是 0（闭包陷阱），但这不影响重新渲染次数
+
+</details>
+
+**题目 2：如何修复以下代码的性能问题？**
+
+```tsx
+const Parent = () => {
+  const [count, setCount] = useState(0);
+  const [name, setName] = useState("Alice");
+
+  const handleClick = () => {
+    console.log(name);
+  };
+
+  return (
+    <>
+      <button onClick={() => setCount(count + 1)}>Count: {count}</button>
+      <Child onClick={handleClick} />
+    </>
+  );
+};
+
+const Child = React.memo(({ onClick }: { onClick: () => void }) => {
+  console.log("Child rendered");
+  return <button onClick={onClick}>Click</button>;
+});
+```
+
+- A. `const handleClick = useCallback(() => { console.log(name); }, []);`
+- B. `const handleClick = useCallback(() => { console.log(name); }, [name]);`
+- C. `const Child = ({ onClick }: { onClick: () => void }) => { ... };`（去掉 React.memo）
+- D. `const handleClick = () => { console.log(name); };`（保持不变）
+
+<details>
+<summary>查看答案</summary>
+
+**答案：B**
+
+解析：
+
+- A：❌ 闭包陷阱，name 永远是初始值 'Alice'
+- B：✅ 正确，name 变化时重新创建函数，其他时候复用
+- C：❌ 去掉 React.memo 会让 Child 每次都重新渲染
+- D：❌ 每次 Parent 渲染，handleClick 都是新函数，Child 每次都重新渲染
+
+性能分析：
+
+- 当前代码：每次 count 变化，handleClick 都是新函数 → Child 重新渲染
+- 方案 B：只有 name 变化时，handleClick 才是新函数 → count 变化时不重新渲染 Child
+
+</details>
 
 ## 今日练习（Day 3）
 
@@ -1853,10 +2851,10 @@ function usePrevious<T>(value: T): T | undefined {
 ```tsx
 // 问题：这个组件有什么性能问题？如何优化？
 function UserList({ users }: { users: User[] }) {
-  const [filter, setFilter] = useState('');
+  const [filter, setFilter] = useState("");
   const [count, setCount] = useState(0);
 
-  const filteredUsers = users.filter(u => u.name.includes(filter));
+  const filteredUsers = users.filter((u) => u.name.includes(filter));
 
   const sortedUsers = filteredUsers.sort((a, b) =>
     a.name.localeCompare(b.name)
@@ -1864,9 +2862,9 @@ function UserList({ users }: { users: User[] }) {
 
   return (
     <div>
-      <input value={filter} onChange={e => setFilter(e.target.value)} />
-      <button onClick={() => setCount(c => c + 1)}>Count: {count}</button>
-      {sortedUsers.map(user => (
+      <input value={filter} onChange={(e) => setFilter(e.target.value)} />
+      <button onClick={() => setCount((c) => c + 1)}>Count: {count}</button>
+      {sortedUsers.map((user) => (
         <UserCard key={user.id} user={user} />
       ))}
     </div>
@@ -1874,7 +2872,7 @@ function UserList({ users }: { users: User[] }) {
 }
 
 const UserCard = ({ user }: { user: User }) => {
-  console.log('UserCard rendered:', user.id);
+  console.log("UserCard rendered:", user.id);
   return <div>{user.name}</div>;
 };
 ```
@@ -1890,26 +2888,24 @@ const UserCard = ({ user }: { user: User }) => {
 
 // 优化方案：
 function UserList({ users }: { users: User[] }) {
-  const [filter, setFilter] = useState('');
+  const [filter, setFilter] = useState("");
   const [count, setCount] = useState(0);
 
   // 1. 使用 useMemo 缓存过滤结果
   const filteredUsers = useMemo(() => {
-    return users.filter(u => u.name.includes(filter));
+    return users.filter((u) => u.name.includes(filter));
   }, [users, filter]);
 
   // 2. 使用 useMemo + 创建新数组来排序
   const sortedUsers = useMemo(() => {
-    return [...filteredUsers].sort((a, b) =>
-      a.name.localeCompare(b.name)
-    );
+    return [...filteredUsers].sort((a, b) => a.name.localeCompare(b.name));
   }, [filteredUsers]);
 
   return (
     <div>
-      <input value={filter} onChange={e => setFilter(e.target.value)} />
-      <button onClick={() => setCount(c => c + 1)}>Count: {count}</button>
-      {sortedUsers.map(user => (
+      <input value={filter} onChange={(e) => setFilter(e.target.value)} />
+      <button onClick={() => setCount((c) => c + 1)}>Count: {count}</button>
+      {sortedUsers.map((user) => (
         <MemoUserCard key={user.id} user={user} />
       ))}
     </div>
@@ -1918,7 +2914,7 @@ function UserList({ users }: { users: User[] }) {
 
 // 3. 使用 React.memo 包裹组件
 const MemoUserCard = React.memo(({ user }: { user: User }) => {
-  console.log('UserCard rendered:', user.id);
+  console.log("UserCard rendered:", user.id);
   return <div>{user.name}</div>;
 });
 ```
@@ -1939,7 +2935,7 @@ const MemoUserCard = React.memo(({ user }: { user: User }) => {
 // ❌ Context 的问题
 const AppContext = createContext({
   user: null,
-  theme: 'light',
+  theme: "light",
   notifications: [],
   // ... 很多状态
 });
@@ -1950,9 +2946,9 @@ function App() {
   // 问题：任何状态变化都会导致所有消费者重新渲染
   return (
     <AppContext.Provider value={{ state, setState }}>
-      <Header />        {/* 通知变化时重新渲染 */}
-      <Sidebar />       {/* 通知变化时重新渲染 */}
-      <MainContent />   {/* 通知变化时重新渲染 */}
+      <Header /> {/* 通知变化时重新渲染 */}
+      <Sidebar /> {/* 通知变化时重新渲染 */}
+      <MainContent /> {/* 通知变化时重新渲染 */}
     </AppContext.Provider>
   );
 }
@@ -1973,29 +2969,29 @@ function App() {
 ```typescript
 // Action 是一个普通对象，描述"发生了什么"
 interface Action {
-  type: string;        // 必需：动作类型
-  payload?: any;       // 可选：负载数据
+  type: string; // 必需：动作类型
+  payload?: any; // 可选：负载数据
 }
 
 // 示例
 const addTodoAction = {
-  type: 'todos/add',
+  type: "todos/add",
   payload: {
     id: 1,
-    text: 'Learn Redux',
-    completed: false
-  }
+    text: "Learn Redux",
+    completed: false,
+  },
 };
 
 // Action Creator
 function addTodo(text: string) {
   return {
-    type: 'todos/add',
+    type: "todos/add",
     payload: {
       id: Date.now(),
       text,
-      completed: false
-    }
+      completed: false,
+    },
   };
 }
 ```
@@ -2022,20 +3018,23 @@ interface TodoAction {
 
 const initialState: TodoState = [];
 
-function todosReducer(state: TodoState = initialState, action: TodoAction): TodoState {
+function todosReducer(
+  state: TodoState = initialState,
+  action: TodoAction
+): TodoState {
   switch (action.type) {
-    case 'todos/add':
+    case "todos/add":
       return [...state, action.payload];
 
-    case 'todos/toggle':
-      return state.map(todo =>
+    case "todos/toggle":
+      return state.map((todo) =>
         todo.id === action.payload.id
           ? { ...todo, completed: !todo.completed }
           : todo
       );
 
-    case 'todos/delete':
-      return state.filter(todo => todo.id !== action.payload.id);
+    case "todos/delete":
+      return state.filter((todo) => todo.id !== action.payload.id);
 
     default:
       return state;
@@ -2053,15 +3052,16 @@ function todosReducer(state: TodoState = initialState, action: TodoAction): Todo
 
 ```typescript
 // Store 持有应用的状态
-import { createStore } from 'redux';
+import { createStore } from "redux";
 
 // 创建 store
 const store = createStore(todosReducer);
 
 // Store 的方法
-store.getState();              // 获取当前状态
-store.dispatch(addTodo('...')); // 发送 action
-store.subscribe(() => {        // 订阅状态变化
+store.getState(); // 获取当前状态
+store.dispatch(addTodo("...")); // 发送 action
+store.subscribe(() => {
+  // 订阅状态变化
   console.log(store.getState());
 });
 ```
@@ -2111,7 +3111,11 @@ store.subscribe(() => {        // 订阅状态变化
 #### Redux Toolkit 的核心 API
 
 ```typescript
-import { configureStore, createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import {
+  configureStore,
+  createSlice,
+  createAsyncThunk,
+} from "@reduxjs/toolkit";
 
 // configureStore: 创建 store（自动配置）
 // createSlice: 简化 reducer 和 action 的创建
@@ -2124,7 +3128,7 @@ import { configureStore, createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 #### createSlice 基础
 
 ```typescript
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 interface Todo {
   id: number;
@@ -2134,12 +3138,12 @@ interface Todo {
 
 interface TodoState {
   items: Todo[];
-  status: 'idle' | 'loading' | 'error';
+  status: "idle" | "loading" | "error";
 }
 
 const initialState: TodoState = {
   items: [],
-  status: 'idle'
+  status: "idle",
 };
 
 // createSlice 自动生成：
@@ -2147,7 +3151,7 @@ const initialState: TodoState = {
 // 2. action types (todos/addTodo, todos/toggleTodo, todos/deleteTodo)
 // 3. reducer 函数
 const todosSlice = createSlice({
-  name: 'todos',  // slice 名称，会作为 action type 的前缀
+  name: "todos", // slice 名称，会作为 action type 的前缀
   initialState,
   reducers: {
     // 定义 reducer 函数
@@ -2156,20 +3160,20 @@ const todosSlice = createSlice({
       state.items.push({
         id: Date.now(),
         text: action.payload.text,
-        completed: false
+        completed: false,
       });
     },
     toggleTodo: (state, action: PayloadAction<number>) => {
-      const todo = state.items.find(t => t.id === action.payload);
+      const todo = state.items.find((t) => t.id === action.payload);
       if (todo) {
-        todo.completed = !todo.completed;  // Immer 允许直接修改！
+        todo.completed = !todo.completed; // Immer 允许直接修改！
       }
     },
     deleteTodo: (state, action: PayloadAction<number>) => {
       // 使用 Immer 的数组过滤
-      state.items = state.items.filter(t => t.id !== action.payload);
-    }
-  }
+      state.items = state.items.filter((t) => t.id !== action.payload);
+    },
+  },
 });
 
 // 导出 action creators
@@ -2222,7 +3226,7 @@ function TodoList() {
 #### createAsyncThunk 基础
 
 ```typescript
-import { createAsyncThunk } from '@reduxjs/toolkit';
+import { createAsyncThunk } from "@reduxjs/toolkit";
 
 // createAsyncThunk 自动生成三个 action:
 // - fetchTodos.pending
@@ -2230,28 +3234,28 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 // - fetchTodos.rejected
 
 export const fetchTodos = createAsyncThunk(
-  'todos/fetch',  // action type 前缀
+  "todos/fetch", // action type 前缀
   async (userId: number, { rejectWithValue }) => {
     try {
       const response = await fetch(`/api/users/${userId}/todos`);
       if (!response.ok) {
-        throw new Error('Failed to fetch todos');
+        throw new Error("Failed to fetch todos");
       }
       const data = await response.json();
-      return data;  // 这个值会作为 action.payload
+      return data; // 这个值会作为 action.payload
     } catch (error) {
-      return rejectWithValue(error.message);  // 这个值会作为 action.payload (rejected)
+      return rejectWithValue(error.message); // 这个值会作为 action.payload (rejected)
     }
   }
 );
 
 // 在 createSlice 中处理异步 actions
 const todosSlice = createSlice({
-  name: 'todos',
+  name: "todos",
   initialState: {
     items: [],
-    status: 'idle',  // 'idle' | 'loading' | 'succeeded' | 'failed'
-    error: null as string | null
+    status: "idle", // 'idle' | 'loading' | 'succeeded' | 'failed'
+    error: null as string | null,
   },
   reducers: {
     // ... 同步 reducers
@@ -2259,17 +3263,17 @@ const todosSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchTodos.pending, (state) => {
-        state.status = 'loading';
+        state.status = "loading";
       })
       .addCase(fetchTodos.fulfilled, (state, action) => {
-        state.status = 'succeeded';
+        state.status = "succeeded";
         state.items = action.payload;
       })
       .addCase(fetchTodos.rejected, (state, action) => {
-        state.status = 'failed';
+        state.status = "failed";
         state.error = action.payload as string;
       });
-  }
+  },
 });
 ```
 
@@ -2323,9 +3327,9 @@ function TodoForm() {
 ### 4.7 configureStore 配置（30分钟）
 
 ```typescript
-import { configureStore } from '@reduxjs/toolkit';
-import todosReducer from './todosSlice';
-import userReducer from './userSlice';
+import { configureStore } from "@reduxjs/toolkit";
+import todosReducer from "./todosSlice";
+import userReducer from "./userSlice";
 
 // configureStore 自动配置：
 // - Redux DevTools Extension
@@ -2336,12 +3340,11 @@ import userReducer from './userSlice';
 export const store = configureStore({
   reducer: {
     todos: todosReducer,
-    user: userReducer
+    user: userReducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware()
-      .concat(customMiddleware),  // 添加自定义中间件
-  devTools: process.env.NODE_ENV !== 'production'  // 开发环境启用 DevTools
+    getDefaultMiddleware().concat(customMiddleware), // 添加自定义中间件
+  devTools: process.env.NODE_ENV !== "production", // 开发环境启用 DevTools
 });
 
 // 类型推导
@@ -2385,15 +3388,15 @@ function DebugInfo() {
 
 ## Redux vs Zustand 对比
 
-| 维度 | Redux Toolkit | Zustand |
-|------|--------------|---------|
-| Bundle Size | ~10KB+ | ~1KB |
-| 样板代码 | 相对较多 | 很少 |
-| 学习曲线 | 陡峭 | 平缓 |
-| DevTools | 专用 DevTools | 简单的 DevTools |
-| 中间件 | Thunk, Saga 等 | 内置 |
-| TypeScript | 需要手动配置 | 自动推导 |
-| 适用场景 | 大型应用、团队协作 | 个人项目、小型应用 |
+| 维度        | Redux Toolkit      | Zustand            |
+| ----------- | ------------------ | ------------------ |
+| Bundle Size | ~10KB+             | ~1KB               |
+| 样板代码    | 相对较多           | 很少               |
+| 学习曲线    | 陡峭               | 平缓               |
+| DevTools    | 专用 DevTools      | 简单的 DevTools    |
+| 中间件      | Thunk, Saga 等     | 内置               |
+| TypeScript  | 需要手动配置       | 自动推导           |
+| 适用场景    | 大型应用、团队协作 | 个人项目、小型应用 |
 
 ## 今日练习（Day 4）
 
@@ -2413,11 +3416,11 @@ interface CounterState {
 }
 
 const counterSlice = createSlice({
-  name: 'counter',
+  name: "counter",
   initialState: { value: 0 },
   reducers: {
     // TODO: 实现 increment, decrement, incrementByAmount
-  }
+  },
 });
 ```
 
@@ -2598,6 +3601,7 @@ function Layout() {
 ### 实战项目：Todo App（完整功能）
 
 **功能需求：**
+
 1. 添加/删除/切换 Todo
 2. 按状态筛选（All/Active/Completed）
 3. 本地存储持久化
@@ -2610,7 +3614,7 @@ function Layout() {
 
 ```typescript
 // features/todos/todosSlice.ts
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface Todo {
   id: number;
@@ -2620,44 +3624,48 @@ interface Todo {
 
 interface TodosState {
   items: Todo[];
-  filter: 'all' | 'active' | 'completed';
+  filter: "all" | "active" | "completed";
 }
 
 const initialState: TodosState = {
-  items: JSON.parse(localStorage.getItem('todos') || '[]'),
-  filter: 'all'
+  items: JSON.parse(localStorage.getItem("todos") || "[]"),
+  filter: "all",
 };
 
 const todosSlice = createSlice({
-  name: 'todos',
+  name: "todos",
   initialState,
   reducers: {
     addTodo: (state, action: PayloadAction<string>) => {
       state.items.push({
         id: Date.now(),
         text: action.payload,
-        completed: false
+        completed: false,
       });
-      localStorage.setItem('todos', JSON.stringify(state.items));
+      localStorage.setItem("todos", JSON.stringify(state.items));
     },
     toggleTodo: (state, action: PayloadAction<number>) => {
-      const todo = state.items.find(t => t.id === action.payload);
+      const todo = state.items.find((t) => t.id === action.payload);
       if (todo) {
         todo.completed = !todo.completed;
-        localStorage.setItem('todos', JSON.stringify(state.items));
+        localStorage.setItem("todos", JSON.stringify(state.items));
       }
     },
     deleteTodo: (state, action: PayloadAction<number>) => {
-      state.items = state.items.filter(t => t.id !== action.payload);
-      localStorage.setItem('todos', JSON.stringify(state.items));
+      state.items = state.items.filter((t) => t.id !== action.payload);
+      localStorage.setItem("todos", JSON.stringify(state.items));
     },
-    setFilter: (state, action: PayloadAction<'all' | 'active' | 'completed'>) => {
+    setFilter: (
+      state,
+      action: PayloadAction<"all" | "active" | "completed">
+    ) => {
       state.filter = action.payload;
-    }
-  }
+    },
+  },
 });
 
-export const { addTodo, toggleTodo, deleteTodo, setFilter } = todosSlice.actions;
+export const { addTodo, toggleTodo, deleteTodo, setFilter } =
+  todosSlice.actions;
 export default todosSlice.reducer;
 ```
 
@@ -2671,22 +3679,27 @@ function TodoList() {
 
   const filteredTodos = useMemo(() => {
     switch (filter) {
-      case 'active': return items.filter(t => !t.completed);
-      case 'completed': return items.filter(t => t.completed);
-      default: return items;
+      case "active":
+        return items.filter((t) => !t.completed);
+      case "completed":
+        return items.filter((t) => t.completed);
+      default:
+        return items;
     }
   }, [items, filter]);
 
   return (
     <ul>
-      {filteredTodos.map(todo => (
+      {filteredTodos.map((todo) => (
         <li key={todo.id}>
           <input
             type="checkbox"
             checked={todo.completed}
             onChange={() => dispatch(toggleTodo(todo.id))}
           />
-          <span style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}>
+          <span
+            style={{ textDecoration: todo.completed ? "line-through" : "none" }}
+          >
             {todo.text}
           </span>
           <button onClick={() => dispatch(deleteTodo(todo.id))}>Delete</button>
@@ -2696,6 +3709,445 @@ function TodoList() {
   );
 }
 ```
+
+## IKM 考试模拟题（⭐⭐⭐⭐⭐ 必练）
+
+> **说明**：以下题目覆盖了 IKM React 考试 80% 的高频考点
+
+### 第一部分：useEffect 专题（⭐⭐⭐⭐⭐）
+
+**题目 1：以下代码会输出什么？**
+
+```tsx
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    console.log("effect");
+    setCount(count + 1);
+  }, []);
+
+  return <div>{count}</div>;
+}
+```
+
+- A. 输出一次 "effect"，显示 1
+- B. 输出无限次 "effect"
+- C. 不输出 "effect"，显示 0
+- D. 输出两次 "effect"，显示 2
+
+<details>
+<summary>答案与解析</summary>
+
+**答案：A**
+
+解析：
+
+1. 组件首次渲染，count = 0
+2. useEffect 执行（空依赖数组，只执行一次）
+3. 输出 "effect"
+4. setCount(1) 触发重新渲染
+5. 组件第二次渲染，count = 1
+6. useEffect 不再执行（依赖数组为空）
+7. 最终：count = 1，effect 执行 1 次
+
+**IKM 考点**：useEffect 的执行时机和依赖数组的作用
+
+</details>
+
+**题目 2：以下 useEffect 的使用哪个是正确的？**
+
+- A. `useEffect(async () => { await fetchData(); }, [id])`
+- B. `useEffect(() => { fetchData().then(setData); }, [id])`
+- C. `useEffect(() => { const data = await fetchData(); }, [id])`
+- D. `useEffect(fetchData, [id])`
+
+<details>
+<summary>答案与解析</summary>
+
+**答案：B**
+
+解析：
+
+- A：❌ useEffect 不能直接使用 async 函数
+- B：✅ 正确，使用 Promise.then()
+- C：❌ async/await 不能直接在 useEffect 回调中使用
+- D：❌ fetchData 会被立即执行，应该传递函数引用
+
+**IKM 考点**：useEffect 中异步操作的正确写法
+
+</details>
+
+**题目 3：以下代码会执行几次 console.log？**
+
+```tsx
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    console.log("effect");
+  });
+
+  return <button onClick={() => setCount(count + 1)}>{count}</button>;
+}
+```
+
+初始渲染后点击按钮 3 次。
+
+- A. 1 次
+- B. 3 次
+- C. 4 次
+- D. 无限次
+
+<details>
+<summary>答案与解析</summary>
+
+**答案：C**
+
+解析：
+
+- 没有依赖数组 = 每次渲染后都执行
+- 初始渲染：1 次
+- 点击 1 次：重新渲染，1 次
+- 点击 2 次：重新渲染，1 次
+- 点击 3 次：重新渲染，1 次
+- 总计：1 + 3 = 4 次
+
+**IKM 考点**：省略依赖数组 vs 空依赖数组的区别
+
+</details>
+
+---
+
+### 第二部分：useState 专题（⭐⭐⭐⭐⭐）
+
+**题目 4：以下代码的输出是什么？**
+
+```tsx
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  const handleClick = () => {
+    setCount(count + 1);
+    setCount(count + 1);
+    setCount(count + 1);
+    console.log(count);
+  };
+
+  return <button onClick={handleClick}>{count}</button>;
+}
+```
+
+点击按钮后，count 的值是多少？
+
+- A. 0
+- B. 1
+- C. 3
+- D. 不确定
+
+<details>
+<summary>答案与解析</summary>
+
+**答案：B**
+
+解析：
+
+- 三次 setCount 都读取同一个 count 值（当前渲染的值）
+- setCount(0 + 1) 三次
+- React 批处理，最终 count = 1
+- 修复方法：`setCount(c => c + 1)` 三次
+
+**IKM 考点**：useState 函数式更新的必要性
+
+</details>
+
+**题目 5：如何修复以下代码，使 count 增加 3？**
+
+```tsx
+const handleClick = () => {
+  setCount(count + 1);
+  setCount(count + 1);
+  setCount(count + 1);
+};
+```
+
+- A. `setCount(count + 3)`
+- B. `setCount(c => c + 1); setCount(c => c + 1); setCount(c => c + 1)`
+- C. `setCount(prev => prev + 3)`
+- D. 以上都正确
+
+<details>
+<summary>答案与解析</summary>
+
+**答案：D**
+
+解析：
+
+- A：✅ 直接加 3
+- B：✅ 函数式更新，每次基于最新值
+- C：✅ 函数式更新，一次性加 3
+- D：✅ 三种方法都正确
+
+**IKM 考点**：useState 的多种更新方式
+
+</details>
+
+---
+
+### 第三部分：Hooks 规则专题（⭐⭐⭐⭐⭐）
+
+**题目 6：以下哪些 Hooks 的使用是正确的？（多选）**
+
+```tsx
+// A.
+function Component() {
+  if (condition) {
+    const [count, setCount] = useState(0);
+  }
+}
+
+// B.
+function Component() {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (count > 0) {
+      console.log(count);
+    }
+  }, [count]);
+}
+
+// C.
+function Component() {
+  useEffect(() => {
+    const [data, setData] = useState(null);
+  }, []);
+}
+
+// D.
+function Component() {
+  const items = [1, 2, 3];
+  items.forEach(() => {
+    console.log("test");
+  });
+  const [count, setCount] = useState(0);
+}
+```
+
+<details>
+<summary>答案与解析</summary>
+
+**答案：B、D**
+
+解析：
+
+- A：❌ useState 在条件语句中调用
+- B：✅ Hooks 在顶层，条件逻辑在 effect 内部
+- C：❌ useState 在 useEffect 中调用
+- D：✅ Hooks 在顶层调用（forEach 在 useState 之后）
+
+**IKM 考点**：Hooks 的两条黄金规则
+
+</details>
+
+---
+
+### 第四部分：性能优化专题（⭐⭐⭐⭐⭐）
+
+**题目 7：以下代码会输出几次 "Child rendered"？**
+
+```tsx
+const Parent = () => {
+  const [count, setCount] = useState(0);
+  const user = { name: "Alice" };
+
+  return (
+    <>
+      <button onClick={() => setCount(count + 1)}>{count}</button>
+      <Child user={user} />
+    </>
+  );
+};
+
+const Child = React.memo(({ user }: { user: { name: string } }) => {
+  console.log("Child rendered");
+  return <div>{user.name}</div>;
+});
+```
+
+点击按钮 3 次。
+
+- A. 1 次
+- B. 3 次
+- C. 4 次
+- D. 0 次
+
+<details>
+<summary>答案与解析</summary>
+
+**答案：C**
+
+解析：
+
+- 初始渲染：1 次
+- 每次 Parent 渲染，`user = { name: 'Alice' }` 都创建新对象
+- React.memo 浅比较，发现 user 引用变化
+- 每次 count 变化都导致 Child 重新渲染
+- 总计：1 + 3 = 4 次
+
+修复方法：`const user = useMemo(() => ({ name: 'Alice' }), [])`
+
+**IKM 考点**：React.memo 的浅比较机制
+
+</details>
+
+**题目 8：以下代码的输出是什么？**
+
+```tsx
+const Parent = () => {
+  const [count, setCount] = useState(0);
+
+  const handleClick = useCallback(() => {
+    console.log(count);
+  }, []);
+
+  return (
+    <>
+      <button onClick={() => setCount(count + 1)}>Increment</button>
+      <button onClick={handleClick}>Log</button>
+    </>
+  );
+};
+```
+
+点击 Increment 2 次，然后点击 Log，会输出什么？
+
+- A. 0
+- B. 2
+- C. undefined
+- D. 报错
+
+<details>
+<summary>答案与解析</summary>
+
+**答案：A**
+
+解析：
+
+- useCallback 的依赖数组为空
+- handleClick 只在组件首次渲染时创建一次
+- 当时 count = 0
+- 之后 count 变化，handleClick 不会重新创建
+- handleClick 内部的 count 永远是 0（闭包陷阱）
+
+**IKM 考点**：useCallback 的闭包陷阱
+
+</details>
+
+**题目 9：如何修复题目 8 的代码？**
+
+- A. `const handleClick = useCallback(() => { console.log(count); }, [count])`
+- B. `const handleClick = useCallback(() => { console.log(count); }, [])`
+- C. `const handleClick = () => { console.log(count); }`
+- D. `useCallback` 不适用于这个场景
+
+<details>
+<summary>答案与解析</summary>
+
+**答案：A**
+
+解析：
+
+- A：✅ 添加 count 依赖，count 变化时重新创建函数
+- B：❌ 闭包陷阱
+- C：❌ 每次都是新函数，无法享受 useCallback 的优化
+- D：❌ useCallback 完全适用
+
+**IKM 考点**：useCallback 的正确使用
+
+</details>
+
+---
+
+### 第五部分：React 原理专题（⭐⭐⭐⭐）
+
+**题目 10：以下关于 key 的说法哪个是正确的？**
+
+- A. key 必须是全局唯一的
+- B. 使用 index 作为 key 总是安全的
+- C. key 应该是稳定、唯一、不变的
+- D. key 只在列表中使用
+
+<details>
+<summary>答案与解析</summary>
+
+**答案：C**
+
+解析：
+
+- A：❌ key 只需要在兄弟元素中唯一
+- B：❌ 动态列表使用 index 作为 key 会导致状态错乱
+- C：✅ 正确
+- D：❌ key 也可以用在其他场景（如强制重新渲染）
+
+**IKM 考点**：key 的作用和正确使用
+
+</details>
+
+---
+
+### 第六部分：React 18 特性（⭐⭐⭐）
+
+**题目 11：React 18 的自动批处理是指什么？**
+
+- A. 所有状态更新都会被批处理
+- B. 只有事件处理器中的更新会被批处理
+- C. Promise、setTimeout 等异步操作中的更新也会被批处理
+- D. 只有 useState 的更新会被批处理
+
+<details>
+<summary>答案与解析</summary>
+
+**答案：C**
+
+解析：
+
+- React 17：只在事件处理器中批处理
+- React 18：所有更新都会被批处理（包括异步操作）
+- 使用 `flushSync` 可以退出批处理
+
+**IKM 考点**：React 18 的新特性
+
+</details>
+
+---
+
+### IKM 考试策略建议
+
+1. **时间分配**
+   - useEffect/useState 题：30-40%
+   - 性能优化题：25-30%
+   - Hooks 规则题：15-20%
+   - React 原理题：15-20%
+   - 其他：10-15%
+
+2. **答题技巧**
+   - 仔细阅读代码，注意依赖数组
+   - 判断是否涉及闭包陷阱
+   - 注意对象的引用比较
+   - 区分 React 17 和 React 18 的行为
+
+3. **复习重点**
+   - ⭐⭐⭐⭐⭐ 考点：useEffect 依赖数组、useState 函数式更新、Hooks 规则、useCallback + React.memo
+   - ⭐⭐⭐⭐ 考点：React.memo 引用比较、useMemo、闭包陷阱、key 的作用
+
+4. **常见陷阱**
+   - useEffect 直接使用 async 函数
+   - useState 连续更新
+   - useCallback 闭包陷阱
+   - React.memo + 对象/数组 props
+   - Hooks 在条件语句中调用
+
+---
 
 ## IKM 考试模拟题
 
@@ -2731,6 +4183,7 @@ function TodoList() {
    </details>
 
 2. **以下代码的输出是什么？**
+
    ```tsx
    function Counter() {
      const [count, setCount] = useState(0);
@@ -2739,6 +4192,7 @@ function TodoList() {
      console.log(count);
    }
    ```
+
    - A. 0
    - B. 1
    - C. 2
@@ -2752,9 +4206,10 @@ function TodoList() {
    解析：状态更新是异步的，console.log 读取的是当前渲染的 count 值（0）。两次 setCount 都读取同一个 count 值。
 
    修复方法：
+
    ```tsx
-   setCount(c => c + 1);
-   setCount(c => c + 1);
+   setCount((c) => c + 1);
+   setCount((c) => c + 1);
    ```
 
    </details>
@@ -2790,7 +4245,7 @@ function useDebounce<T>(value: T, delay: number): T {
 
 // 使用示例
 function SearchInput() {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const debouncedQuery = useDebounce(query, 500);
 
   useEffect(() => {
@@ -2799,7 +4254,7 @@ function SearchInput() {
     }
   }, [debouncedQuery]);
 
-  return <input value={query} onChange={e => setQuery(e.target.value)} />;
+  return <input value={query} onChange={(e) => setQuery(e.target.value)} />;
 }
 ```
 
@@ -2837,31 +4292,31 @@ function useDebounce<T>(value: T, delay: number): T {
 
 ## 核心Hooks
 
-| Hook | 用途 | 语法 |
-|------|------|------|
-| `useState` | 管理组件状态 | `const [state, setState] = useState(initialState)` |
-| `useEffect` | 处理副作用 | `useEffect(setup, dependencies?)` |
-| `useContext` | 读取 Context | `const value = useContext(MyContext)` |
-| `useReducer` | 复杂状态管理 | `const [state, dispatch] = useReducer(reducer, initialState)` |
-| `useRef` | 访问 DOM 或存储可变值 | `const ref = useRef(initialValue)` |
-| `useMemo` | 缓存计算结果 | `const memoizedValue = useMemo(() => computeExpensiveValue(), deps)` |
-| `useCallback` | 缓存函数引用 | `const memoizedFn = useCallback(() => {...}, deps)` |
-| `useLayoutEffect` | 同步执行副作用 | `useLayoutEffect(setup, dependencies?)` |
-| `useTransition` | 标记非紧急更新 | `const [isPending, startTransition] = useTransition()` |
-| `useDeferredValue` | 延迟更新值 | `const deferredValue = useDeferredValue(value)` |
-| `useId` | 生成唯一 ID | `const id = useId()` |
+| Hook               | 用途                  | 语法                                                                 |
+| ------------------ | --------------------- | -------------------------------------------------------------------- |
+| `useState`         | 管理组件状态          | `const [state, setState] = useState(initialState)`                   |
+| `useEffect`        | 处理副作用            | `useEffect(setup, dependencies?)`                                    |
+| `useContext`       | 读取 Context          | `const value = useContext(MyContext)`                                |
+| `useReducer`       | 复杂状态管理          | `const [state, dispatch] = useReducer(reducer, initialState)`        |
+| `useRef`           | 访问 DOM 或存储可变值 | `const ref = useRef(initialValue)`                                   |
+| `useMemo`          | 缓存计算结果          | `const memoizedValue = useMemo(() => computeExpensiveValue(), deps)` |
+| `useCallback`      | 缓存函数引用          | `const memoizedFn = useCallback(() => {...}, deps)`                  |
+| `useLayoutEffect`  | 同步执行副作用        | `useLayoutEffect(setup, dependencies?)`                              |
+| `useTransition`    | 标记非紧急更新        | `const [isPending, startTransition] = useTransition()`               |
+| `useDeferredValue` | 延迟更新值            | `const deferredValue = useDeferredValue(value)`                      |
+| `useId`            | 生成唯一 ID           | `const id = useId()`                                                 |
 
 ## 自定义 Hooks 模式
 
-| 模式 | 用途 | 示例 |
-|------|------|------|
-| `useLocalStorage` | 本地存储 | `const [value, setValue] = useLocalStorage('key', initialValue)` |
-| `useFetch` | 数据获取 | `const { data, error, loading } = useFetch(url)` |
-| `useToggle` | 切换布尔值 | `const [value, toggle] = useToggle(false)` |
-| `usePrevious` | 获取上一个值 | `const prevValue = usePrevious(value)` |
-| `useMediaQuery` | 响应式检测 | `const isMobile = useMediaQuery('(max-width: 768px)')` |
-| `useDebounce` | 防抖 | `const debouncedValue = useDebounce(value, 300)` |
-| `useForm` | 表单管理 | `const { values, errors, handleSubmit } = useForm()` |
+| 模式              | 用途         | 示例                                                             |
+| ----------------- | ------------ | ---------------------------------------------------------------- |
+| `useLocalStorage` | 本地存储     | `const [value, setValue] = useLocalStorage('key', initialValue)` |
+| `useFetch`        | 数据获取     | `const { data, error, loading } = useFetch(url)`                 |
+| `useToggle`       | 切换布尔值   | `const [value, toggle] = useToggle(false)`                       |
+| `usePrevious`     | 获取上一个值 | `const prevValue = usePrevious(value)`                           |
+| `useMediaQuery`   | 响应式检测   | `const isMobile = useMediaQuery('(max-width: 768px)')`           |
+| `useDebounce`     | 防抖         | `const debouncedValue = useDebounce(value, 300)`                 |
+| `useForm`         | 表单管理     | `const { values, errors, handleSubmit } = useForm()`             |
 
 ---
 
@@ -2870,30 +4325,35 @@ function useDebounce<T>(value: T, delay: number): T {
 ## 学习检查清单
 
 ### Day 1: React 基础
+
 - [ ] 理解 JSX 语法和规则
 - [ ] 掌握组件定义和 Props 传递
 - [ ] 理解事件处理和事件对象
 - [ ] 能进行 Angular 到 React 的代码转换
 
 ### Day 2: useState 和 useEffect
+
 - [ ] 掌握 useState 的各种用法
 - [ ] 理解函数式更新的场景
 - [ ] 深入理解 useEffect 的依赖数组
 - [ ] 能识别和解决闭包陷阱
 
 ### Day 3: 自定义 Hooks 和性能优化
+
 - [ ] 能编写常用的自定义 Hooks
 - [ ] 理解 React.memo 的使用场景
 - [ ] 掌握 useMemo 和 useCallback
 - [ ] 能识别性能问题并优化
 
 ### Day 4: Redux
+
 - [ ] 理解 Redux 的三大核心概念
 - [ ] 掌握 Redux Toolkit 的使用
 - [ ] 能使用 createSlice 创建 reducer
 - [ ] 能使用 createAsyncThunk 处理异步
 
 ### Day 5: 完整应用
+
 - [ ] 能使用 React Router
 - [ ] 能构建完整的 React 应用
 - [ ] 能通过 IKM 考试模拟题
