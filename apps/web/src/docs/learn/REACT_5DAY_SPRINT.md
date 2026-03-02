@@ -16,7 +16,7 @@
 | **React 渲染机制（key, reconciliation）** | ⭐⭐⭐⭐   | 中    | Day 1 |
 | **React 18 自动批处理**                   | ⭐⭐⭐     | 中    | Day 2 |
 | **事件处理**                              | ⭐⭐⭐     | 低    | Day 1 |
-| **Context vs Redux**                      | ⭐⭐⭐     | 中    | Day 4 |
+| **Context API**                           | ⭐⭐⭐     | 中    | Day 4 |
 | **React 原理（Virtual DOM）**             | ⭐⭐⭐     | 高    | Day 1 |
 
 > **考试策略**：重点掌握标⭐⭐⭐⭐的考点，这些题目占了IKM考试的60%以上。
@@ -29,7 +29,7 @@
 Day 1: React 基础 + JSX → 组件与 Props + React 渲染原理（IKM基础）
 Day 2: useState + useEffect → Hooks 深度理解 + IKM必考5大陷阱
 Day 3: 性能优化 → React.memo + useMemo + useCallback（IKM高频）
-Day 4: Redux 原理与实战 → 状态管理架构 + Context vs Redux
+Day 4: Context API → Redux Toolkit → Zustand → 三者选择策略
 Day 5: React Router + 完整应用 → IKM 模拟题实战
 ```
 
@@ -2511,28 +2511,43 @@ function Parent() {
 }
 ```
 
-**场景 2: 作为其他 Hook 的依赖**
+**场景 2: 作为其他 Hook 的依赖（正确示例）**
 
 ```tsx
 function Chat({ roomId }: { roomId: string }) {
   const [message, setMessage] = useState("");
 
   // ✅ 使用 useCallback 稳定函数引用
-  const sendMessage = useCallback(() => {
-    if (message.trim()) {
-      postMessage(roomId, message);
-      setMessage("");
-    }
-  }, [roomId, message]); // 依赖 roomId 和 message
+  // 通过参数传递 message，避免依赖 message
+  const sendMessage = useCallback(
+    (msg: string) => {
+      if (msg.trim()) {
+        postMessage(roomId, msg);
+        setMessage("");
+      }
+    },
+    [roomId]
+  ); // 只依赖 roomId
 
+  // useEffect 只在 roomId 变化时重新创建连接
   useEffect(() => {
     const connection = createConnection(roomId, sendMessage);
     connection.connect();
     return () => connection.disconnect();
-  }, [roomId, sendMessage]); // sendMessage 变化时重新创建连接
+  }, [roomId, sendMessage]);
 
-  return <input value={message} onChange={(e) => setMessage(e.target.value)} />;
+  return (
+    <div>
+      <input value={message} onChange={(e) => setMessage(e.target.value)} />
+      <button onClick={() => sendMessage(message)}>Send</button>
+    </div>
+  );
 }
+
+// ✅ 优势：
+// - message 变化不会导致 sendMessage 重新创建
+// - 不会触发不必要的 useEffect
+// - 连接只在 roomId 变化时重新创建
 ```
 
 #### useCallback 陷阱
@@ -2702,6 +2717,65 @@ function Counter() {
     </>
   );
 }
+```
+
+**陷阱 4: useCallback 依赖链式反应（超高频）**
+
+```tsx
+// ❌ 陷阱：useCallback 作为 useEffect 依赖，导致连锁反应
+function Chat({ roomId }: { roomId: string }) {
+  const [message, setMessage] = useState("");
+
+  const sendMessage = useCallback(() => {
+    if (message.trim()) {
+      postMessage(roomId, message);
+      setMessage("");
+    }
+  }, [roomId, message]); // ❌ message 变化导致函数重新创建
+
+  useEffect(() => {
+    const connection = createConnection(roomId, sendMessage);
+    connection.connect();
+    return () => connection.disconnect();
+  }, [roomId, sendMessage]); // ❌ sendMessage 变化触发 useEffect
+
+  return <input value={message} onChange={(e) => setMessage(e.target.value)} />;
+}
+
+// 问题链：
+// 1. 用户输入 → message 变化
+// 2. message 变化 → sendMessage 重新创建
+// 3. sendMessage 变化 → useEffect 触发
+// 4. 连接被频繁重新创建 ❌
+
+// ✅ 方案 1: 通过参数传递值（推荐）
+const sendMessage = useCallback(
+  (msg: string) => {
+    if (msg.trim()) {
+      postMessage(roomId, msg);
+      setMessage("");
+    }
+  },
+  [roomId]
+); // 只依赖 roomId
+
+// 点击发送时传递 message
+<button onClick={() => sendMessage(message)}>Send</button>;
+
+// ✅ 方案 2: 使用 ref 读取最新值
+const messageRef = useRef(message);
+
+useEffect(() => {
+  messageRef.current = message;
+}, [message]);
+
+const sendMessage = useCallback(() => {
+  const msg = messageRef.current;
+  if (msg.trim()) {
+    postMessage(roomId, msg);
+    setMessage("");
+  }
+}, [roomId]); // 只依赖 roomId
 ```
 
 #### IKM 模拟题：useCallback
@@ -2923,11 +2997,364 @@ const MemoUserCard = React.memo(({ user }: { user: User }) => {
 
 ---
 
-# Day 4: Redux 深度理解（8小时）
+# Day 4: Context API + Redux + Zustand 状态管理完全掌握（10小时）
 
-## 上午：Redux 核心概念（4小时）
+> **今日重点**：掌握三种状态管理方案，理解各自的优势和使用场景
 
-### 4.1 为什么需要 Redux？（1小时）
+## 上午：Context API 完全掌握（2小时）
+
+### 4.1 Context API 基础（1小时）
+
+#### 为什么需要 Context？
+
+```tsx
+// ❌ Props Drilling 问题：层层传递 props
+function App() {
+  const [theme, setTheme] = useState("light");
+
+  return (
+    <Layout theme={theme}>
+      <Header theme={theme} />
+      <Content theme={theme}>
+        <Button theme={theme} />
+      </Content>
+    </Layout>
+  );
+}
+
+// 即使中间组件不使用 theme，也必须传递
+function Layout({ theme, children }) {
+  return <div className={theme}>{children}</div>;
+}
+
+function Header({ theme }) {
+  return <h1 className={theme}>Header</h1>;
+}
+
+function Content({ theme, children }) {
+  return <main className={theme}>{children}</main>;
+}
+
+function Button({ theme }) {
+  return <button className={theme}>Click</button>;
+}
+```
+
+#### Context API 解决 Props Drilling
+
+```tsx
+// ✅ 使用 Context API
+import { createContext, useContext } from 'react';
+
+// 1. 创建 Context
+const ThemeContext = createContext({
+  theme: 'light',
+  setTheme: () => {},
+});
+
+// 2. 创建 Provider 组件
+function ThemeProvider({ children }) {
+  const [theme, setTheme] = useState('light');
+
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+// 3. 在组件中使用 Context
+function App() {
+  return (
+    <ThemeProvider>
+      <Layout />
+    </ThemeProvider>
+  );
+}
+
+// 任何层级的组件都可以访问 theme
+function Layout() {
+  return (
+    <div>
+      <Header />
+      <Content />
+    </div>
+  );
+}
+
+function Header() {
+  const { theme } = useContext(ThemeContext);
+  return <h1 className={theme}>Header</h1>;
+}
+
+function Button() {
+  const { theme, setTheme } = useContext(ThemeContext);
+  return (
+    <button className={theme} onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
+      Toggle Theme
+    </button>
+  );
+}
+```
+
+#### Context 的三个步骤
+
+```tsx
+// 步骤 1: 创建 Context
+const MyContext = createContext(defaultValue);
+
+// 步骤 2: 提供 Context
+<MyContext.Provider value={value}>
+  <Child />
+</MyContext.Provider>
+
+// 步骤 3: 消费 Context
+const value = useContext(MyContext);
+```
+
+### 4.2 Context API 最佳实践（1小时）
+
+#### 实践 1: 分离 Context 避免不必要的渲染
+
+```tsx
+// ❌ 错误：所有状态在一个 Context 中
+const AppContext = createContext({
+  user: null,
+  theme: 'light',
+  notifications: [],
+  // ... 很多状态
+});
+
+// 问题：任何状态变化都会导致所有消费者重新渲染
+
+// ✅ 正确：拆分多个 Context
+const UserContext = createContext(null);
+const ThemeContext = createContext('light');
+const NotificationContext = createContext([]);
+
+// 优势：只有使用特定 Context 的组件才会在该状态变化时重新渲染
+function App() {
+  const [user, setUser] = useState(null);
+  const [theme, setTheme] = useState('light');
+  const [notifications, setNotifications] = useState([]);
+
+  return (
+    <UserContext.Provider value={user}>
+      <ThemeContext.Provider value={theme}>
+        <NotificationContext.Provider value={notifications}>
+          <Header />       {/* 只在 user 变化时重新渲染 */}
+          <Sidebar />      {/* 只在 theme 变化时重新渲染 */}
+          <Notifications /> {/* 只在 notifications 变化时重新渲染 */}
+        </NotificationContext.Provider>
+      </ThemeContext.Provider>
+    </UserContext.Provider>
+  );
+}
+```
+
+#### 实践 2: 自定义 Hook 封装 Context
+
+```tsx
+// ✅ 创建自定义 Hook
+function useTheme() {
+  const context = useContext(ThemeContext);
+
+  if (!context) {
+    throw new Error('useTheme must be used within ThemeProvider');
+  }
+
+  return context;
+}
+
+// 使用
+function Button() {
+  const { theme, setTheme } = useTheme();
+
+  return (
+    <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
+      Toggle Theme
+    </button>
+  );
+}
+
+// 优势：
+// 1. 无需每次都 import useContext 和 Context
+// 2. 可以添加错误检查
+// 3. 更好的类型推导
+```
+
+#### 实践 3: Context 值的稳定性
+
+```tsx
+// ❌ 错误：每次都创建新对象
+function ThemeProvider({ children }) {
+  const [theme, setTheme] = useState('light');
+
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+// 问题：每次 ThemeProvider 重新渲染，value 都是新对象
+// 导致所有消费者重新渲染
+
+// ✅ 方案 1: 使用 useMemo
+function ThemeProvider({ children }) {
+  const [theme, setTheme] = useState('light');
+
+  const value = useMemo(() => ({ theme, setTheme }), [theme]);
+
+  return (
+    <ThemeContext.Provider value={value}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+// ✅ 方案 2: 拆分状态和函数（推荐）
+const ThemeContext = createContext(null);
+
+function ThemeProvider({ children }) {
+  const [theme, setTheme] = useState('light');
+
+  // 只传递 setTheme 函数，它不会变化
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+```
+
+### 4.3 Context API 的陷阱（IKM中频）
+
+#### 陷阱 1: Context 值变化导致所有消费者重新渲染
+
+```tsx
+// ❌ 陷阱：频繁变化的状态
+function TimerProvider({ children }) {
+  const [seconds, setSeconds] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSeconds(s => s + 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <TimerContext.Provider value={seconds}>
+      {children}
+    </TimerContext.Provider>
+  );
+}
+
+// 问题：每秒所有消费者都重新渲染
+
+// ✅ 方案：只读取当前值，不作为 Context
+function Timer() {
+  const [seconds, setSeconds] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSeconds(s => s + 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return <div>{seconds}</div>;
+}
+```
+
+#### 陷阱 2: 默认值的误导
+
+```tsx
+const ThemeContext = createContext('light');
+
+function Button() {
+  const theme = useContext(ThemeContext);
+  // ⚠️ 如果没有 Provider，theme 会是 'light'
+  // 但这可能不是你想要的行为
+  return <button className={theme}>Click</button>;
+}
+
+// ✅ 最佳实践：使用 undefined 作为默认值，强制使用 Provider
+const ThemeContext = createContext(undefined);
+
+function useTheme() {
+  const context = useContext(ThemeContext);
+
+  if (context === undefined) {
+    throw new Error('useTheme must be used within ThemeProvider');
+  }
+
+  return context;
+}
+```
+
+### 4.4 何时使用 Context？
+
+#### ✅ 适合使用 Context 的场景
+
+1. **主题、语言、用户信息等全局状态**
+   ```tsx
+   <ThemeProvider><App /></ThemeProvider>
+   <I18nProvider><App /></I18nProvider>
+   <UserProvider><App /></UserProvider>
+   ```
+
+2. **避免 props drilling**
+   ```tsx
+   // 深层嵌套组件需要访问祖先的状态
+   function App() {
+     return (
+       <Level1>
+         <Level2>
+           <Level3>
+             <NeedsData /> {/* 需要访问 App 的数据 */}
+           </Level3>
+         </Level2>
+       </Level1>
+     );
+   }
+   ```
+
+#### ❌ 不适合使用 Context 的场景
+
+1. **频繁变化的状态**
+   - 秒数、鼠标位置、输入框值
+   - 会导致所有消费者频繁重新渲染
+
+2. **复杂的异步逻辑**
+   - 没有中间件支持
+   - 难以追踪状态变化
+
+3. **需要时间旅行调试**
+   - Context 无法记录状态变化历史
+
+### 4.5 Context vs Redux 对比
+
+| 维度           | Context API                     | Redux                         |
+| -------------- | ------------------------------- | ----------------------------- |
+| **复杂度**     | 简单                            | 较复杂                        |
+| **学习曲线**   | 平缓                            | 陡峭                          |
+| **Bundle**     | 内置，0 KB                      | ~10KB+                        |
+| **调试工具**   | 无                              | Redux DevTools                |
+| **中间件**     | 无                              | Thunk, Saga, Observable       |
+| **时间旅行**   | 不支持                          | 支持                          |
+| **适用场景**   | 简单全局状态                    | 复杂状态管理、团队协作        |
+| **性能优化**   | 手动拆分 Context                | 自动 memoization（reselect）  |
+| **状态追踪**   | 难以追踪变化来源                | 纯函数 reducer，易于追踪      |
+
+---
+
+## 下午：Redux 核心概念（4小时）
+
+### 4.6 为什么需要 Redux？（30分钟）
 
 #### Context 的局限性
 
@@ -2962,7 +3389,7 @@ function App() {
 - **中间件生态**：Redux Thunk, Redux Saga, Redux Observable
 - **结构化**：强制组织代码结构
 
-### 4.2 Redux 三大核心概念（2小时）
+### 4.7 Redux 三大核心概念（2小时）
 
 #### 概念 1: Action
 
@@ -3066,7 +3493,7 @@ store.subscribe(() => {
 });
 ```
 
-### 4.3 Redux 数据流（1小时）
+### 4.8 Redux 数据流（1小时）
 
 #### Redux 单向数据流
 
@@ -3097,9 +3524,9 @@ store.subscribe(() => {
 └─────────────────────────────────────┘
 ```
 
-## 下午：Redux Toolkit（RTK）实战（4小时）
+## 晚上：Redux Toolkit + Zustand 实战（4小时）
 
-### 4.4 Redux Toolkit 简介（1小时）
+### 4.9 Redux Toolkit 简介（1小时）
 
 #### 为什么使用 Redux Toolkit？
 
@@ -3123,7 +3550,7 @@ import {
 // createEntityAdapter: 管理规范化数据
 ```
 
-### 4.5 createSlice 深度（1.5小时）
+### 4.10 createSlice 深度（1.5小时）
 
 #### createSlice 基础
 
@@ -3221,7 +3648,7 @@ function TodoList() {
 }
 ```
 
-### 4.6 createAsyncThunk 异步处理（1.5小时）
+### 4.11 createAsyncThunk 异步处理（1.5小时）
 
 #### createAsyncThunk 基础
 
@@ -3324,7 +3751,7 @@ function TodoForm() {
 }
 ```
 
-### 4.7 configureStore 配置（30分钟）
+### 4.12 configureStore 配置（30分钟）
 
 ```typescript
 import { configureStore } from "@reduxjs/toolkit";
@@ -3352,7 +3779,7 @@ export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 ```
 
-### 4.8 React-Redux Hooks（30分钟）
+### 4.13 React-Redux Hooks（30分钟）
 
 ```typescript
 import { useSelector, useDispatch, useStore } from 'react-redux';
@@ -3397,6 +3824,451 @@ function DebugInfo() {
 | 中间件      | Thunk, Saga 等     | 内置               |
 | TypeScript  | 需要手动配置       | 自动推导           |
 | 适用场景    | 大型应用、团队协作 | 个人项目、小型应用 |
+
+---
+
+## 晚上：Zustand 状态管理（2小时）⭐⭐⭐⭐
+
+> **为什么学习 Zustand？** 它是最简单、最轻量、TypeScript 友好的状态管理方案
+
+### 4.14 Zustand 基础（30分钟）
+
+#### 什么是 Zustand？
+
+```bash
+# 安装
+npm install zustand
+```
+
+- **超轻量**：只有 ~1KB（Redux Toolkit ~10KB+）
+- **零样板代码**：不需要 actions、reducers、providers
+- **TypeScript 友好**：自动类型推导
+- **简单 API**：3 行代码就能创建 store
+
+#### Zustand 基础用法
+
+```typescript
+import { create } from 'zustand';
+
+// 1. 创建 store（只需 3 行！）
+const useBearStore = create((set) => ({
+  bears: 0,
+  increasePopulation: () => set((state) => ({ bears: state.bears + 1 })),
+  removeAllBears: () => set({ bears: 0 }),
+}));
+
+// 2. 在组件中使用
+function BearCounter() {
+  // 直接解构需要的状态
+  const bears = useBearStore((state) => state.bears);
+  return <h1>{bears} around here...</h1>;
+}
+
+function Controls() {
+  // 直接解构需要的 actions
+  const increasePopulation = useBearStore((state) => state.increasePopulation);
+  return <button onClick={increasePopulation}>one up</button>;
+}
+```
+
+#### 与 Redux 对比
+
+```typescript
+// ❌ Redux Toolkit（需要很多代码）
+// 1. 创建 slice
+const counterSlice = createSlice({
+  name: 'counter',
+  initialState: { value: 0 },
+  reducers: {
+    increment: (state) => { state.value += 1; },
+    decrement: (state) => { state.value -= 1; },
+  },
+});
+
+// 2. 创建 store
+const store = configureStore({
+  reducer: { counter: counterSlice.reducer },
+});
+
+// 3. 在组件中使用
+function Counter() {
+  const dispatch = useDispatch();
+  const count = useSelector((state) => state.counter.value);
+  return (
+    <>
+      <span>{count}</span>
+      <button onClick={() => dispatch(increment())}>+</button>
+    </>
+  );
+}
+
+// ✅ Zustand（简单很多）
+const useCounter = create((set) => ({
+  count: 0,
+  increment: () => set((state) => ({ count: state.count + 1 })),
+  decrement: () => set((state) => ({ count: state.count - 1 })),
+}));
+
+function Counter() {
+  const { count, increment, decrement } = useCounter();
+  return (
+    <>
+      <span>{count}</span>
+      <button onClick={increment}>+</button>
+      <button onClick={decrement}>-</button>
+    </>
+  );
+}
+```
+
+### 4.15 Zustand 高级用法（1小时）
+
+#### 功能 1: 异步 Actions
+
+```typescript
+const useUserStore = create((set) => ({
+  user: null,
+  loading: false,
+  error: null,
+
+  // 异步获取用户
+  fetchUser: async (id: string) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await fetch(`/api/users/${id}`);
+      const user = await response.json();
+      set({ user, loading: false });
+    } catch (error) {
+      set({ error: error.message, loading: false });
+    }
+  },
+}));
+
+function UserProfile({ userId }) {
+  const { user, loading, error, fetchUser } = useUserStore();
+
+  useEffect(() => {
+    fetchUser(userId);
+  }, [userId, fetchUser]);
+
+  if (loading) return <Spinner />;
+  if (error) return <ErrorMessage error={error} />;
+  return <div>{user?.name}</div>;
+}
+```
+
+#### 功能 2: 中间件
+
+```typescript
+import { create } from 'zustand';
+import { devtools, persist } from 'zustand/middleware';
+
+// devtools：支持 Redux DevTools
+// persist：持久化到 localStorage
+
+const useStore = create(
+  devtools(
+    persist(
+      (set) => ({
+        bears: 0,
+        increase: () => set((state) => ({ bears: state.bears + 1 })),
+      }),
+      {
+        name: 'bear-storage', // localStorage key
+      }
+    )
+  )
+);
+```
+
+#### 功能 3: Slice Pattern（拆分 store）
+
+```typescript
+// ❌ 不要把所有状态放在一个 store
+const useAppStore = create((set) => ({
+  // 用户相关
+  user: null,
+  login: async (credentials) => { /*...*/ },
+  logout: () => { /*...*/ },
+
+  // 主题相关
+  theme: 'light',
+  toggleTheme: () => { /*...*/ },
+
+  // 通知相关
+  notifications: [],
+  addNotification: () => { /*...*/ },
+
+  // ... 很多状态
+}));
+
+// ✅ 拆分成多个 store
+// stores/user.ts
+const useUser = create((set) => ({
+  user: null,
+  login: async (credentials) => {
+    const user = await api.login(credentials);
+    set({ user });
+  },
+  logout: () => set({ user: null }),
+}));
+
+// stores/theme.ts
+const useTheme = create((set) => ({
+  theme: 'light',
+  toggleTheme: () => set((state) => ({ theme: state.theme === 'light' ? 'dark' : 'light' })),
+}));
+
+// stores/notifications.ts
+const useNotifications = create((set) => ({
+  notifications: [],
+  addNotification: (notification) => set((state) => ({
+    notifications: [...state.notifications, notification],
+  })),
+}));
+
+// 在组件中使用
+function Header() {
+  const { user, logout } = useUser();      // 只订阅 user
+  const { theme, toggleTheme } = useTheme(); // 只订阅 theme
+
+  return (
+    <>
+      <span>Welcome {user?.name}</span>
+      <button onClick={toggleTheme}>Toggle Theme</button>
+      <button onClick={logout}>Logout</button>
+    </>
+  );
+}
+```
+
+#### 功能 4: 选择器优化
+
+```typescript
+// Zustand 自动优化渲染
+const useStore = create((set) => ({
+  users: [
+    { id: 1, name: 'Alice', age: 25 },
+    { id: 2, name: 'Bob', age: 30 },
+    // ... 很多用户
+  ],
+  updateUser: (id, data) => set((state) => ({
+    users: state.users.map(u => u.id === id ? { ...u, ...data } : u),
+  })),
+}));
+
+// ❌ 每次任何用户变化都会重新渲染
+function UserList() {
+  const users = useStore((state) => state.users);
+  return users.map(u => <User key={u.id} user={u} />);
+}
+
+// ✅ 只订阅特定用户
+function UserCard({ userId }) {
+  const user = useStore((state) =>
+    state.users.find(u => u.id === userId)
+  );
+
+  if (!user) return null;
+
+  return <div>{user.name} - {user.age}</div>;
+}
+
+// 只有这个 userId 的用户变化时才重新渲染
+```
+
+### 4.16 三种方案如何选择？（30分钟）
+
+#### 决策树
+
+```
+是否需要跨组件共享状态？
+  │
+  ├─ 否 → 使用 useState
+  │
+  └─ 是 → 状态复杂吗？
+          │
+          ├─ 不复杂（主题、语言等）
+          │   └─ 使用 Context API ✅
+          │
+          └─ 复杂（多个状态、异步逻辑）
+              │
+              ├─ 团队规模？
+              │   │
+              │   ├─ 大型团队（>10人）
+              │   │   └─ 使用 Redux Toolkit ✅
+              │   │
+              │   └─ 小型团队/个人项目
+              │       │
+              │       └─ 需要严格规范？
+              │           │
+              │           ├─ 是 → Redux Toolkit
+              │           └─ 否 → Zustand ✅✅✅ 推荐
+```
+
+#### 使用场景对比表
+
+| 场景 | 推荐方案 | 理由 |
+|------|----------|------|
+| **主题切换** | Context API | 简单、全局、不频繁变化 |
+| **国际化** | Context API | 只读数据、无需复杂逻辑 |
+| **用户认证** | Context API / Zustand | Context 简单，Zustand 更灵活 |
+| **表单状态** | useState / Zustand | 本地用 useState，跨组件用 Zustand |
+| **购物车** | Zustand | 需要频繁更新、多个操作 |
+| **大型企业应用** | Redux Toolkit | 强制规范、团队协作、调试工具 |
+| **中小型应用** | Zustand | 简单、轻量、灵活 |
+| **需要时间旅行调试** | Redux Toolkit | Context/Zustand 不支持 |
+
+#### 三者可以共用吗？
+
+**✅ 可以！根据场景混用**
+
+```typescript
+// 实际项目中的常见组合
+
+// 1. Context API：应用级配置
+const ThemeContext = createContext('light');
+const I18nContext = createContext('zh-CN');
+
+function AppProviders({ children }) {
+  return (
+    <ThemeProvider>
+      <I18nProvider>
+        {children}
+      </I18nProvider>
+    </ThemeProvider>
+  );
+}
+
+// 2. Zustand：业务逻辑
+const useCart = create((set) => ({
+  items: [],
+  addItem: (item) => set((state) => ({ items: [...state.items, item] })),
+  removeItem: (id) => set((state) => ({
+    items: state.items.filter(i => i.id !== id),
+  })),
+}));
+
+const useUser = create((set) => ({
+  user: null,
+  login: async (credentials) => { /*...*/ },
+}));
+
+// 3. Redux：如果项目已经在使用，继续用
+// 或者团队强制要求使用 Redux
+
+// 在组件中组合使用
+function ProductCard({ product }) {
+  // Context：主题
+  const { theme } = useContext(ThemeContext);
+
+  // Zustand：购物车
+  const { addItem } = useCart();
+
+  return (
+    <div className={theme}>
+      <h2>{product.name}</h2>
+      <button onClick={() => addItem(product)}>Add to Cart</button>
+    </div>
+  );
+}
+```
+
+#### 推荐的组合策略
+
+**方案 1: Context + Zustand（推荐）**
+```typescript
+// Context: 应用级配置
+const ThemeProvider = () => { /*...*/ };
+
+// Zustand: 业务状态
+const useUserStore = create(() => ({ /*...*/ }));
+const useCartStore = create(() => ({ /*...*/ }));
+const useProductStore = create(() => ({ /*...*/ }));
+
+// 优势：简单 + 灵活
+```
+
+**方案 2: 单独使用 Redux Toolkit**
+```typescript
+// 适合：大型团队、需要严格规范
+// 一个 store 包含所有状态
+// 或者使用 Redux Toolkit 的 slice 拆分
+```
+
+**方案 3: Context + Redux**
+```typescript
+// Context: 简单配置（主题、语言）
+// Redux: 复杂业务逻辑
+
+// 优势：减少 Redux 的复杂度
+// 但通常没必要，Zustand 比 Redux 更简单
+```
+
+**方案 4: 单独使用 Zustand（最简单）**
+```typescript
+// 所有状态都用 Zustand
+const useTheme = create(() => ({ /*...*/ }));
+const useUser = create(() => ({ /*...*/ }));
+const useCart = create(() => ({ /*...*/ }));
+
+// 优势：统一 API、简单、轻量
+// 推荐中小型项目使用
+```
+
+### 4.17 迁移建议
+
+#### 从 Context 迁移到 Zustand
+
+```typescript
+// ❌ Context API
+const ThemeContext = createContext(null);
+function ThemeProvider({ children }) {
+  const [theme, setTheme] = useState('light');
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+function useTheme() {
+  const context = useContext(ThemeContext);
+  if (!context) throw new Error('...');
+  return context;
+}
+
+// ✅ Zustand（更简单）
+const useTheme = create((set) => ({
+  theme: 'light',
+  setTheme: (theme) => set({ theme }),
+}));
+
+// 无需 Provider，直接使用！
+```
+
+#### 从 Redux 迁移到 Zustand
+
+```typescript
+// ❌ Redux Toolkit
+const counterSlice = createSlice({
+  name: 'counter',
+  initialState: { value: 0 },
+  reducers: {
+    increment: (state) => { state.value += 1; },
+  },
+});
+// ... 配置 store、provider ...
+
+// ✅ Zustand
+const useCounter = create((set) => ({
+  value: 0,
+  increment: () => set((state) => ({ value: state.value + 1 })),
+}));
+
+// 只需 3 行代码！
+```
+
+---
 
 ## 今日练习（Day 4）
 
@@ -3470,6 +4342,179 @@ function Counter() {
   );
 }
 ```
+
+</details>
+
+### 练习 2: 使用 Zustand 实现购物车（推荐）
+
+使用 Zustand 实现：
+
+```typescript
+// 要求：
+// 1. 创建购物车 store
+// 2. 实现添加商品、删除商品、更新数量、清空购物车
+// 3. 实现总价计算
+// 4. 持久化到 localStorage
+
+// TODO: 实现
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+
+interface CartItem {
+  id: number;
+  name: string;
+  price: number;
+  quantity: number;
+}
+
+interface CartState {
+  items: CartItem[];
+  // TODO: 添加 actions
+}
+
+const useCart = create<CartState>()(
+  persist(
+    (set) => ({
+      items: [],
+      // TODO: 实现 addItem, removeItem, updateQuantity, clearCart, getTotalPrice
+    }),
+    { name: 'cart-storage' }
+  )
+);
+```
+
+<details>
+<summary>查看答案</summary>
+
+```typescript
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+
+interface CartItem {
+  id: number;
+  name: string;
+  price: number;
+  quantity: number;
+}
+
+interface CartState {
+  items: CartItem[];
+  addItem: (item: Omit<CartItem, 'quantity'>) => void;
+  removeItem: (id: number) => void;
+  updateQuantity: (id: number, quantity: number) => void;
+  clearCart: () => void;
+  getTotalPrice: () => number;
+  getTotalItems: () => number;
+}
+
+const useCart = create<CartState>()(
+  persist(
+    (set, get) => ({
+      items: [],
+
+      // 添加商品
+      addItem: (item) => set((state) => {
+        const existing = state.items.find(i => i.id === item.id);
+        if (existing) {
+          // 已存在，增加数量
+          return {
+            items: state.items.map(i =>
+              i.id === item.id
+                ? { ...i, quantity: i.quantity + 1 }
+                : i
+            ),
+          };
+        }
+        // 不存在，添加新商品
+        return {
+          items: [...state.items, { ...item, quantity: 1 }],
+        };
+      }),
+
+      // 删除商品
+      removeItem: (id) => set((state) => ({
+        items: state.items.filter(i => i.id !== id),
+      })),
+
+      // 更新数量
+      updateQuantity: (id, quantity) => set((state) => ({
+        items: state.items.map(i =>
+          i.id === id ? { ...i, quantity: Math.max(0, quantity) } : i
+        ),
+      })),
+
+      // 清空购物车
+      clearCart: () => set({ items: [] }),
+
+      // 计算总价
+      getTotalPrice: () => {
+        return get().items.reduce((total, item) => {
+          return total + item.price * item.quantity;
+        }, 0);
+      },
+
+      // 计算总商品数
+      getTotalItems: () => {
+        return get().items.reduce((total, item) => {
+          return total + item.quantity;
+        }, 0);
+      },
+    }),
+    {
+      name: 'cart-storage', // localStorage key
+    }
+  )
+);
+
+// 在组件中使用
+function ProductCard({ product }) {
+  const addItem = useCart((state) => state.addItem);
+
+  return (
+    <div>
+      <h3>{product.name}</h3>
+      <p>${product.price}</p>
+      <button onClick={() => addItem(product)}>Add to Cart</button>
+    </div>
+  );
+}
+
+function Cart() {
+  const items = useCart((state) => state.items);
+  const updateQuantity = useCart((state) => state.updateQuantity);
+  const removeItem = useCart((state) => state.removeItem);
+  const getTotalPrice = useCart((state) => state.getTotalPrice);
+  const clearCart = useCart((state) => state.clearCart);
+
+  return (
+    <div>
+      <h2>Shopping Cart</h2>
+      {items.map((item) => (
+        <div key={item.id}>
+          <span>{item.name}</span>
+          <span>${item.price}</span>
+          <input
+            type="number"
+            value={item.quantity}
+            onChange={(e) => updateQuantity(item.id, parseInt(e.target.value))}
+          />
+          <button onClick={() => removeItem(item.id)}>Remove</button>
+        </div>
+      ))}
+      <div>
+        <strong>Total: ${getTotalPrice()}</strong>
+      </div>
+      <button onClick={clearCart}>Clear Cart</button>
+    </div>
+  );
+}
+```
+
+**对比 Redux 实现：**
+
+- Redux 需要约 80 行代码（slice + store + selectors + hooks）
+- Zustand 只需约 50 行代码
+- Zustand 无需 Provider，无需配置
 
 </details>
 
