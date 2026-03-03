@@ -3214,17 +3214,37 @@ function ThemeProvider({ children }) {
 }
 
 // ✅ 方案 2: 拆分状态和函数（推荐）
+// 创建两个独立的 Context
 const ThemeContext = createContext(null);
+const ThemeUpdateContext = createContext(null);
 
 function ThemeProvider({ children }) {
   const [theme, setTheme] = useState('light');
 
-  // 只传递 setTheme 函数，它不会变化
+  // 拆分发送：theme 只读，setTheme 独立
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
-      {children}
+    <ThemeContext.Provider value={theme}>
+      <ThemeUpdateContext.Provider value={setTheme}>
+        {children}
+      </ThemeUpdateContext.Provider>
     </ThemeContext.Provider>
   );
+}
+
+// 使用自定义 Hook 简化访问
+function useTheme() {
+  return useContext(ThemeContext);
+}
+
+function useThemeUpdate() {
+  return useContext(ThemeUpdateContext);
+}
+
+// 组件中只订阅需要的状态
+function ThemeButton() {
+  const theme = useTheme();  // 只订阅 theme
+  const setTheme = useThemeUpdate();  // 只订阅 setTheme（引用不变）
+  // ...
 }
 ```
 
@@ -5422,4 +5442,1861 @@ function useDebounce<T>(value: T, delay: number): T {
    - 多写代码，实践是最好的学习
    - 放松心态，自信应对
 
+---
+
+# 🚀 进阶内容：冲击 Top 20%
+
+> **恭喜你完成 5 天基础学习！** 如果你想在 IKM ReactJS 考试中获得 **top 20%** 的成绩，请继续学习进阶内容：
+
+## [点击这里查看：React Top 20% 进阶冲刺（第 6-10 天）](./REACT_TOP20_ADVANCED.md)
+
+### 进阶内容包含：
+
+- **Day 6**: React 18+ 并发特性（useTransition、useDeferredValue、Automatic Batching）
+- **Day 7**: React 内部原理（Fiber 架构、Virtual DOM、Diff 算法）
+- **Day 8**: React TypeScript 高级模式（泛型组件、Polymorphic Components）
+- **Day 9-10**: IKM 考试终极冲刺（高级考题、模拟考试）
+
+这些知识点是 **区分 top 20% 与其他考生的关键内容**！
+
 祝你学习顺利，考试成功！
+
+---
+
+# Day 6: React 18+ 并发特性与进阶性能优化（8小时）
+
+> **目标**：掌握 React 18+ 的新特性和并发渲染机制，这是进入 top 20% 的关键知识点
+
+## 上午：React 18 并发特性（4小时）
+
+### 6.1 并发渲染基础（1小时）
+
+#### 什么是并发渲染？
+
+```tsx
+// React 17（非并发）
+// 一旦开始渲染，就不能被打断
+function App() {
+  return (
+    <>
+      <SlowComponent />
+      <FastComponent />
+    </>
+  );
+}
+
+// React 18（并发）
+// React 可以暂停、中断、恢复渲染
+function App() {
+  return (
+    <>
+      <Suspense fallback={<Loading />}>
+        <SlowComponent />
+      </Suspense>
+      <FastComponent />
+    </>
+  );
+}
+```
+
+#### 并发渲染的三大特性
+
+| 特性 | Hook/API | 用途 | IKM重要性 |
+|------|----------|------|-----------|
+| 自动批处理 | Automatic Batching | 减少不必要的重新渲染 | ⭐⭐⭐⭐ |
+| 过渡 | useTransition | 标记非紧急更新 | ⭐⭐⭐⭐⭐ |
+| 延迟值 | useDeferredValue | 延迟更新非关键部分 | ⭐⭐⭐⭐⭐ |
+
+### 6.2 Automatic Batching（IKM高频⭐⭐⭐⭐）（45分钟）
+
+#### 什么是批处理？
+
+```tsx
+// React 17: 只在事件处理函数中批处理
+function handleClick() {
+  setCount(c => c + 1);     // 不会立即重新渲染
+  setName('John');          // 不会立即重新渲染
+  // 最后只重新渲染一次
+}
+
+// React 17: 在 Promise、setTimeout、原生事件中不批处理
+setTimeout(() => {
+  setCount(c => c + 1);     // 立即重新渲染
+  setName('John');          // 立即重新渲染
+  // 重新渲染两次 ❌
+});
+
+// React 18: 自动批处理所有更新
+setTimeout(() => {
+  setCount(c => c + 1);     // 不会立即重新渲染
+  setName('John');          // 不会立即重新渲染
+  // 只重新渲染一次 ✅
+});
+```
+
+#### IKM 考题示例
+
+**题目：以下代码会重新渲染几次？**
+
+```tsx
+function Component() {
+  const [count, setCount] = useState(0);
+  const [name, setName] = useState('');
+
+  useEffect(() => {
+    setTimeout(() => {
+      setCount(1);
+      setName('John');
+    }, 1000);
+  }, []);
+
+  return <div>{count} {name}</div>;
+}
+```
+
+<details>
+<summary>答案</summary>
+
+**答案: 1次**
+
+解析：React 18+ 会自动批处理 Promise、setTimeout、原生事件中的状态更新。
+
+</details>
+
+### 6.3 useTransition（IKM超高频⭐⭐⭐⭐⭐）（1.5小时）
+
+#### 基本用法
+
+```tsx
+import { useTransition } from 'react';
+
+function SearchComponent() {
+  const [isPending, startTransition] = useTransition();
+  const [input, setInput] = useState('');
+  const [list, setList] = useState([]);
+
+  const handleChange = (e) => {
+    const value = e.target.value;
+
+    // 紧急更新：立即更新输入框
+    setInput(value);
+
+    // 非紧急更新：可以延迟的搜索
+    startTransition(() => {
+      setList(filterList(value)); // 如果很慢，可以被中断
+    });
+  };
+
+  return (
+    <div>
+      <input value={input} onChange={handleChange} />
+      {isPending && <Spinner />}
+      <ul>{list.map(item => <li key={item.id}>{item.name}</li>)}</ul>
+    </div>
+  );
+}
+```
+
+#### useTransition 工作原理
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  紧急更新（High Priority）                                │
+│  - 用户输入                                               │
+│  - 点击事件                                               │
+│  - 立即响应的交互                                         │
+└─────────────────────────────────────────────────────────┘
+                          ↓
+                 立即执行，不可中断
+                          ↓
+┌─────────────────────────────────────────────────────────┐
+│  过渡更新（Low Priority）                                 │
+│  - 搜索过滤                                               │
+│  - 列表排序                                               │
+│  - 复杂计算                                               │
+└─────────────────────────────────────────────────────────┘
+                          ↓
+              可以被打断，在空闲时执行
+```
+
+#### IKM 考题：识别紧急/非紧急更新
+
+**题目：以下哪些应该使用 useTransition？**
+
+- A. 更新输入框的值
+- B. 根据输入过滤大型列表
+- C. 更新按钮点击状态
+- D. 处理表单提交
+
+<details>
+<summary>答案</summary>
+
+**答案: B**
+
+解析：
+- A: 紧急 - 用户需要立即看到输入反馈
+- B: 非紧急 - 可以延迟，使用 useTransition
+- C: 紧急 - 点击反馈需要立即
+- D: 紧急 - 表单提交需要立即处理
+
+</details>
+
+#### useTransition vs 手动防抖
+
+```tsx
+// ❌ 旧方法：手动防抖
+function Search() {
+  const [input, setInput] = useState('');
+  const debouncedInput = useDebounce(input, 300);
+
+  useEffect(() => {
+    performSearch(debouncedInput);
+  }, [debouncedInput]);
+
+  return <input value={input} onChange={e => setInput(e.target.value)} />;
+}
+
+// ✅ 新方法：useTransition（更好的用户体验）
+function Search() {
+  const [isPending, startTransition] = useTransition();
+  const [input, setInput] = useState('');
+  const [results, setResults] = useState([]);
+
+  return (
+    <input
+      value={input}
+      onChange={e => {
+        setInput(e.target.value); // 紧急：立即更新输入
+        startTransition(() => {   // 非紧急：延迟搜索
+          setResults(performSearch(e.target.value));
+        });
+      }}
+    />
+  );
+}
+```
+
+### 6.4 useDeferredValue（IKM超高频⭐⭐⭐⭐⭐）（1小时）
+
+#### 基本用法
+
+```tsx
+import { useDeferredValue } from 'react';
+
+function ProductList({ products }) {
+  // 延迟更新查询，减少重新渲染
+  const deferredQuery = useDeferredValue(query);
+
+  const filteredProducts = products.filter(p =>
+    p.name.includes(deferredQuery)
+  );
+
+  return (
+    <div>
+      {filteredProducts.map(product => (
+        <div key={product.id}>{product.name}</div>
+      ))}
+    </div>
+  );
+}
+```
+
+#### useTransition vs useDeferredValue
+
+| 特性 | useTransition | useDeferredValue |
+|------|---------------|------------------|
+| 用途 | 标记非紧急更新 | 延迟值的更新 |
+| 使用位置 | 在状态更新时 | 在读取状态时 |
+| 返回值 | `[isPending, startTransition]` | 延迟的值 |
+| 适用场景 | 有明确的更新操作 | 派生状态的优化 |
+
+```tsx
+// useTransition: 主动控制更新
+function Example1() {
+  const [isPending, startTransition] = useTransition();
+  const [filter, setFilter] = useState('');
+
+  const handleChange = (e) => {
+    setFilter(e.target.value); // 紧急更新
+    startTransition(() => {
+      // 延迟的更新操作
+    });
+  };
+}
+
+// useDeferredValue: 被动延迟值
+function Example2({ query }) {
+  const deferredQuery = useDeferredValue(query); // 自动延迟
+
+  // 使用 deferredQuery 进行计算
+}
+```
+
+#### IKM 考题：选择正确的优化方案
+
+**题目：有一个大型列表需要根据输入框实时过滤，应该使用哪个？**
+
+```tsx
+function Search({ items }) {
+  const [query, setQuery] = useState('');
+  // 使用 ? 来优化列表渲染
+}
+```
+
+<details>
+<summary>答案</summary>
+
+**答案: useDeferredValue**
+
+```tsx
+function Search({ items }) {
+  const [query, setQuery] = useState('');
+  const deferredQuery = useDeferredValue(query);
+
+  const filtered = items.filter(item =>
+    item.name.includes(deferredQuery)
+  );
+
+  return (
+    <>
+      <input value={query} onChange={e => setQuery(e.target.value)} />
+      <List items={filtered} />
+    </>
+  );
+}
+```
+
+</details>
+
+### 6.5 Suspense（IKM高频⭐⭐⭐⭐）（45分钟）
+
+#### 基本用法
+
+```tsx
+import { Suspense } from 'react';
+
+// 数据获取组件
+function Comments() {
+  const comments = use(fetchComments()); // 如果还未完成，会抛出 Promise
+  return comments.map(c => <Comment key={c.id} {...c} />);
+}
+
+// 使用 Suspense
+function App() {
+  return (
+    <Suspense fallback={<CommentsSkeleton />}>
+      <Comments />
+    </Suspense>
+  );
+}
+```
+
+#### Suspense 列表
+
+```tsx
+function UserList() {
+  return (
+    <Suspense fallback={<Spinner />}>
+      <div className="users">
+        <Suspense fallback={<ProfileSkeleton />}>
+          <UserProfile />
+        </Suspense>
+        <Suspense fallback={<PostsSkeleton />}>
+          <UserPosts />
+        </Suspense>
+      </div>
+    </Suspense>
+  );
+}
+```
+
+#### IKM 考题：Suspense 边界
+
+**题目：以下组件的加载状态显示什么？**
+
+```tsx
+function App() {
+  return (
+    <Suspense fallback={<div>Loading A...</div>}>
+      <ComponentA />
+      <Suspense fallback={<div>Loading B...</div>}>
+        <ComponentB />
+      </Suspense>
+    </Suspense>
+  );
+}
+
+// ComponentA 加载中，ComponentB 已就绪
+```
+
+<details>
+<summary>答案</summary>
+
+**答案: "Loading A..."**
+
+解析：ComponentA 处于外部 Suspense 边界，外部的 fallback 会显示。
+
+</details>
+
+## 下午：高级性能优化（4小时）
+
+### 6.6 React.memo 深度理解（IKM高频⭐⭐⭐⭐）（1.5小时）
+
+#### 什么时候使用 React.memo？
+
+```tsx
+// ❌ 不要用于：经常变化的 props
+function ListItem({ item, onItemClick }) {
+  return <div onClick={() => onItemClick(item.id)}>{item.name}</div>;
+}
+
+const MemoizedListItem = React.memo(ListItem); // 无效，onItemClick 每次都是新函数
+
+// ✅ 正确使用：稳定的 props
+function ExpensiveComponent({ data, config }) {
+  // 复杂计算...
+}
+
+const MemoizedExpensive = React.memo(ExpensiveComponent);
+```
+
+#### React.memo 的比较函数
+
+```tsx
+// 默认：浅比较 props
+React.memo(Component);
+
+// 自定义比较函数
+React.memo(Component, (prevProps, nextProps) => {
+  // 返回 true = props 相等，不重新渲染
+  // 返回 false = props 不同，重新渲染
+
+  if (prevProps.user.id !== nextProps.user.id) {
+    return false; // user 改变，重新渲染
+  }
+  return true; // 其他改变忽略
+});
+```
+
+#### IKM 考题：React.memo 的行为
+
+**题目：以下代码会重新渲染几次？**
+
+```tsx
+const Child = React.memo(({ count }) => {
+  console.log('Child rendered');
+  return <div>{count}</div>;
+});
+
+function Parent() {
+  const [count, setCount] = useState(0);
+  const [name, setName] = useState('');
+
+  return (
+    <>
+      <button onClick={() => setCount(c => c + 1)}>Increment</button>
+      <input onChange={e => setName(e.target.value)} />
+      <Child count={count} />
+    </>
+  );
+}
+```
+
+<details>
+<summary>答案</summary>
+
+**答案: 只在点击按钮时渲染**
+
+解析：Child 的 props 是 count，只有 count 改变时才重新渲染。name 的改变不会影响 Child。
+
+</details>
+
+### 6.7 useMemo 和 useCallback 最佳实践（IKM超高频⭐⭐⭐⭐⭐）（1.5小时）
+
+#### useMemo 使用场景
+
+```tsx
+// ✅ 场景 1: 昂贵的计算
+function List({ items, filter }) {
+  const filteredItems = useMemo(() => {
+    console.log('Filtering items...');
+    return items.filter(item => item.category === filter);
+  }, [items, filter]);
+
+  return filteredItems.map(item => <Item key={item.id} {...item} />);
+}
+
+// ✅ 场景 2: 保持引用稳定
+function Table({ data }) {
+  const columns = useMemo(() => [
+    { key: 'name', label: 'Name' },
+    { key: 'age', label: 'Age' },
+  ], []); // 空依赖，永远不变
+
+  return <TableComponent data={data} columns={columns} />;
+}
+
+// ❌ 不需要 useMemo 的场景
+function User({ name, age }) {
+  const fullName = useMemo(() => `${name} ${age}`, [name, age]);
+  // 拼接字符串很快，不需要 useMemo
+}
+```
+
+#### useCallback 使用场景
+
+```tsx
+// ✅ 场景 1: 传递给 React.memo 子组件
+const memoizedChild = React.memo(({ onClick }) => {
+  console.log('Child rendered');
+  return <button onClick={onClick}>Click</button>;
+});
+
+function Parent() {
+  const [count, setCount] = useState(0);
+
+  const handleClick = useCallback(() => {
+    console.log('Clicked');
+  }, []); // 空依赖，函数引用永远不变
+
+  return (
+    <>
+      <button onClick={() => setCount(c => c + 1)}>{count}</button>
+      <MemoizedChild onClick={handleClick} />
+    </>
+  );
+}
+
+// ✅ 场景 2: 作为 useEffect 的依赖
+function Chat({ roomId }) {
+  const handleMessage = useCallback((msg) => {
+    sendMessage(roomId, msg);
+  }, [roomId]);
+
+  useEffect(() => {
+    socket.on('message', handleMessage);
+    return () => socket.off('message', handleMessage);
+  }, [handleMessage]);
+}
+
+// ❌ 不需要 useCallback 的场景
+function Parent() {
+  const [count, setCount] = useState(0);
+
+  // 子组件不是 React.memo，useCallback 无意义
+  const handleClick = useCallback(() => {
+    setCount(c => c + 1);
+  }, []);
+
+  return <Child onClick={handleClick} />;
+}
+```
+
+#### IKM 考题：依赖数组陷阱
+
+**题目：以下代码有什么问题？**
+
+```tsx
+function Component() {
+  const [items, setItems] = useState([]);
+
+  const sortedItems = useMemo(() => {
+    return items.sort((a, b) => a.id - b.id);
+  }, [items]);
+
+  const handleClick = useCallback(() => {
+    setItems([...items, newItem]);
+  }, []);
+
+  return <div>{sortedItems.map(...)}</div>;
+}
+```
+
+<details>
+<summary>答案</summary>
+
+**问题:**
+
+1. `items.sort()` 会修改原数组（违反 React 不可变原则）
+2. `handleClick` 依赖 `items` 但没有在依赖数组中声明
+
+**修复:**
+
+```tsx
+const sortedItems = useMemo(() => {
+  return [...items].sort((a, b) => a.id - b.id);
+}, [items]);
+
+const handleClick = useCallback(() => {
+  setItems(prev => [...prev, newItem]);
+}, []);
+```
+
+</details>
+
+### 6.8 虚拟化长列表（1小时）
+
+#### react-window 示例
+
+```tsx
+import { FixedSizeList } from 'react-window';
+
+function VirtualizedList({ items }) {
+  return (
+    <FixedSizeList
+      height={600}
+      itemCount={items.length}
+      itemSize={50}
+      width="100%"
+    >
+      {({ index, style }) => (
+        <div style={style}>
+          {items[index].name}
+        </div>
+      )}
+    </FixedSizeList>
+  );
+}
+```
+
+---
+
+# Day 7: React 服务端组件与流式渲染（6小时）
+
+## 上午：React Server Components（3小时）
+
+### 7.1 Server Components 基础（1小时）
+
+#### 什么是 Server Components？
+
+```tsx
+// app/page.tsx (Server Component - 默认)
+async function BlogPage() {
+  const posts = await db.posts.findAll(); // 直接访问数据库
+
+  return (
+    <div>
+      <Header />
+      {posts.map(post => <PostSummary key={post.id} {...post} />)}
+    </div>
+  );
+}
+
+// components/Header.tsx (Client Component)
+'use client';
+
+function Header() {
+  const [isOpen, setIsOpen] = useState(false);
+  return <nav>...</nav>;
+}
+```
+
+#### Server Components vs Client Components
+
+| 特性 | Server Components | Client Components |
+|------|-------------------|-------------------|
+| 文件后缀 | 无（默认） | `'use client'` |
+| 能访问后端资源 | ✅ 数据库、文件系统 | ❌ |
+| 能使用 Hooks | ❌ | ✅ |
+| 能添加事件处理 | ❌ | ✅ |
+| 打包到客户端 | ❌ | ✅ |
+| 减少 JS bundle | ✅ | ❌ |
+
+### 7.2 Server Components 最佳实践（2小时）
+
+```tsx
+// ✅ 正确：在 Server Component 获取数据
+async function UserProfile({ userId }) {
+  const user = await db.users.findById(userId);
+  const posts = await db.posts.findByUser(userId);
+
+  return <UserCard user={user} posts={posts} />;
+}
+
+// ❌ 错误：在 Client Component 获取数据
+'use client';
+function UserProfile({ userId }) {
+  const [user, setUser] = useState(null);
+  useEffect(() => {
+    fetch(`/api/users/${userId}`)
+      .then(res => res.json())
+      .then(setUser);
+  }, [userId]);
+  // 不必要的客户端请求
+}
+```
+
+## 下午：流式渲染与渐进式增强（3小时）
+
+### 7.3 Streaming SSR（1.5小时）
+
+```tsx
+import { Suspense } from 'react';
+
+function ShopPage() {
+  return (
+    <div>
+      <Header />
+      <Suspense fallback={<ProductListSkeleton />}>
+        <ProductList />  // 慢速组件
+      </Suspense>
+      <Suspense fallback={<ReviewsSkeleton />}>
+        <Reviews />      // 另一个慢速组件
+      </Suspense>
+    </div>
+  );
+}
+```
+
+#### HTML 流式传输
+
+```html
+<!-- HTML 流 -->
+<div id="root">
+  <header>...</header>           <!-- 立即发送 -->
+  <div class="skeleton">...</div> <!-- 占位符 -->
+</div>
+<script>...</script>              <!-- 激活 -->
+
+<!-- 稍后发送 -->
+<div class="products">...</div>   <!-- 替换骨架屏 -->
+<script>...</script>              <!-- 激活这部分 -->
+
+<!-- 最后发送 -->
+<div class="reviews">...</div>
+<script>...</script>
+```
+
+### 7.4 渐进式水合（1.5小时）
+
+```tsx
+// Next.js 13+ 自动优化
+export default function Page() {
+  return (
+    <div>
+      <Header />           // 优先水合
+      <Suspense fallback={<Spinner />}>
+        <SlowComponent />  // 延迟水合
+      </Suspense>
+    </div>
+  );
+}
+```
+
+---
+
+# Day 8: React 内部原理与调试（8小时）
+
+## 上午：Fiber 架构与渲染机制（4小时）
+
+### 8.1 Virtual DOM 原理（IKM高频⭐⭐⭐⭐）（1.5小时）
+
+#### Diff 算法核心规则
+
+```tsx
+// 规则 1: 不同类型元素 = 完全重建
+// Before
+<div>
+  <Counter />
+</div>
+
+// After
+<span>
+  <Counter />
+</span>
+// React 会销毁旧 Counter，创建新的（状态丢失）
+
+// 规则 2: 相同类型元素 = 更新属性
+// Before
+<div className="before">
+  <Counter />
+</div>
+
+// After
+<div className="after">
+  <Counter />
+</div>
+// React 只更新 className，保留 Counter 状态
+```
+
+#### Key 的作用（深度理解）
+
+```tsx
+// ❌ 使用 index 作为 key
+function List({ items }) {
+  return items.map((item, index) => (
+    <li key={index}>
+      <input value={item.name} />
+      {item.name}
+    </li>
+  ));
+}
+
+// 问题：当删除中间项时，React 会复用错误的 DOM
+// items = ['A', 'B', 'C']
+// 删除 B 后
+// items = ['A', 'C']
+// React 认为：
+// - index 0: A -> A (保留)
+// - index 1: B -> C (更新 B 的值为 C) ❌
+
+// ✅ 使用稳定的 ID
+function List({ items }) {
+  return items.map(item => (
+    <li key={item.id}>
+      <input value={item.name} />
+      {item.name}
+    </li>
+  ));
+}
+
+// 现在 React 能正确识别：
+// - id: 1 (A) -> 保留
+// - id: 2 (B) -> 删除
+// - id: 3 (C) -> 保留
+```
+
+#### IKM 考题：key 的选择
+
+**题目：以下哪个 key 的选择最合适？**
+
+```tsx
+function TodoList({ todos, onToggle }) {
+  return todos.map(todo => (
+    <TodoItem
+      key={/* ? */}
+      todo={todo}
+      onToggle={onToggle}
+    />
+  ));
+}
+```
+
+选项：
+- A. `key={index}`
+- B. `key={todo.name}`
+- C. `key={todo.id}`
+- D. `key={Math.random()}`
+
+<details>
+<summary>答案</summary>
+
+**答案: C**
+
+解析：
+- A: index 会导致动态列表的问题
+- B: name 可能重复或改变
+- C: id 是稳定且唯一的，最佳选择
+- D: random 每次渲染都会变，导致不必要的重建
+
+</details>
+
+### 8.2 Fiber 架构（1.5小时）
+
+#### 什么是 Fiber？
+
+```
+旧架构（Stack Reconciler）:
+┌─────────────────────────┐
+│  开始渲染                │
+│  └─> 同步执行所有工作    │
+│      一旦开始不可中断     │
+│  └─> 完成渲染            │
+└─────────────────────────┘
+
+新架构（Fiber Reconciler）:
+┌─────────────────────────┐
+│  开始渲染                │
+│  └─> 每个工作单元        │
+│      可以被打断          │
+│  └─> 恢复渲染            │
+│  └─> 完成渲染            │
+└─────────────────────────┘
+```
+
+#### Fiber 节点结构
+
+```typescript
+// 简化的 Fiber 节点
+interface Fiber {
+  // 节点类型
+  type: Function | string;
+  key: string | null;
+
+  // 树结构
+  return: Fiber | null;  // 父节点
+  child: Fiber | null;   // 第一个子节点
+  sibling: Fiber | null; // 下一个兄弟节点
+
+  // 状态
+  memoizedState: any;
+  memoizedProps: any;
+
+  // 副作用
+  flags: Flags;
+  subtreeFlags: Flags;
+}
+```
+
+### 8.3 渲染阶段详解（1小时）
+
+#### Render 阶段 vs Commit 阶段
+
+```tsx
+// Render 阶段（可中断）
+// 1. 计算哪些需要更新
+// 2. 构建 Fiber 树
+// 3. 创建副作用列表
+
+function App() {
+  // 这里执行的代码都在 Render 阶段
+  const [count, setCount] = useState(0);
+
+  // ❌ 不要在 Render 阶段执行副作用
+  // document.title = count; // 错误！
+
+  useEffect(() => {
+    // ✅ 在 Commit 阶段执行
+    document.title = `Count: ${count}`;
+  }, [count]);
+
+  return <div>{count}</div>;
+}
+
+// Commit 阶段（不可中断）
+// 1. 执行 DOM 操作
+// 2. 执行 useEffect
+// 3. 执行 refs 回调
+```
+
+## 下午：调试技巧（4小时）
+
+### 8.4 React DevTools（1小时）
+
+#### Profiler 使用
+
+```tsx
+import { Profiler } from 'react';
+
+function onRenderCallback(
+  id,              // 组件 ID
+  phase,           // 'mount' 或 'update'
+  actualDuration,  // 实际渲染时间
+  baseDuration,    // 无 memo 的时间
+  startTime,       // 开始时间
+  commitTime,      // 提交时间
+  interactions     // 交互集合
+) {
+  console.log(`${id} rendered in ${actualDuration}ms`);
+}
+
+function App() {
+  return (
+    <Profiler id="App" onRender={onRenderCallback}>
+      <Navigation />
+      <MainContent />
+    </Profiler>
+  );
+}
+```
+
+### 8.5 常见性能问题诊断（3小时）
+
+#### 检查不必要的渲染
+
+```tsx
+// 使用 React DevTools Profiler
+// 1. 记录操作
+// 2. 查看火焰图
+// 3. 找出渲染时间长的组件
+// 4. 检查为什么渲染
+
+// 使用 why-did-you-render
+import whyDidYouRender from '@welldone-software/why-did-you-render';
+
+whyDidYouRender(React, {
+  trackAllPureComponents: true,
+});
+
+Component.whyDidYouRender = true;
+```
+
+---
+
+# Day 9: React TypeScript 高级模式（6小时）
+
+## 上午：泛型组件与类型推断（3小时）
+
+### 9.1 泛型组件（IKM高频⭐⭐⭐⭐）（1.5小时）
+
+```tsx
+// 基本泛型组件
+function List<T>({
+  items,
+  renderItem
+}: {
+  items: T[];
+  renderItem: (item: T) => React.ReactNode;
+}) {
+  return <ul>{items.map(renderItem)}</ul>;
+}
+
+// 使用
+<List
+  items={[1, 2, 3]}
+  renderItem={(n) => <li>{n}</li>}
+/>
+
+<List
+  items={[
+    { id: 1, name: 'John' },
+    { id: 2, name: 'Jane' }
+  ]}
+  renderItem={(user) => <li>{user.name}</li>}
+/>
+```
+
+#### 泛型约束
+
+```tsx
+// 约束 T 必须有 id 属性
+interface WithId {
+  id: string | number;
+}
+
+function SelectableList<T extends WithId>({
+  items,
+  onSelect,
+}: {
+  items: T[];
+  onSelect: (id: T['id']) => void;
+}) {
+  return (
+    <ul>
+      {items.map(item => (
+        <li key={item.id} onClick={() => onSelect(item.id)}>
+          {/* ... */}
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+
+#### 多个泛型参数
+
+```tsx
+function TableColumn<T, K extends keyof T>({
+  data,
+  accessor,
+}: {
+  data: T[];
+  accessor: K;
+}) {
+  return (
+    <div>
+      {data.map(row => (
+        <div key={String(row.id)}>{String(row[accessor])}</div>
+      ))}
+    </div>
+  );
+}
+
+// 使用
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+<TableColumn<User, 'name' | 'email'>
+  data={users}
+  accessor="name"
+/>
+```
+
+### 9.2 高级类型推断（1.5小时）
+
+```tsx
+// infer 关键字
+type ExtractProps<T> = T extends React.ComponentType<infer P>
+  ? P
+  : never;
+
+// 获取组件的 Props 类型
+type ButtonProps = ExtractProps<typeof Button>;
+
+// 条件类型
+type OptionalProps<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+
+type ButtonProps = {
+  text: string;
+  icon?: string;
+  onClick: () => void;
+};
+
+// 让 icon 和 text 都是可选的
+type OptionalButtonProps = OptionalProps<ButtonProps, 'icon' | 'text'>;
+```
+
+#### 函数重载
+
+```tsx
+// 重载签名
+function useFetch<T>(url: string): { data: T | null; loading: boolean };
+function useFetch<T>(url: string, options: { enabled: false }): { data: T | null };
+function useFetch<T>(url: string, options: { enabled: true }): { data: T; loading: boolean };
+
+// 实现签名
+function useFetch<T>(
+  url: string,
+  options?: { enabled?: boolean }
+) {
+  // 实现细节...
+}
+
+// 使用时会根据 options 参数有不同的类型推断
+const result1 = useFetch<User>('/api/user');
+// result1.data: User | null
+
+const result2 = useFetch<User>('/api/user', { enabled: true });
+// result2.data: User (非空)
+```
+
+## 下午：React TypeScript 最佳实践（3小时）
+
+### 9.3 组件 Props 类型模式（1.5小时）
+
+```tsx
+// 模式 1: 显式 Props 接口
+interface ButtonProps {
+  variant?: 'primary' | 'secondary';
+  size?: 'sm' | 'md' | 'lg';
+  disabled?: boolean;
+  children: React.ReactNode;
+  onClick?: () => void;
+}
+
+function Button({ variant = 'primary', children, ...rest }: ButtonProps) {
+  return <button className={variant} {...rest}>{children}</button>;
+}
+
+// 模式 2: Props 泛型 + 扩展
+type BaseProps<T> = {
+  data: T[];
+  keyFn: (item: T) => string | number;
+};
+
+function List<T>({ data, keyFn }: BaseProps<T> & {
+  renderItem: (item: T) => React.ReactNode
+}) {
+  return <ul>{data.map(item => <li key={keyFn(item)} />)}</ul>;
+}
+
+// 模式 3: Polymorphic Components（多态组件）
+type AsProp<T extends React.ElementType> = {
+  as?: T;
+};
+
+type PropsToAs<T extends React.ElementType, P> = AsProp<T> &
+  Omit<React.ComponentPropsWithoutRef<T>, keyof AsProp<T>> &
+  P;
+
+type PolymorphicComponentProps<T extends React.ElementType, P> =
+  PropsToAs<T, P> & { ref?: React.ComponentRef<T> };
+
+function Button<T extends React.ElementType = 'button'>({
+  as,
+  ...rest
+}: PolymorphicComponentProps<T, { variant?: 'primary' }>) {
+  const Component = as || 'button';
+  return <Component {...rest} />;
+}
+
+// 使用
+<Button>Hello</Button>             // <button>
+<Button as="a" href="/">Link</Button> // <a>
+<Button as={Link} to="/home" />   // React Router Link
+```
+
+### 9.4 类型收窄与守卫（1.5小时）
+
+```tsx
+// 判别联合
+type LoadingState = {
+  status: 'loading';
+};
+
+type SuccessState<T> = {
+  status: 'success';
+  data: T;
+};
+
+type ErrorState = {
+  status: 'error';
+  error: Error;
+};
+
+type AsyncState<T> = LoadingState | SuccessState<T> | ErrorState;
+
+function DataView<T>({ state }: { state: AsyncState<T> }) {
+  switch (state.status) {
+    case 'loading':
+      return <Spinner />; // TypeScript 知道这是 LoadingState
+    case 'success':
+      return <DataDisplay data={state.data} />; // state.data 可用
+    case 'error':
+      return <ErrorDisplay error={state.error} />; // state.error 可用
+  }
+}
+
+// 类型守卫
+function isValidElement(child: React.ReactNode): child is React.ReactElement {
+  return React.isValidElement(child);
+}
+
+function renderChildren(children: React.ReactNode) {
+  if (isValidElement(children)) {
+    // TypeScript 知道 children 是 React.ReactElement
+    return children.type;
+  }
+  return null;
+}
+```
+
+---
+
+# Day 10: React 架构模式与面试准备（8小时）
+
+## 上午：React 架构模式（4小时）
+
+### 10.1 容器/展示组件模式（1小时）
+
+```tsx
+// Container Component（逻辑）
+function UserListContainer() {
+  const { users, loading, error, fetchUsers } = useUsers();
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  if (loading) return <Spinner />;
+  if (error) return <Error message={error.message} />;
+
+  return <UserList users={users} />;
+}
+
+// Presentational Component（UI）
+function UserList({ users }: { users: User[] }) {
+  return (
+    <ul>
+      {users.map(user => (
+        <UserItem key={user.id} name={user.name} email={user.email} />
+      ))}
+    </ul>
+  );
+}
+```
+
+### 10.2 组合模式（1.5小时）
+
+```tsx
+// 灵活的布局组件
+function Box({ header, footer, children }: {
+  header?: React.ReactNode;
+  footer?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="box">
+      {header && <div className="box-header">{header}</div>}
+      <div className="box-body">{children}</div>
+      {footer && <div className="box-footer">{footer}</div>}
+    </div>
+  );
+}
+
+// 使用组合
+function App() {
+  return (
+    <Box
+      header={<h2>Title</h2>}
+      footer={<button>Action</button>}
+    >
+      <p>Content</p>
+    </Box>
+  );
+}
+
+// render props 模式
+function Mouse({ render }: {
+  render: (state: { x: number; y: number }) => React.ReactNode
+}) {
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    setPosition({ x: e.clientX, y: e.clientY });
+  };
+
+  return (
+    <div onMouseMove={handleMouseMove}>
+      {render(position)}
+    </div>
+  );
+}
+
+// 使用
+<Mouse render={({ x, y }) => (
+  <p>Mouse position: {x}, {y}</p>
+)} />
+```
+
+### 10.3 HOC 模式（1.5小时）
+
+```tsx
+// 基础 HOC
+function withLoading<P extends object>(
+  Component: React.ComponentType<P & { loading: boolean }>
+) {
+  return (props: P) => {
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+      // 模拟数据加载
+      setTimeout(() => setLoading(false), 1000);
+    }, []);
+
+    if (loading) {
+      return <Spinner />;
+    }
+
+    return <Component {...props} loading={loading} />;
+  };
+}
+
+// 使用
+const UserListWithLoading = withLoading(UserList);
+
+// 组合多个 HOC
+const enhance = compose(
+  withLoading,
+  withErrorBoundary,
+  withRedux
+);
+
+const EnhancedUserList = enhance(UserList);
+```
+
+## 下午：IKM 考试终极冲刺（4小时）
+
+### 10.4 Top 20% 必会的知识点（2小时）
+
+#### 1. React 并发特性深度题
+
+**题目：以下代码中，用户点击按钮后，输入框的响应时间是？**
+
+```tsx
+function App() {
+  const [text, setText] = useState('');
+  const [list, setList] = useState([]);
+
+  const [isPending, startTransition] = useTransition();
+
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setText(value);
+    startTransition(() => {
+      setList(large.filter(x => x.includes(value))); // 耗时 500ms
+    });
+  };
+
+  return (
+    <>
+      <input value={text} onChange={handleChange} />
+      {isPending && <Spinner />}
+      <List items={list} />
+    </>
+  );
+}
+```
+
+<details>
+<summary>答案与解析</summary>
+
+**答案: 立即响应**
+
+解析：
+- `setText(value)` 是紧急更新，输入框立即更新
+- `startTransition` 内的 `setList` 是低优先级更新，可以被中断
+- 即使过滤耗时 500ms，用户输入也不会卡顿
+
+</details>
+
+#### 2. 依赖数组高级题
+
+**题目：以下代码的输出是什么？**
+
+```tsx
+function Counter() {
+  const [count, setCount] = useState(0);
+  const [step, setStep] = useState(1);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      console.log(count);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [step]);
+
+  return (
+    <>
+      <div>{count}</div>
+      <button onClick={() => setCount(c => c + 1)}>Increment</button>
+      <button onClick={() => setStep(s => s + 1)}>Change Step</button>
+    </>
+  );
+}
+```
+
+<details>
+<summary>答案与解析</summary>
+
+**答案: 总是打印 0**
+
+解析：
+- 闭包陷阱！useEffect 捕获了初始的 count 值（0）
+- 每次改变 step 会重新创建 interval，但仍然打印旧的 count 值
+- 修复：使用 `useRef` 或将 count 加入依赖数组
+
+```tsx
+// 修复 1: useRef
+function Counter() {
+  const countRef = useRef(0);
+  const [step, setStep] = useState(1);
+
+  useEffect(() => {
+    countRef.current = count; // 在渲染时更新 ref
+  });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      console.log(countRef.current);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [step]);
+}
+
+// 修复 2: useEffect + 依赖 count
+useEffect(() => {
+  const timer = setInterval(() => {
+    setCount(c => {
+      console.log(c + 1);
+      return c + 1;
+    });
+  }, 1000);
+  return () => clearInterval(timer);
+}, [step]);
+```
+
+</details>
+
+#### 3. React.memo 进阶题
+
+**题目：以下组件会重新渲染吗？**
+
+```tsx
+const Child = React.memo(({ data, onClick }) => {
+  console.log('Child rendered');
+  return <div onClick={() => onClick(data.id)}>{data.name}</div>;
+});
+
+function Parent() {
+  const [count, setCount] = useState(0);
+  const [data, setData] = useState({ id: 1, name: 'Item' });
+
+  const handleClick = (id) => {
+    console.log('Clicked:', id);
+  };
+
+  return (
+    <>
+      <button onClick={() => setCount(c => c + 1)}>{count}</button>
+      <Child data={data} onClick={handleClick} />
+    </>
+  );
+}
+```
+
+<details>
+<summary>答案与解析</summary>
+
+**答案: 每次父组件渲染都会重新渲染**
+
+原因：
+1. `onClick` prop 是一个新函数（每次渲染都创建）
+2. React.memo 默认是浅比较，新函数 !== 旧函数
+3. 即使 data 没变，也会重新渲染
+
+**修复:**
+
+```tsx
+// 方法 1: useCallback
+const handleClick = useCallback((id) => {
+  console.log('Clicked:', id);
+}, []);
+
+// 方法 2: 自定义比较函数
+const Child = React.memo(({ data, onClick }) => {
+  return <div onClick={() => onClick(data.id)}>{data.name}</div>;
+}, (prevProps, nextProps) => {
+  return prevProps.data.id === nextProps.data.id;
+});
+
+// 方法 3: 改变 props 设计
+const Child = React.memo(({ data }) => {
+  console.log('Child rendered');
+  return <div onClick={() => handleClick(data.id)}>{data.name}</div>;
+});
+```
+
+</details>
+
+### 10.5 最终模拟考试（2小时）
+
+#### 模拟题 1：并发特性（20分）
+
+```tsx
+// 以下代码的输出顺序是什么？
+function App() {
+  console.log('A');
+
+  useEffect(() => {
+    console.log('B');
+
+    return () => console.log('C');
+  }, []);
+
+  useLayoutEffect(() => {
+    console.log('D');
+
+    return () => console.log('E');
+  }, []);
+
+  console.log('F');
+
+  return <div>App</div>;
+}
+```
+
+<details>
+<summary>答案</summary>
+
+**输出: A → F → D → B**
+
+解析：
+1. A: 函数组件开始
+2. F: 函数组件结束
+3. D: useLayoutEffect 同步执行（在 DOM 更新后，浏览器绘制前）
+4. B: useEffect 异步执行（在浏览器绘制后）
+
+卸载时输出: E → C (useLayoutEffect 的清理先执行)
+
+</details>
+
+#### 模拟题 2：状态更新队列（25分）
+
+```tsx
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  const handleClick = () => {
+    console.log('Start:', count);
+
+    setCount(count + 1);
+    setCount(count + 1);
+    setCount(count + 1);
+
+    console.log('End:', count);
+
+    setTimeout(() => {
+      console.log('Timeout:', count);
+    }, 0);
+  };
+
+  return <button onClick={handleClick}>Count: {count}</button>;
+}
+```
+
+<details>
+<summary>答案</summary>
+
+**输出:**
+- Start: 0
+- End: 0
+- 组件渲染显示: 1
+- Timeout: 1
+
+解析：
+1. 所有 `setCount(count + 1)` 都读取同一个 count (0)
+2. React 批处理它们，最终结果 = 0 + 1 = 1（不是 3！）
+3. setTimeout 中读取的是闭包捕获的值（1）
+
+**修复为 +3:**
+
+```tsx
+setCount(c => c + 1);
+setCount(c => c + 1);
+setCount(c => c + 1);
+```
+
+</details>
+
+#### 模拟题 3：组件生命周期（30分）
+
+```tsx
+function Parent() {
+  const [showChild, setShowChild] = useState(true);
+
+  return (
+    <>
+      {showChild && <Child />}
+      <button onClick={() => setShowChild(false)}>Unmount</button>
+    </>
+  );
+}
+
+function Child() {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    console.log('Mount');
+    return () => console.log('Unmount');
+  });
+
+  return <div ref={ref}>Child</div>;
+}
+```
+
+<details>
+<summary>问题</summary>
+
+1. 组件挂载时输出什么？
+2. 点击按钮后输出什么？
+3. ref.current 在 useEffect 中是什么？
+
+<details>
+<summary>答案</summary>
+
+**答案:**
+
+1. 挂载输出: `Mount`
+2. 点击输出: `Unmount`
+3. `ref.current` 是 `<div>` DOM 元素
+
+</details>
+
+</details>
+
+#### 模拟题 4：性能优化（25分）
+
+**优化以下代码，避免不必要的渲染：**
+
+```tsx
+function App() {
+  const [items, setItems] = useState([
+    { id: 1, name: 'Item 1', selected: false },
+    { id: 2, name: 'Item 2', selected: false },
+  ]);
+
+  const [filter, setFilter] = useState('');
+
+  const toggleItem = (id) => {
+    setItems(items.map(item =>
+      item.id === id
+        ? { ...item, selected: !item.selected }
+        : item
+    ));
+  };
+
+  const filteredItems = items.filter(item =>
+    item.name.toLowerCase().includes(filter.toLowerCase())
+  );
+
+  return (
+    <>
+      <input value={filter} onChange={e => setFilter(e.target.value)} />
+      {filteredItems.map(item => (
+        <Item
+          key={item.id}
+          name={item.name}
+          selected={item.selected}
+          onToggle={() => toggleItem(item.id)}
+        />
+      ))}
+    </>
+  );
+}
+
+function Item({ name, selected, onToggle }) {
+  console.log('Item rendered:', name);
+  return (
+    <div onClick={onToggle} style={{ opacity: selected ? 1 : 0.5 }}>
+      {name} {selected ? '✓' : ''}
+    </div>
+  );
+}
+```
+
+<details>
+<summary>优化方案</summary>
+
+```tsx
+// 1. 优化 Item 组件
+const Item = React.memo(function Item({ name, selected, onToggle }) {
+  return (
+    <div onClick={onToggle} style={{ opacity: selected ? 1 : 0.5 }}>
+      {name} {selected ? '✓' : ''}
+    </div>
+  );
+});
+
+// 2. 优化 toggleItem 回调
+const toggleItem = useCallback((id) => {
+  setItems(prevItems => prevItems.map(item =>
+    item.id === id
+      ? { ...item, selected: !item.selected }
+      : item
+  ));
+}, []);
+
+// 3. 优化过滤
+const filteredItems = useMemo(() =>
+  items.filter(item =>
+    item.name.toLowerCase().includes(filter.toLowerCase())
+  ),
+  [items, filter]
+);
+
+// 4. 完整优化版本
+function App() {
+  const [items, setItems] = useState([
+    { id: 1, name: 'Item 1', selected: false },
+    { id: 2, name: 'Item 2', selected: false },
+  ]);
+
+  const [filter, setFilter] = useState('');
+
+  const toggleItem = useCallback((id) => {
+    setItems(prev => prev.map(item =>
+      item.id === id
+        ? { ...item, selected: !item.selected }
+        : item
+    ));
+  }, []);
+
+  const filteredItems = useMemo(() =>
+    items.filter(item =>
+      item.name.toLowerCase().includes(filter.toLowerCase())
+    ),
+    [items, filter]
+  );
+
+  return (
+    <>
+      <input value={filter} onChange={e => setFilter(e.target.value)} />
+      {filteredItems.map(item => (
+        <MemoizedItem
+          key={item.id}
+          item={item}
+          onToggle={toggleItem}
+        />
+      ))}
+    </>
+  );
+}
+
+// 更好的 Item 组件设计
+const MemoizedItem = React.memo(function MemoizedItem({
+  item,
+  onToggle
+}: {
+  item: { id: number; name: string; selected: boolean };
+  onToggle: (id: number) => void;
+}) {
+  return (
+    <div onClick={() => onToggle(item.id)} style={{ opacity: item.selected ? 1 : 0.5 }}>
+      {item.name} {item.selected ? '✓' : ''}
+    </div>
+  );
+});
+```
+
+</details>
+
+---
+
+# 附录：Top 20% 进阶知识清单
+
+## React 18+ 新特性（必考）
+
+- [x] Automatic Batching（自动批处理）
+- [x] useTransition（过渡）
+- [x] useDeferredValue（延迟值）
+- [x] Suspense（Suspense 边界和嵌套）
+- [x] 并发渲染机制
+
+## 性能优化（高频）
+
+- [x] React.memo 的正确使用
+- [x] useMemo 的适用场景
+- [x] useCallback 的适用场景
+- [x] 虚拟化长列表
+- [x] 代码分割和懒加载
+
+## 内部原理（区分度）
+
+- [x] Fiber 架构
+- [x] Virtual DOM 和 Diff 算法
+- [x] Render 阶段 vs Commit 阶段
+- [x] key 的深度理解
+- [x] 合成事件系统
+
+## TypeScript 高级（加分项）
+
+- [x] 泛型组件
+- [x] 类型推断和类型收窄
+- [x] Polymorphic Components
+- [x] 高阶类型（infer、映射类型）
+
+## 架构模式（加分项）
+
+- [x] 容器/展示组件
+- [x] 组合模式
+- [x] HOC 模式
+- [x] Render Props
+
+## 考试策略
+
+1. **快速得分题**（确保不丢分）：
+   - Hooks 规则
+   - 依赖数组基础
+   - JSX 语法规则
+   - Props 单向数据流
+
+2. **区分度题**（拉开差距）：
+   - 并发特性
+   - 闭包陷阱
+   - 性能优化场景判断
+   - 内部原理
+
+3. **时间分配**：
+   - 简单题：30秒内完成
+   - 中等题：1-2分钟
+   - 难题：3-5分钟
+   - 标记不确定的，最后回看
+
+---
+
+**祝你考试成功！记住：理解原理比死记硬背更重要。**
