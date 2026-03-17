@@ -1,8 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { useStore } from "@/store/useStore";
 import { useMonthCache } from "@/hooks/use-dayjs";
-import dayjs from "@/lib/dayjs";
+import {
+  aggregateByCategory,
+  calculatePeriodStats,
+} from "@/lib/transaction-filters";
 import type { Transaction } from "@/schemas/transaction";
+import dayjs from "@/lib/dayjs";
 
 /**
  * Query key factory for statistics
@@ -15,58 +19,6 @@ export const statisticQueryKeys = {
   categoryRanking: (year: string, month: string) =>
     [...statisticQueryKeys.all, "category-ranking", year, month] as const,
 };
-
-/**
- * Filter and aggregate transactions by category
- */
-function aggregateByCategory(
-  transactions: Transaction[],
-  categories: { id: string; name: string }[],
-  startDate: dayjs.Dayjs,
-  endDate: dayjs.Dayjs
-) {
-  // Filter transactions by date and type
-  const filteredTransactions = transactions.filter((tx) => {
-    const txDate = dayjs(tx.date);
-    return (
-      tx.type === "expense" &&
-      txDate.isSameOrAfter(startDate) &&
-      txDate.isSameOrBefore(endDate)
-    );
-  });
-
-  // Calculate stats for each category
-  const categoryStats = categories
-    .map((category) => {
-      const categoryTransactions = filteredTransactions.filter(
-        (tx) => tx.categoryId === category.id
-      );
-
-      const amount = categoryTransactions.reduce(
-        (sum, tx) => sum + tx.amount,
-        0
-      );
-
-      return {
-        categoryId: category.id,
-        categoryName: category.name,
-        amount,
-        count: categoryTransactions.length,
-      };
-    })
-    .filter((item) => item.amount > 0);
-
-  // Calculate totals
-  const totalAmount = categoryStats.reduce((sum, item) => sum + item.amount, 0);
-  const totalCount = categoryStats.reduce((sum, item) => sum + item.count, 0);
-
-  // Add percentages
-  return categoryStats.map((item) => ({
-    ...item,
-    amountPercentage: totalAmount > 0 ? (item.amount / totalAmount) * 100 : 0,
-    countPercentage: totalCount > 0 ? (item.count / totalCount) * 100 : 0,
-  }));
-}
 
 /**
  * Hook to get category ranking for a specific month
@@ -82,39 +34,6 @@ export function useCategoryRanking(year: string, month: string) {
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000,
   });
-}
-
-/**
- * Helper to calculate period statistics (income vs expense)
- */
-function calculatePeriodStats(
-  transactions: Transaction[],
-  periodStart: dayjs.Dayjs,
-  periodEnd: dayjs.Dayjs
-) {
-  const income = transactions
-    .filter((tx) => {
-      const txDate = dayjs(tx.date);
-      return (
-        tx.type === "income" &&
-        txDate.isSameOrAfter(periodStart) &&
-        txDate.isSameOrBefore(periodEnd)
-      );
-    })
-    .reduce((sum, tx) => sum + tx.amount, 0);
-
-  const expense = transactions
-    .filter((tx) => {
-      const txDate = dayjs(tx.date);
-      return (
-        tx.type === "expense" &&
-        txDate.isSameOrAfter(periodStart) &&
-        txDate.isSameOrBefore(periodEnd)
-      );
-    })
-    .reduce((sum, tx) => sum + tx.amount, 0);
-
-  return { income, expense };
 }
 
 /**

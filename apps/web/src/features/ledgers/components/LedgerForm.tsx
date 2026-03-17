@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { CreateLedgerSchema, type Ledger, type LedgerInput } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useDecimalInputLimit } from "@/hooks/useDecimalInputLimit";
+import { useDecimalInputLimit } from "@/hooks/use-decimal-input-limit";
 
 interface LedgerFormProps {
   initialData?: Ledger;

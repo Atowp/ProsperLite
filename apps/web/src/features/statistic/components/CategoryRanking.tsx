@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useCategoryRanking } from "@/hooks/use-statistic-stats";
+import { useCategoryRanking } from "@/features/statistic/hooks/use-statistic-stats";
 import { cn } from "@/lib/ui";
 import { useMemo, useState } from "react";
 

@@ -2,14 +2,13 @@ import { useStore } from "@/store/useStore";
 import { Card } from "@ui/card";
 import { useDayjsCache } from "@/hooks/use-dayjs";
 import { useQuery } from "@tanstack/react-query";
+import { filterTransactionsByPeriod } from "@/lib/transaction-filters";
 import TrendUpIcon from "~icons/lucide/trending-up";
 import TrendDownIcon from "~icons/lucide/trending-down";
 import WalletIcon from "~icons/lucide/wallet";
 import ArrowUpIcon from "~icons/lucide/arrow-up";
 import ArrowDownIcon from "~icons/lucide/arrow-down";
 import { cn } from "@/lib/ui";
-import type { Transaction } from "@/schemas/transaction";
-import dayjs from "@/lib/dayjs";
 
 // Constants
 const CURRENCY_LOCALE = "zh-Hans-CN" as const;
@@ -32,25 +31,6 @@ function formatCurrency(amount: number): string {
 // Helper function to calculate trend percentage
 function calculateTrend(current: number, previous: number): number {
   return previous > 0 ? ((current - previous) / previous) * 100 : 0;
-}
-
-// Helper function to filter transactions by type and date range
-function filterTransactionsByTypeAndPeriod(
-  transactions: Transaction[],
-  type: "income" | "expense",
-  startDate: dayjs.Dayjs,
-  endDate: dayjs.Dayjs
-): number {
-  return transactions
-    .filter((tx) => {
-      const txDate = dayjs(tx.date);
-      return (
-        tx.type === type &&
-        txDate.isSameOrAfter(startDate) &&
-        txDate.isSameOrBefore(endDate)
-      );
-    })
-    .reduce((sum, tx) => sum + tx.amount, 0);
 }
 
 interface StatCardProps {
@@ -131,14 +111,14 @@ export function StatCards() {
     queryKey: [...statCardsQueryKeys.current(), transactions],
     queryFn: () => {
       // Current month income and expenses
-      const currentMonthIncome = filterTransactionsByTypeAndPeriod(
+      const currentMonthIncome = filterTransactionsByPeriod(
         transactions,
         "income",
         currentMonthStart,
         currentMonthEnd
       );
 
-      const currentMonthExpense = filterTransactionsByTypeAndPeriod(
+      const currentMonthExpense = filterTransactionsByPeriod(
         transactions,
         "expense",
         currentMonthStart,
@@ -146,14 +126,14 @@ export function StatCards() {
       );
 
       // Last month income and expenses
-      const lastMonthIncome = filterTransactionsByTypeAndPeriod(
+      const lastMonthIncome = filterTransactionsByPeriod(
         transactions,
         "income",
         lastMonthStart,
         lastMonthEnd
       );
 
-      const lastMonthExpense = filterTransactionsByTypeAndPeriod(
+      const lastMonthExpense = filterTransactionsByPeriod(
         transactions,
         "expense",
         lastMonthStart,

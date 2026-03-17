@@ -1,6 +1,6 @@
 import { Card } from "@ui/card";
 import { PieChart, Pie, ResponsiveContainer } from "recharts";
-import { useMonthlyProgress } from "@/hooks/use-dashboard-stats";
+import { useMonthlyProgress } from "@/features/dashboard/hooks/use-dashboard-stats";
 import { Skeleton } from "@ui/skeleton";
 import { useStore } from "@/store/useStore";
 

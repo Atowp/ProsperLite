@@ -7,7 +7,7 @@ import {
   CategoryExpensePieChart,
   PeriodExpenseBarChart,
 } from "@/features/dashboard";
-import { useDashboardStats } from "@/hooks/use-dashboard-stats";
+import { useDashboardStats } from "@/features/dashboard/hooks/use-dashboard-stats";
 import { Skeleton } from "@ui/skeleton";
 import dayjs from "@/lib/dayjs";
 import { cn } from "@/lib/ui";
@@ -53,7 +53,10 @@ function Dashboard() {
               ) : (
                 <ArrowDownRightIcon className="w-3 h-3" />
               )}
-              {stats && stats.yesterdayExpenses > 0 ? stats.percentChange.toFixed(1) : "0.0"}%
+              {stats && stats.yesterdayExpenses > 0
+                ? stats.percentChange.toFixed(1)
+                : "0.0"}
+              %
             </span>
             <span className="text-slate-400 text-xs">
               vs yesterday ¥{stats?.yesterdayExpenses.toFixed(2) || "0.00"}

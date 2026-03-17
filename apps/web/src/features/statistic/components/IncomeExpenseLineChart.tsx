@@ -11,7 +11,7 @@ import {
 } from "recharts";
 import { useState } from "react";
 import { cn } from "@/lib/ui";
-import { useIncomeExpenseTrend } from "@/hooks/use-statistic-stats";
+import { useIncomeExpenseTrend } from "@/features/statistic/hooks/use-statistic-stats";
 
 type PeriodType = "week" | "month" | "year";
 
@@ -83,7 +83,11 @@ export function IncomeExpenseLineChart({ className }: { className?: string }) {
                       : "bg-muted text-muted-foreground hover:bg-muted/80"
                   )}
                 >
-                  {p === "week" ? "This Week" : p === "month" ? "This Month" : "This Year"}
+                  {p === "week"
+                    ? "This Week"
+                    : p === "month"
+                      ? "This Month"
+                      : "This Year"}
                 </button>
               ))}
             </div>

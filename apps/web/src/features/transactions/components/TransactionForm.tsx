@@ -44,7 +44,7 @@ import {
 } from "@/components/ui/select";
 import { useStore } from "@/store/useStore";
 import { useRecentTransaction } from "../hooks/useRecentTransaction";
-import { useDecimalInputLimit } from "@/hooks/useDecimalInputLimit";
+import { useDecimalInputLimit } from "@/hooks/use-decimal-input-limit";
 import {
   CreateTransactionSchema,
   type TransactionInput,

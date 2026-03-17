@@ -1,9 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { useStore } from "@/store/useStore";
 import { useDayjsCache } from "@/hooks/use-dayjs";
-import dayjs from "@/lib/dayjs";
-import type { Transaction } from "@/schemas/transaction";
+import {
+  filterTransactionsByPeriod,
+  filterTransactionsByDateRange,
+} from "@/lib/transaction-filters";
 import { useMemo } from "react";
+import dayjs from "@/lib/dayjs";
 
 /**
  * Query key factory for dashboard statistics
@@ -12,35 +15,15 @@ export const dashboardQueryKeys = {
   all: ["dashboard"] as const,
   stats: () => [...dashboardQueryKeys.all, "stats"] as const,
   today: () => [...dashboardQueryKeys.all, "today"] as const,
-  monthlyProgress: () => [...dashboardQueryKeys.all, "monthly-progress"] as const,
+  monthlyProgress: () =>
+    [...dashboardQueryKeys.all, "monthly-progress"] as const,
 };
-
-/**
- * Filter transactions by type and date range (optimized helper)
- */
-function filterTransactionsByPeriod(
-  transactions: Transaction[],
-  type: "income" | "expense",
-  startDate: dayjs.Dayjs,
-  endDate: dayjs.Dayjs
-): number {
-  return transactions
-    .filter((tx) => {
-      const txDate = dayjs(tx.date);
-      return (
-        tx.type === type &&
-        txDate.isSameOrAfter(startDate) &&
-        txDate.isSameOrBefore(endDate)
-      );
-    })
-    .reduce((sum, tx) => sum + tx.amount, 0);
-}
 
 /**
  * Hook to calculate and cache dashboard statistics
  */
 export function useDashboardStats() {
-  const { transactions, initialBalance } = useStore();
+  const { transactions } = useStore();
   const { todayStart, todayEnd, yesterdayStart, yesterdayEnd } =
     useDayjsCache();
 
@@ -127,12 +110,11 @@ export function useFilteredTransactions(
   const { transactions } = useStore();
 
   return useMemo(() => {
-    return transactions.filter((tx) => {
-      const txDate = dayjs(tx.date);
-      const matchesDate =
-        txDate.isSameOrAfter(startDate) && txDate.isSameOrBefore(endDate);
-      const matchesType = type ? tx.type === type : true;
-      return matchesDate && matchesType;
-    });
+    return filterTransactionsByDateRange(
+      transactions,
+      startDate,
+      endDate,
+      type
+    );
   }, [transactions, startDate, endDate, type]);
 }
